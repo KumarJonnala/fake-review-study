@@ -31,6 +31,7 @@ import json
 import random
 import re
 import sys
+import unicodedata
 from collections import Counter
 from pathlib import Path
 
@@ -39,7 +40,9 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import config as cfg
-from generate_synthetic_reviews import ALL_CELLS, ExamplePool, build_messages, length_band
+from generate_synthetic_reviews import (
+    ALL_CELLS, ExamplePool, build_messages, length_band, non_latin_chars,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -328,23 +331,44 @@ def report_perfect_separators(gen, hum):
     real = hum[hum.Binary_label == cfg.REAL_LABEL].text.astype(str)
     fake = hum[hum.Binary_label == cfg.FAKE_LABEL].text.astype(str)
 
-    chars = {c for t in llm for c in t if not c.isalnum() and not c.isspace()}
+    # Scan ALL characters, not just punctuation. An earlier version skipped anything
+    # isalnum(), which silently excluded CJK -- and qwen2.5 code-switches, so the one
+    # Chinese review in a 160-row run went unflagged.
+    chars = {c for t in llm for c in t if not c.isspace()}
     flagged = []
     for c in sorted(chars):
         lr = llm.str.contains(re.escape(c)).mean()
         rr = real.str.contains(re.escape(c)).mean()
         fr = fake.str.contains(re.escape(c)).mean()
-        if lr > 0.01 and rr < 0.001 and fr < 0.001:
+        # Zero tolerance, not a rate threshold: a >1% floor let the single Chinese
+        # review (0.6%) through. If a character never appears in 1592 human reviews,
+        # one occurrence in the LLM class is already a free label for a classifier.
+        if lr > 0 and rr == 0 and fr == 0:
             flagged.append((c, lr, rr, fr))
 
     if not flagged:
         print("  PASS: no character separates the LLM class outright.")
     else:
-        print("  FAIL: these characters are near-perfect giveaways --")
+        print("  FAIL: these characters appear in the LLM class and NEVER in either")
+        print("        human class -- each is a free label for a classifier.")
         for c, lr, rr, fr in flagged:
-            print(f"    {c!r} (U+{ord(c):04X})  LLM {100 * lr:5.1f}%   "
-                  f"real {100 * rr:.2f}%   human-fake {100 * fr:.2f}%")
+            name = unicodedata.name(c, "?")
+            print(f"    {c!r} (U+{ord(c):04X} {name[:28]:28s})  LLM {100 * lr:5.1f}%"
+                  f"  n={int(llm.str.contains(re.escape(c)).sum())}")
     return flagged
+
+
+def report_language(gen):
+    section("9. LANGUAGE PURITY")
+    stray = gen.text.map(lambda t: "".join(sorted(non_latin_chars(t))))
+    bad = gen[stray != ""]
+    print(f"  reviews with non-Latin script: {len(bad)} / {len(gen)}")
+    if len(bad):
+        print("  ! these rows must be regenerated or dropped before training:")
+        for i, r in bad.iterrows():
+            print(f"    row {i}  {r.cell_id}  rep={r.rep_index}")
+            print(f"      {str(r.text)[:150]}")
+    return len(bad)
 
 
 def report_hygiene(gen):
@@ -394,11 +418,12 @@ def main(argv=None):
     report_stylometry(gen, hum)
     flagged = report_perfect_separators(gen, hum)
     report_hygiene(gen)
+    n_bad_lang = report_language(gen)
 
     print()
     # Non-zero exit on a perfect separator: this is the failure mode that silently
     # invalidates the whole dataset, so it should break a pipeline, not just print.
-    return 1 if flagged else 0
+    return 1 if (flagged or n_bad_lang) else 0
 
 
 if __name__ == "__main__":

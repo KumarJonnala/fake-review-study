@@ -53,6 +53,7 @@ import random
 import re
 import sys
 import time
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -216,8 +217,29 @@ _PREAMBLE_RE = re.compile(
 )
 
 
-def clean_response(text: str) -> str:
+def normalize_ascii(text: str) -> str:
+    """Fold typographic Unicode to the ASCII the human corpus uses.
+
+    The corpus is 100% ASCII across 1592 reviews; qwen2.5:32b put a non-ASCII character
+    in 46.9% of a 160-review run, which alone separates the classes at 100% precision.
+    That is an encoding asymmetry between the two halves of the dataset, not a style
+    difference, so it is corrected here rather than left for a classifier to exploit.
+
+    Explicit map first (so em dash becomes "--" rather than being stripped), then NFKD to
+    reduce accented Latin to its base letter. Characters with no ASCII equivalent -- CJK
+    above all -- are left in place and rejected by `non_latin_chars` in generate_one, since
+    silently deleting them would leave a mangled half-sentence in the dataset.
+    """
+    for src, dst in cfg.ASCII_NORMALIZATION.items():
+        text = text.replace(src, dst)
+    decomposed = unicodedata.normalize("NFKD", text)
+    return "".join(c for c in decomposed if not unicodedata.combining(c))
+
+
+def clean_response(text: str, normalize: bool = None) -> str:
     text = _THOUGHT_RE.sub("", text or "")
+    if cfg.DEFAULT_NORMALIZE_ASCII if normalize is None else normalize:
+        text = normalize_ascii(text)
     text = text.strip()
 
     # Strip a leading "Sure, here's a review:" style preamble (possibly on its own line).
@@ -267,6 +289,26 @@ def trim_to_sentence(text: str, max_chars: int) -> str:
     return text[: cut + 1].strip()
 
 
+def non_latin_chars(text: str) -> set:
+    """Letters outside Latin (incl. Latin-1/Extended), plus CJK punctuation.
+
+    qwen2.5 is Chinese-developed and code-switches: a 160-review run produced
+    "the staff, especially前台的简，非常乐于助人。" mid-sentence. The human corpus is
+    100% Latin script, so a single CJK character is a perfect label giveaway -- and
+    it is also just broken data. Treated as a degenerate output and retried, the same
+    way output-too-short is, rather than being written to the CSV.
+
+    Accented Latin ("café", "Zürich") is legitimate in English hotel reviews and passes.
+    """
+    stray = set()
+    for c in str(text):
+        if c.isalpha() and ord(c) > 0x024F:      # beyond Latin Extended-B
+            stray.add(c)
+        elif c in "，。、！？；：（）「」『』【】":  # full-width CJK punctuation
+            stray.add(c)
+    return stray
+
+
 def generate_one(url, model, messages, temperature, num_predict, target_chars,
                  tolerance, length_attempts, trim_overlong):
     """Generate one review, preferring output inside the target length band.
@@ -288,6 +330,13 @@ def generate_one(url, model, messages, temperature, num_predict, target_chars,
                 text = clean_response(raw)
                 if len(text.split()) < cfg.MIN_ACCEPTABLE_WORDS:
                     last_error = f"output too short ({len(text.split())} words)"
+                    tqdm.write(f"  [WARN] attempt {attempt}: {last_error}, retrying")
+                    time.sleep(cfg.RETRY_SLEEP)
+                    continue
+
+                stray = non_latin_chars(text)
+                if stray:
+                    last_error = f"non-English output ({''.join(sorted(stray))[:20]})"
                     tqdm.write(f"  [WARN] attempt {attempt}: {last_error}, retrying")
                     time.sleep(cfg.RETRY_SLEEP)
                     continue
@@ -466,6 +515,19 @@ def main(argv=None):
 
             # Seed per cell so a resumed or filtered run reproduces the same choices.
             rng = random.Random(f"{args.seed}:{cell_id}")
+
+            # Burn the RNG draws belonging to rows already written. Without this a
+            # resumed run gives rep `already` the draws that belong to rep 0, so its
+            # prompts differ from an uninterrupted run and validate_generated.py's
+            # replay (which walks rep 0..n) no longer matches what was sent.
+            for skipped in range(already):
+                ordinal = combo_ordinal[(length, sentiment, structure, example_mode)] \
+                    * args.n_per_cell + skipped
+                build_messages(
+                    length, sentiment, structure, example_mode,
+                    pool.hotels[ordinal % len(pool.hotels)], pool, targets, rng,
+                    args.length_tolerance,
+                )
 
             todo = range(already, args.n_per_cell)
             desc = f"{cell_id:<45}"

@@ -39,8 +39,10 @@ OLLAMA_CHAT_PATH = "/api/chat"            # /api/chat, not /api/generate: few-sh
                                           # needs a real message list
 DEFAULT_TEMPERATURE = 1.0                 # high, for lexical diversity across samples
 DEFAULT_SEED = 12                         # seeds hotel rotation + example sampling
-DEFAULT_N_PER_CELL = 3                    # x16 cells = 48 reviews (sample size).
-                                          # Raise to 10 for a full 160-review run.
+DEFAULT_N_PER_CELL = 10                   # x16 cells = 160 reviews.
+                                          # Matches N_PER_CELL in slurm_synthetic_data.sh:
+                                          # keep the two in step, or a local run and a
+                                          # cluster run silently produce different volumes.
 
 # ---------------------------------------------------------------------------
 # Factorial axes  —  2 x 2 x 2 x 2 = 16 cells
@@ -233,6 +235,56 @@ PROMPT_FEWSHOT = (
 )
 
 PROMPT_ZEROSHOT = "Write the review now."
+
+# ---------------------------------------------------------------------------
+# ASCII normalisation
+# ---------------------------------------------------------------------------
+# The human corpus contains ZERO non-ASCII characters across all 1592 reviews -- it was
+# ASCII-normalised when it was built. qwen2.5:32b emits ordinary typographic Unicode, so
+# 46.9% of a 160-review run carried at least one non-ASCII character. That makes
+# `any(ord(c) > 127)` a classifier with 47% recall at 100% precision, before any model is
+# trained.
+#
+# This is a PREPROCESSING ASYMMETRY, not an LLM style tell: it exists because the two
+# halves of the dataset were encoded differently. Applying the corpus's own normalisation
+# to the generated text makes the comparison valid. It is not the same as laundering
+# stylistic tells -- semicolons (48.1% vs 6.6%), sentence length, and word choice are all
+# left untouched, because those are real signal.
+#
+# Targets are chosen to land in character classes the corpus actually uses:
+#   em dash -> "--"  (corpus uses "--" in 5.7% of reviews)
+#   en dash -> "-"   (corpus 40.5%)
+#   curly apostrophe -> "'" (corpus 63.3%)
+#   double quote -> "'"  the corpus has NO double quotes of any kind, so converting to a
+#                        single quote keeps the quoting function in a class it does use
+# Accented Latin (cafe/Zurich) is stripped to its base letter via NFKD.
+# CJK cannot be normalised and is rejected outright at generation time instead.
+
+ASCII_NORMALIZATION = {
+    "—": "--",   # em dash
+    "–": "-",    # en dash
+    "‒": "-",    # figure dash
+    "―": "--",   # horizontal bar
+    "‘": "'",    # left single quote
+    "’": "'",    # right single quote / typographic apostrophe
+    "‚": "'",
+    "“": "'",    # left double quote  -> single: corpus has no double quotes
+    "”": "'",    # right double quote
+    "„": "'",
+    '"': "'",    # straight double quote, likewise absent from the corpus
+    "…": "...",  # ellipsis (corpus uses "..." in 11.2%)
+    " ": " ",    # non-breaking space
+    " ": " ",
+    " ": " ",
+    "′": "'",
+    "″": "'",
+    "´": "'",
+    "`": "'",
+}
+
+# Turn off to keep raw model output and normalise downstream in the classifier pipeline
+# instead. Off means the generated CSV will not be encoding-comparable to the corpus.
+DEFAULT_NORMALIZE_ASCII = True
 
 # ---------------------------------------------------------------------------
 # Retry / validation
