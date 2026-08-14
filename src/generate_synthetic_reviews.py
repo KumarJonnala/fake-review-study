@@ -144,6 +144,12 @@ def length_band(target_chars: int, tolerance: float):
 
 
 def build_system_prompt(length, sentiment, structure, hotel, targets, rng, tolerance):
+    """Returns (system_prompt, opener_move).
+
+    The opener move is returned so it can be written to the CSV as a factor column:
+    the analysis needs to know how each review was told to open, and the validator
+    replays this same function to recover it.
+    """
     target = targets[length]
     w_min, w_max = target["words"]
 
@@ -166,15 +172,21 @@ def build_system_prompt(length, sentiment, structure, hotel, targets, rng, toler
     else:
         parts.append(cfg.PROMPT_UNSTRUCTURED)
 
+    # Drawn after the structure clause so the RNG sequence stays deterministic per cell.
+    moves, weights = zip(*cfg.OPENER_MOVES)
+    opener_move = rng.choices(moves, weights=weights, k=1)[0]
+    parts.append(cfg.PROMPT_OPENER.format(move=opener_move))
+
     parts.append(cfg.PROMPT_DIVERSITY)
     parts.append(cfg.PROMPT_OUTPUT_RULE)
 
-    return "\n".join(parts)
+    return "\n".join(parts), opener_move
 
 
 def build_messages(length, sentiment, structure, example_mode, hotel, pool, targets, rng,
                    tolerance):
-    system_prompt = build_system_prompt(
+    """Returns (messages, opener_move)."""
+    system_prompt, opener_move = build_system_prompt(
         length, sentiment, structure, hotel, targets, rng, tolerance
     )
     messages = [{"role": "system", "content": system_prompt}]
@@ -190,7 +202,7 @@ def build_messages(length, sentiment, structure, example_mode, hotel, pool, targ
         content = cfg.PROMPT_ZEROSHOT
 
     messages.append({"role": "user", "content": content})
-    return messages
+    return messages, opener_move
 
 
 # ---------------------------------------------------------------------------
@@ -465,7 +477,7 @@ def main(argv=None):
                 ordinal = combo_ordinal[(length, sentiment, structure, example_mode)] \
                     * args.n_per_cell + rep
                 hotel = pool.hotels[ordinal % len(pool.hotels)]
-                messages = build_messages(
+                messages, opener_move = build_messages(
                     length, sentiment, structure, example_mode, hotel, pool, targets, rng,
                     args.length_tolerance,
                 )
@@ -524,6 +536,7 @@ def main(argv=None):
                         "sentiment": sentiment,
                         "structure": structure,
                         "example_mode": example_mode,
+                        "opener_move": opener_move,
                         "cell_id": cell_id,
                         "rep_index": rep,
                         "n_chars": len(text),

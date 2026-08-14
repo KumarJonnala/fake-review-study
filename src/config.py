@@ -121,6 +121,21 @@ REQUIRED_EXAMPLE_COLUMNS = {"Binary_label", "Category", "text", "source"}
 # ---------------------------------------------------------------------------
 # Prompt content
 # ---------------------------------------------------------------------------
+# PUNCTUATION RULE: no em-dashes, en-dashes, or DOUBLE QUOTES inside any PROMPT_* string.
+# The model mirrors the punctuation register of its own instructions. An earlier version
+# of this file used em-dashes freely, and the llama3.2 output came back with en-dashes in
+# 14.6% of reviews against 0.0% in BOTH human classes (n=1592) -- a perfect label giveaway
+# caused entirely by the prompt file. Spaced hyphens ran 64.6% vs 18.3% in real reviews
+# for the same reason.
+#
+# Double quotes are the same trap: the human corpus contains ZERO double quotes of any
+# kind (straight or curly) across all 1592 reviews, so any generated review using one is
+# instantly identifiable. PROMPT_OPENING used to wrap the hotel name in them.
+#
+# Numeric ranges (1-2 sentences, {w_min}-{w_max}) and single quotes are fine; apostrophes
+# appear in ~65% of human reviews. Comments and docstrings are never sent to the model
+# and are exempt. src/validate_generated.py section 7 scans for the next one of these
+# generically, so it gets caught without anyone knowing to look for it.
 
 SENTIMENT_BRIEFS = {
     "positive": "an overall positive, satisfied experience",
@@ -141,19 +156,19 @@ ASPECTS = [
 # How many aspects to name per structured review (sampled from ASPECTS).
 ASPECTS_PER_REVIEW = 4
 
-PROMPT_OPENING = 'Write ONE realistic hotel guest review for a hotel called "{hotel}".'
+PROMPT_OPENING = "Write ONE realistic hotel guest review for the hotel {hotel}."
 
 PROMPT_SENTIMENT = "Sentiment: {brief}."
 
 PROMPT_LENGTH_SHORT = (
-    "Length: 1-2 sentences — about {chars} characters ({w_min}-{w_max} words). "
+    "Length: 1-2 sentences, about {chars} characters ({w_min}-{w_max} words). "
     "Keep it brief. Hard limits: no fewer than {lo} and no more than {hi} characters. "
     "Stop once you have made your point."
 )
 
 PROMPT_LENGTH_LONG = (
-    "Length: a detailed review of about {chars} characters ({w_min}-{w_max} words) — "
-    "a full, substantial review, not a summary. Hard limits: no fewer than {lo} and "
+    "Length: a detailed review of about {chars} characters ({w_min}-{w_max} words). "
+    "Write a full, substantial review, not a summary. Hard limits: no fewer than {lo} and "
     "no more than {hi} characters. Do not pad beyond that."
 )
 
@@ -164,8 +179,31 @@ PROMPT_STRUCTURED = (
 
 PROMPT_UNSTRUCTURED = (
     "Write it as a free-flowing, natural review. Do not work through a checklist of "
-    "aspects — let it read the way a real guest rambles about whatever stood out to them."
+    "aspects. Let it read the way a real guest rambles about whatever stood out to them."
 )
+
+# Opening move, sampled per review with the cell RNG so the choice is reproducible and
+# replayable by the validator. A generic "vary your openings" line does not work: it is
+# what PROMPT_DIVERSITY already does for sentence structure, and the llama3.2 sample still
+# collapsed to 6 distinct openers across 48 reviews (a real-corpus sample of the same size
+# averages 20.6), with the long cells opening "I" 100% of the time.
+#
+# Weights approximate the real corpus's own opener distribution (n=796, 132 distinct
+# openers): I 21%, We 16%, My 9%, The 8%, This 7%, plus a 28% long tail. Deliberately a
+# CATEGORY of opening rather than a mandated first word -- mandating exact openers would
+# over-constrain the prose and would be imposing a prior about what LLM text looks like,
+# rather than removing an artifact this prompt file created.
+OPENER_MOVES = [
+    ("first person singular, starting with the word I", 3),
+    ("first person plural, starting with the word We or Our", 3),
+    ("the room or the hotel itself as the subject", 2),
+    ("a time or occasion, such as a month, a season, or a trip event", 2),
+    ("the reason for the trip", 1),
+    ("a verdict stated up front", 1),
+    ("a specific detail or small incident", 1),
+]
+
+PROMPT_OPENER = "Open the review with {move}."
 
 # Anti-templating nudge, applied to every cell.
 PROMPT_DIVERSITY = (
@@ -187,9 +225,9 @@ PROMPT_OUTPUT_RULE = (
 # must be told to follow the instructions rather than the example's tone.
 PROMPT_FEWSHOT = (
     "Here are two existing reviews of the same kind of hotel.\n\n"
-    "Example A — a genuine review written by a real hotel guest:\n{real_example}\n\n"
-    "Example B — a review written by a paid writer imitating a guest:\n{fake_example}\n\n"
-    "These show two different registers. Write a NEW review — do not copy phrasing "
+    "Example A, a genuine review written by a real hotel guest:\n{real_example}\n\n"
+    "Example B, a review written by a paid writer imitating a guest:\n{fake_example}\n\n"
+    "These show two different registers. Write a NEW review. Do not copy phrasing "
     "from either. Follow the sentiment and length in your instructions, not the "
     "sentiment or length of the examples."
 )
@@ -227,6 +265,7 @@ CSV_COLUMNS = [
     "sentiment",
     "structure",
     "example_mode",
+    "opener_move",
     "cell_id",
     "rep_index",
     "n_chars",

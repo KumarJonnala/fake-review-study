@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name=fake_review_llm
-#SBATCH --partition=gpu-stud
+#SBATCH --partition=gpu
 #SBATCH --nodelist=ant2
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-gpu=8
-#SBATCH --mem=32G
+#SBATCH --mem=16G
 #SBATCH --time=08:00:00
 #SBATCH --output=logs/job_%j.out
 #SBATCH --error=logs/job_%j.err
@@ -19,7 +19,7 @@ set -euo pipefail
 # -----------------------------
 REPO="${SLURM_SUBMIT_DIR:-$PWD}"
 OLLAMA_DIR="${OLLAMA_DIR:-$HOME/ollama}"          # model cache, persists across jobs
-OLLAMA_SIF="${OLLAMA_SIF:-$HOME/ollama_latest.sif}"
+OLLAMA_SIF="${OLLAMA_SIF:-$HOME/ollama.sif}"
 VENV="${VENV:-$HOME/.venvs/fake_reviews}"
 
 MODEL="${MODEL:-qwen2.5:32b}"
