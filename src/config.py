@@ -25,14 +25,15 @@ DEFAULT_EXAMPLES_CSV = DATA_DIR / "Hotel_Human_VS_HumanFake_relabelled.csv"
 
 # Model-tagged, so runs with different LLMs never mix in one file (and a later run
 # with a different model is not silently skipped by --resume).
-DEFAULT_OUTPUT = DATA_DIR / "generated" / "Hotel_LLM_Reviews_llama3.2.csv"
+DEFAULT_OUTPUT = DATA_DIR / "generated" / "Hotel_LLM_Reviews_qwen2.5_32b.csv"
 
 # ---------------------------------------------------------------------------
 # Model / API defaults  (CLI: --model, --host, --temperature, --seed)
 # ---------------------------------------------------------------------------
 
-DEFAULT_MODEL = "llama3.2:latest"         # the model actually pulled locally;
-                                          # qwen2.5:32b needs a ~20GB `ollama pull`
+DEFAULT_MODEL = "qwen2.5:32b"             # the study model, run on the cluster GPU.
+                                          # ~20GB pull, needs >=24GB VRAM to stay on-GPU.
+                                          # Locally, override: --model llama3.2:latest
 DEFAULT_HOST = "localhost:11434"          # overridden by the OLLAMA_HOST env var
 OLLAMA_CHAT_PATH = "/api/chat"            # /api/chat, not /api/generate: few-shot
                                           # needs a real message list
@@ -83,6 +84,8 @@ DEFAULT_LENGTH_ATTEMPTS = 2
 # against a 700 target, outside the real corpus IQR). Note this is a real edit to
 # the generated text — it can cut a review before its closing sentiment. Set to
 # False if you switch to a model that respects the length instruction on its own.
+# NOT yet re-measured on qwen2.5:32b — check the in-band rate on the first run and
+# turn this off if the model hits the target unaided, since trimming is lossy.
 DEFAULT_TRIM_OVERLONG = True
 
 # Token ceiling per review = upper_band_chars / this. English runs ~4 chars/token,
