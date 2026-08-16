@@ -1,0 +1,21 @@
+{
+  "best_validation_params": {
+    "learning_rate": 2e-05,
+    "batch_size": 8,
+    "num_train_epochs": 4,
+    "weight_decay": 0.0
+  },
+  "test_metrics": {
+    "eval_loss": 0.5304072499275208,
+    "eval_model_preparation_time": 0.002,
+    "eval_accuracy": 0.8708333333333333,
+    "eval_precision": 0.8449612403100775,
+    "eval_recall": 0.9083333333333333,
+    "eval_f1": 0.8755020080321285,
+    "eval_roc_auc": 0.9480208333333333,
+    "eval_pr_auc": 0.9568866137667257,
+    "eval_runtime": 0.251,
+    "eval_samples_per_second": 956.275,
+    "eval_steps_per_second": 119.534
+  }
+}
