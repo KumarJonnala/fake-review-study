@@ -1,0 +1,25 @@
+data:
+  path: data/reviews.csv
+  text_column: text
+  label_column: Binary_label
+  positive_label: fake
+
+split:
+  train_size: 0.70
+  validation_size: 0.15
+  test_size: 0.15
+  random_seed: 42
+  stratify: true
+
+experiment:
+  seeds: [42, 43, 44, 45, 46]
+  output_dir: results
+  save_models: true
+
+features:
+  lowercase: true
+  strip_accents: unicode
+  ngram_range: [1, 2]
+  min_df: 2
+  max_df: 0.95
+  max_features: 100000

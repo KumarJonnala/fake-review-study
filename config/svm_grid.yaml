@@ -1,0 +1,6 @@
+# SVM uses the same TF-IDF representation as XGBoost.
+hyperparameters:
+  C: [0.1, 1.0, 10.0]
+  kernel: [linear, rbf]
+  gamma: [scale, 0.01, 0.001]
+  class_weight: [null, balanced]

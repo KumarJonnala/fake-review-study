@@ -1,0 +1,18 @@
+model:
+  pretrained_name: bert-base-uncased
+  max_length: 256
+
+hyperparameters:
+  learning_rate: [2.0e-5, 3.0e-5, 5.0e-5]
+  batch_size: [8, 16]
+  num_train_epochs: [3, 4]
+  weight_decay: [0.0, 0.01]
+
+training:
+  warmup_ratio: 0.10
+  evaluation_strategy: epoch
+  save_strategy: epoch
+  load_best_model_at_end: true
+  metric_for_best_model: f1
+  greater_is_better: true
+  fp16: true

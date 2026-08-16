@@ -1,0 +1,29 @@
+{
+  "best_validation_params": {
+    "n_estimators": 800,
+    "max_depth": 3,
+    "learning_rate": 0.1,
+    "subsample": 1.0,
+    "colsample_bytree": 1.0,
+    "min_child_weight": 1,
+    "reg_lambda": 1
+  },
+  "test_metrics": {
+    "accuracy": 0.8333333333333334,
+    "precision": 0.8448275862068966,
+    "recall": 0.8166666666666667,
+    "f1": 0.8305084745762712,
+    "confusion_matrix": [
+      [
+        102,
+        18
+      ],
+      [
+        22,
+        98
+      ]
+    ],
+    "roc_auc": 0.9066666666666667,
+    "pr_auc": 0.9135077356547572
+  }
+}

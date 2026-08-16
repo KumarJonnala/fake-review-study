@@ -1,0 +1,26 @@
+{
+  "dataset": "reviews.csv",
+  "n_rows": 1592,
+  "class_counts": {
+    "real": 796,
+    "fake": 796
+  },
+  "missing_values": 0,
+  "duplicate_texts": 0,
+  "source_by_label": {
+    "MTurk": {
+      "fake": 796,
+      "real": 0
+    },
+    "TripAdvisor": {
+      "fake": 0,
+      "real": 400
+    },
+    "Web": {
+      "fake": 0,
+      "real": 396
+    }
+  },
+  "primary_feature_policy": "text_only",
+  "leakage_warning": "source is perfectly confounded with label; is_synthetic is constant; domain is constant"
+}
