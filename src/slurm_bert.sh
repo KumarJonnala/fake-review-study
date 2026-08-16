@@ -51,11 +51,20 @@ mkdir -p "$REPO/logs" "$RESULTS" "$HF_HOME"
 # -----------------------------
 # PYTHON ENV
 # -----------------------------
+# Normally built once by `sbatch src/slurm_setup_env.sh`. This is the fallback for a fresh
+# checkout, and it runs here on the compute node -- never install interactively, torch's
+# bundled CUDA wheels will OOM a shared login node and take code-server with them.
 if [ ! -d "$VENV" ]; then
-  echo "Creating venv at $VENV..."
+  echo "venv missing; building it in-job (see src/slurm_setup_env.sh to do this separately)"
+  SCRATCH="/tmp/pip_${SLURM_JOB_ID:-$$}"
+  export TMPDIR="$SCRATCH/tmp"
+  export PIP_CACHE_DIR="$SCRATCH/cache"
+  mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
   python3 -m venv "$VENV"
-  "$VENV/bin/pip" install --quiet --upgrade pip
-  "$VENV/bin/pip" install --quiet -r "$REPO/requirements.txt"
+  "$VENV/bin/pip" install --quiet --no-cache-dir --upgrade pip
+  "$VENV/bin/pip" install --quiet --no-cache-dir torch
+  "$VENV/bin/pip" install --quiet --no-cache-dir -r "$REPO/requirements.txt"
+  rm -rf "$SCRATCH"
 fi
 PYTHON="$VENV/bin/python"
 echo "Python: $($PYTHON --version) at $PYTHON"
