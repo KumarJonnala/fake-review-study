@@ -1,0 +1,337 @@
+"""
+Configuration for the synthetic hotel review generator.
+
+Everything tunable lives here: paths, the factorial axes, length targets, prompt
+wording, retry behaviour, and the CLI defaults. `generate_synthetic_reviews.py`
+holds only logic.
+
+Values here are DEFAULTS. Anything also exposed as a CLI flag can be overridden
+per-run without editing this file — edit here to change the standing configuration
+for the study, use flags for one-off experiments.
+"""
+
+from pathlib import Path
+
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
+# The corpus CSVs are READ-ONLY inputs. Output goes to its own file, and the
+# generator never writes to, appends to, or overwrites the source data.
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = REPO_ROOT / "data"
+
+DEFAULT_EXAMPLES_CSV = DATA_DIR / "Hotel_Human_VS_HumanFake_relabelled.csv"
+
+# Model-tagged, so runs with different LLMs never mix in one file (and a later run
+# with a different model is not silently skipped by --resume).
+DEFAULT_OUTPUT = DATA_DIR / "generated" / "Hotel_LLM_Reviews_qwen2.5_32b.csv"
+
+# ---------------------------------------------------------------------------
+# Model / API defaults  (CLI: --model, --host, --temperature, --seed)
+# ---------------------------------------------------------------------------
+
+DEFAULT_MODEL = "qwen2.5:32b"             # the study model, run on the cluster GPU.
+                                          # ~20GB pull, needs >=24GB VRAM to stay on-GPU.
+                                          # Locally, override: --model llama3.2:latest
+DEFAULT_HOST = "localhost:11434"          # overridden by the OLLAMA_HOST env var
+OLLAMA_CHAT_PATH = "/api/chat"            # /api/chat, not /api/generate: few-shot
+                                          # needs a real message list
+DEFAULT_TEMPERATURE = 1.0                 # high, for lexical diversity across samples
+DEFAULT_SEED = 12                         # seeds hotel rotation + example sampling
+DEFAULT_N_PER_CELL = 10                   # x16 cells = 160 reviews.
+                                          # Matches N_PER_CELL in slurm_synthetic_data.sh:
+                                          # keep the two in step, or a local run and a
+                                          # cluster run silently produce different volumes.
+
+# ---------------------------------------------------------------------------
+# Factorial axes  —  2 x 2 x 2 x 2 = 16 cells
+# ---------------------------------------------------------------------------
+
+LENGTHS = ["short", "long"]
+SENTIMENTS = ["positive", "negative"]
+STRUCTURES = ["structured", "unstructured"]
+EXAMPLE_MODES = ["few_shot", "zero_shot"]
+
+# ---------------------------------------------------------------------------
+# Length targets  (CLI: --short-chars, --long-chars, --{short,long}-words-{min,max})
+# ---------------------------------------------------------------------------
+# Fixed constants — NOT recomputed from the CSV at run time.
+#
+# The `long` values come from a one-time measurement of the real half of
+# data/Hotel_Human_VS_HumanFake_relabelled.csv (Binary_label == "real", n=796):
+#     median 700 chars / 125 words, IQR 487-988 chars
+# so `long` reviews land inside the real corpus's own length distribution.
+#
+# `short` is deliberately below the real minimum (151 chars / 25 words) to make it a
+# genuine contrast. Consequence for analysis: length alone separates short-cell
+# reviews from real ones — report per-cell, and consider a length-matched control.
+
+LENGTH_TARGETS = {
+    "short": {"chars": 200, "words": (20, 35)},
+    "long": {"chars": 700, "words": (110, 140)},
+}
+
+# Accepted deviation from the char target. 0.35 puts `long` at 455-945 chars,
+# inside the real corpus IQR of 487-988.
+DEFAULT_LENGTH_TOLERANCE = 0.35
+
+# Fresh samples to draw trying to land in the band; the closest is kept.
+# Small models are poor at length control: on a 48-review llama3.2 run, 39 of 48
+# needed the second sample. Raise to 3 if in-band rates stay low.
+DEFAULT_LENGTH_ATTEMPTS = 2
+
+# Trim still-overlong output back to a sentence boundary. ON, because llama3.2
+# overshoots the length target badly without it (long reviews averaged 1097 chars
+# against a 700 target, outside the real corpus IQR). Note this is a real edit to
+# the generated text — it can cut a review before its closing sentiment. Set to
+# False if you switch to a model that respects the length instruction on its own.
+# NOT yet re-measured on qwen2.5:32b — check the in-band rate on the first run and
+# turn this off if the model hits the target unaided, since trimming is lossy.
+DEFAULT_TRIM_OVERLONG = True
+
+# Token ceiling per review = upper_band_chars / this. English runs ~4 chars/token,
+# so /2 leaves ~2x headroom — the cap stops runaway output without truncating a
+# compliant review. A single global cap let short reviews run to 470+ chars.
+NUM_PREDICT_CHARS_PER_TOKEN = 2
+NUM_PREDICT_FLOOR = 80
+
+# ---------------------------------------------------------------------------
+# Few-shot example selection
+# ---------------------------------------------------------------------------
+# `source` encodes polarity for the REAL half of the corpus (Ott et al. structure,
+# confirmed by keyword rates: TripAdvisor 0.68 positive-word / 0.05 negative-word;
+# Web 0.17 / 0.45). The MTurk (fake) half is mixed polarity and CANNOT be
+# sentiment-matched — the original positive/negative split is absent from this CSV.
+
+REAL_SOURCE_BY_SENTIMENT = {"positive": "TripAdvisor", "negative": "Web"}
+FAKE_SOURCE = "MTurk"
+
+REAL_LABEL = "real"
+FAKE_LABEL = "fake"
+
+# Length band examples are drawn from, per condition. Short cells get the shortest
+# quartile; long cells get the interquartile middle.
+EXAMPLE_QUANTILES = {
+    "short": (0.0, 0.25),
+    "long": (0.25, 0.75),
+}
+
+# Columns the examples CSV must contain.
+REQUIRED_EXAMPLE_COLUMNS = {"Binary_label", "Category", "text", "source"}
+
+# ---------------------------------------------------------------------------
+# Prompt content
+# ---------------------------------------------------------------------------
+# PUNCTUATION RULE: no em-dashes, en-dashes, or DOUBLE QUOTES inside any PROMPT_* string.
+# The model mirrors the punctuation register of its own instructions. An earlier version
+# of this file used em-dashes freely, and the llama3.2 output came back with en-dashes in
+# 14.6% of reviews against 0.0% in BOTH human classes (n=1592) -- a perfect label giveaway
+# caused entirely by the prompt file. Spaced hyphens ran 64.6% vs 18.3% in real reviews
+# for the same reason.
+#
+# Double quotes are the same trap: the human corpus contains ZERO double quotes of any
+# kind (straight or curly) across all 1592 reviews, so any generated review using one is
+# instantly identifiable. PROMPT_OPENING used to wrap the hotel name in them.
+#
+# Numeric ranges (1-2 sentences, {w_min}-{w_max}) and single quotes are fine; apostrophes
+# appear in ~65% of human reviews. Comments and docstrings are never sent to the model
+# and are exempt. src/validate_generated.py section 7 scans for the next one of these
+# generically, so it gets caught without anyone knowing to look for it.
+
+SENTIMENT_BRIEFS = {
+    "positive": "an overall positive, satisfied experience",
+    "negative": "an overall negative, disappointing experience",
+}
+
+# Aspects named in the `structured` condition.
+ASPECTS = [
+    "the location",
+    "the price / value for money",
+    "room cleanliness",
+    "how long the stay was",
+    "the staff",
+    "noise levels",
+    "breakfast",
+]
+
+# How many aspects to name per structured review (sampled from ASPECTS).
+ASPECTS_PER_REVIEW = 4
+
+PROMPT_OPENING = "Write ONE realistic hotel guest review for the hotel {hotel}."
+
+PROMPT_SENTIMENT = "Sentiment: {brief}."
+
+PROMPT_LENGTH_SHORT = (
+    "Length: 1-2 sentences, about {chars} characters ({w_min}-{w_max} words). "
+    "Keep it brief. Hard limits: no fewer than {lo} and no more than {hi} characters. "
+    "Stop once you have made your point."
+)
+
+PROMPT_LENGTH_LONG = (
+    "Length: a detailed review of about {chars} characters ({w_min}-{w_max} words). "
+    "Write a full, substantial review, not a summary. Hard limits: no fewer than {lo} and "
+    "no more than {hi} characters. Do not pad beyond that."
+)
+
+PROMPT_STRUCTURED = (
+    "Cover these specific aspects, woven naturally into prose "
+    "(no bullet points, no headings): {aspects}."
+)
+
+PROMPT_UNSTRUCTURED = (
+    "Write it as a free-flowing, natural review. Do not work through a checklist of "
+    "aspects. Let it read the way a real guest rambles about whatever stood out to them."
+)
+
+# Opening move, sampled per review with the cell RNG so the choice is reproducible and
+# replayable by the validator. A generic "vary your openings" line does not work: it is
+# what PROMPT_DIVERSITY already does for sentence structure, and the llama3.2 sample still
+# collapsed to 6 distinct openers across 48 reviews (a real-corpus sample of the same size
+# averages 20.6), with the long cells opening "I" 100% of the time.
+#
+# Weights approximate the real corpus's own opener distribution (n=796, 132 distinct
+# openers): I 21%, We 16%, My 9%, The 8%, This 7%, plus a 28% long tail. Deliberately a
+# CATEGORY of opening rather than a mandated first word -- mandating exact openers would
+# over-constrain the prose and would be imposing a prior about what LLM text looks like,
+# rather than removing an artifact this prompt file created.
+OPENER_MOVES = [
+    ("first person singular, starting with the word I", 3),
+    ("first person plural, starting with the word We or Our", 3),
+    ("the room or the hotel itself as the subject", 2),
+    ("a time or occasion, such as a month, a season, or a trip event", 2),
+    ("the reason for the trip", 1),
+    ("a verdict stated up front", 1),
+    ("a specific detail or small incident", 1),
+]
+
+PROMPT_OPENER = "Open the review with {move}."
+
+# Anti-templating nudge, applied to every cell.
+PROMPT_DIVERSITY = (
+    "Vary sentence structure, vocabulary, and concrete details (dates, room numbers, "
+    "staff names, small incidents) so the output does not feel templated. Avoid filler "
+    "phrases like 'overall a great experience' or 'would definitely recommend' unless a "
+    "real reviewer would plausibly write them. Small imperfections help: casual tone, "
+    "tangents, uneven pacing."
+)
+
+PROMPT_OUTPUT_RULE = (
+    "Output ONLY the review text. No preamble, no surrounding quotation marks, "
+    "no title, no label."
+)
+
+# Few-shot framing. The two examples are deliberately of DIFFERENT types — one
+# genuine, one human-written fake — to show the model both registers. The closing
+# instruction matters: the MTurk example cannot be sentiment-matched, so the model
+# must be told to follow the instructions rather than the example's tone.
+PROMPT_FEWSHOT = (
+    "Here are two existing reviews of the same kind of hotel.\n\n"
+    "Example A, a genuine review written by a real hotel guest:\n{real_example}\n\n"
+    "Example B, a review written by a paid writer imitating a guest:\n{fake_example}\n\n"
+    "These show two different registers. Write a NEW review. Do not copy phrasing "
+    "from either. Follow the sentiment and length in your instructions, not the "
+    "sentiment or length of the examples."
+)
+
+PROMPT_ZEROSHOT = "Write the review now."
+
+# ---------------------------------------------------------------------------
+# ASCII normalisation
+# ---------------------------------------------------------------------------
+# The human corpus contains ZERO non-ASCII characters across all 1592 reviews -- it was
+# ASCII-normalised when it was built. qwen2.5:32b emits ordinary typographic Unicode, so
+# 46.9% of a 160-review run carried at least one non-ASCII character. That makes
+# `any(ord(c) > 127)` a classifier with 47% recall at 100% precision, before any model is
+# trained.
+#
+# This is a PREPROCESSING ASYMMETRY, not an LLM style tell: it exists because the two
+# halves of the dataset were encoded differently. Applying the corpus's own normalisation
+# to the generated text makes the comparison valid. It is not the same as laundering
+# stylistic tells -- semicolons (48.1% vs 6.6%), sentence length, and word choice are all
+# left untouched, because those are real signal.
+#
+# Targets are chosen to land in character classes the corpus actually uses:
+#   em dash -> "--"  (corpus uses "--" in 5.7% of reviews)
+#   en dash -> "-"   (corpus 40.5%)
+#   curly apostrophe -> "'" (corpus 63.3%)
+#   double quote -> "'"  the corpus has NO double quotes of any kind, so converting to a
+#                        single quote keeps the quoting function in a class it does use
+# Accented Latin (cafe/Zurich) is stripped to its base letter via NFKD.
+# CJK cannot be normalised and is rejected outright at generation time instead.
+
+ASCII_NORMALIZATION = {
+    "—": "--",   # em dash
+    "–": "-",    # en dash
+    "‒": "-",    # figure dash
+    "―": "--",   # horizontal bar
+    "‘": "'",    # left single quote
+    "’": "'",    # right single quote / typographic apostrophe
+    "‚": "'",
+    "“": "'",    # left double quote  -> single: corpus has no double quotes
+    "”": "'",    # right double quote
+    "„": "'",
+    '"': "'",    # straight double quote, likewise absent from the corpus
+    "…": "...",  # ellipsis (corpus uses "..." in 11.2%)
+    " ": " ",    # non-breaking space
+    " ": " ",
+    " ": " ",
+    "′": "'",
+    "″": "'",
+    "´": "'",
+    "`": "'",
+}
+
+# Turn off to keep raw model output and normalise downstream in the classifier pipeline
+# instead. Off means the generated CSV will not be encoding-comparable to the corpus.
+DEFAULT_NORMALIZE_ASCII = True
+
+# ---------------------------------------------------------------------------
+# Retry / validation
+# ---------------------------------------------------------------------------
+
+MAX_RETRIES = 3          # API attempts per sample before giving up
+RETRY_SLEEP = 2          # seconds between attempts
+REQUEST_TIMEOUT = 300    # seconds per HTTP request
+MIN_ACCEPTABLE_WORDS = 10  # shorter than this is degenerate output — retry
+
+# ---------------------------------------------------------------------------
+# Output schema
+# ---------------------------------------------------------------------------
+# Constant field values on every generated row.
+
+OUTPUT_BINARY_LABEL = "fake"
+OUTPUT_DOMAIN = "Hotel"
+OUTPUT_IS_SYNTHETIC = 1
+
+CSV_COLUMNS = [
+    # Six corpus columns first, so pd.concat with the human data just works.
+    "Binary_label",
+    "Category",
+    "domain",
+    "text",
+    "is_synthetic",
+    "source",
+    # Factor metadata for the analysis.
+    "length",
+    "sentiment",
+    "structure",
+    "example_mode",
+    "opener_move",
+    "cell_id",
+    "rep_index",
+    "n_chars",
+    "n_words",
+    "target_chars",
+    "in_length_band",
+    "n_attempts",
+    "gen_temperature",
+    "gen_seed",
+    "timestamp",
+]
+
+# LABEL LEAKAGE: drop `source` and `is_synthetic` before training. In the merged
+# corpus both are perfect giveaways — source maps MTurk->fake, TripAdvisor/Web->real,
+# <model id>->LLM, and is_synthetic is 1 on exactly the LLM class. Keep them as
+# metadata for slicing results, never as model inputs.
+LEAKY_COLUMNS = ["source", "is_synthetic"]

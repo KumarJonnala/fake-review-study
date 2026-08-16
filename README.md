@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Fake Review Classification: XGBoost, SVM and BERT
 
 This project is structured for reproducible research experiments on the supplied hotel-review dataset.
