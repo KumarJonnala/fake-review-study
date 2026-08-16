@@ -11,6 +11,13 @@
 
 # Submit from the repo root:   sbatch src/slurm_bert.sh
 # Smaller grid / other config: GRID=src/config/bert_smoke.yaml sbatch src/slurm_bert.sh
+# Build the venv and stop:     SETUP_ONLY=1 sbatch src/slurm_bert.sh
+# Force a clean rebuild:       REBUILD_VENV=1 sbatch src/slurm_bert.sh
+#
+# The venv is built here, inside the job, on the first run. Never install the requirements
+# interactively: torch drags in the bundled CUDA runtime (nvidia-cublas, nvidia-cudnn, ...),
+# several GB of wheels to download, unpack and byte-compile, and the resolver holds much of
+# it in RAM. On a shared login node that OOMs the cgroup and takes code-server down with it.
 
 set -euo pipefail
 
@@ -51,30 +58,57 @@ mkdir -p "$REPO/logs" "$RESULTS" "$HF_HOME"
 # -----------------------------
 # PYTHON ENV
 # -----------------------------
-# Normally built once by `sbatch src/slurm_setup_env.sh`. This is the fallback for a fresh
-# checkout, and it runs here on the compute node -- never install interactively, torch's
-# bundled CUDA wheels will OOM a shared login node and take code-server with them.
+[ -n "${REBUILD_VENV:-}" ] && { echo "REBUILD_VENV set, removing $VENV"; rm -rf "$VENV"; }
+
 if [ ! -d "$VENV" ]; then
-  echo "venv missing; building it in-job (see src/slurm_setup_env.sh to do this separately)"
+  echo "--- building venv at $VENV ---"
+
+  # Keep pip's scratch and cache off $HOME (quota) and off the node's small /tmp root.
+  # Node-local, keyed by job id, removed when this block finishes.
   SCRATCH="/tmp/pip_${SLURM_JOB_ID:-$$}"
   export TMPDIR="$SCRATCH/tmp"
   export PIP_CACHE_DIR="$SCRATCH/cache"
   mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
+
   python3 -m venv "$VENV"
-  "$VENV/bin/pip" install --quiet --no-cache-dir --upgrade pip
-  "$VENV/bin/pip" install --quiet --no-cache-dir torch
-  "$VENV/bin/pip" install --quiet --no-cache-dir -r "$REPO/requirements.txt"
+  "$VENV/bin/pip" install --no-cache-dir --upgrade pip
+
+  # torch alone first. It is by far the largest install, and giving it its own resolver
+  # pass keeps peak memory well below a single combined resolve over the whole file.
+  echo "--- installing torch ---"
+  "$VENV/bin/pip" install --no-cache-dir torch
+
+  echo "--- installing the rest ---"
+  "$VENV/bin/pip" install --no-cache-dir -r "$REPO/requirements.txt"
+
   rm -rf "$SCRATCH"
+  echo "--- venv ready ---"
+else
+  echo "Reusing existing venv at $VENV"
 fi
+
 PYTHON="$VENV/bin/python"
 echo "Python: $($PYTHON --version) at $PYTHON"
 
+# Import everything the grid needs now, so a half-built venv fails here in seconds rather
+# than partway into training.
 "$PYTHON" - <<'EOF'
-import torch, transformers
-print(f"torch {torch.__version__}  transformers {transformers.__version__}")
+import torch, transformers, datasets, sklearn, yaml, pandas
+print(f"torch        {torch.__version__}")
+print(f"transformers {transformers.__version__}")
+print(f"datasets     {datasets.__version__}")
+print(f"sklearn      {sklearn.__version__}")
 print(f"cuda available: {torch.cuda.is_available()}"
       + (f"  device: {torch.cuda.get_device_name(0)}" if torch.cuda.is_available() else ""))
 EOF
+
+if [ -n "${SETUP_ONLY:-}" ]; then
+  echo "======================================"
+  echo "SETUP_ONLY set; venv ready at $VENV, skipping the grid."
+  echo "Next:  sbatch src/slurm_bert.sh"
+  echo "======================================"
+  exit 0
+fi
 
 # -----------------------------
 # RUN THE GRID
