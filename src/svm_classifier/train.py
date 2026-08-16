@@ -2,9 +2,9 @@ import argparse, itertools
 from pathlib import Path
 import joblib, yaml, numpy as np
 from sklearn.svm import SVC
-from common.data import load_data, make_split
-from common.tfidf import build_vectorizer
-from common.evaluation import evaluate_binary, save_json
+from src.data import load_data, make_split
+from src.vectorizer import build_vectorizer
+from src.evaluation import evaluate_binary, save_json
 
 def grid(cfg):
     keys = list(cfg["hyperparameters"])
@@ -13,8 +13,8 @@ def grid(cfg):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--config", default="config/config.yaml")
-    ap.add_argument("--grid", default="config/svm_grid.yaml")
+    ap.add_argument("--config", default="src/config/config.yaml")
+    ap.add_argument("--grid", default="src/config/svm_grid.yaml")
     args = ap.parse_args()
 
     base = yaml.safe_load(open(args.config))

@@ -3,13 +3,14 @@ BERT fine-tuning script.
 
 For paper-quality experiments, run this separately from the TF-IDF models so
 GPU memory and runtime are easy to control. Hyperparameter combinations are
-read from config/bert_grid.yaml. The validation set selects the best run;
+read from src/config/bert_grid.yaml. The validation set selects the best run;
 the test set is evaluated only for that selected configuration.
+
+Run from the repo root:  python -m src.bert_classifier.train
+On the cluster:          sbatch src/slurm_bert.sh
 """
-import argparse, itertools, json, os
+import argparse, itertools, json, shutil
 from pathlib import Path
-import numpy as np
-import pandas as pd
 import yaml, torch
 from datasets import Dataset
 from transformers import (
@@ -17,6 +18,8 @@ from transformers import (
     TrainingArguments, Trainer, DataCollatorWithPadding
 )
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_auc_score, average_precision_score
+
+from src.data import load_data, make_split
 
 def metrics_fn(eval_pred):
     logits, labels = eval_pred
@@ -37,15 +40,16 @@ def make_grid(cfg):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--config", default="config/config.yaml")
-    ap.add_argument("--grid", default="config/bert_grid.yaml")
+    ap.add_argument("--config", default="src/config/config.yaml")
+    ap.add_argument("--grid", default="src/config/bert_grid.yaml")
     args = ap.parse_args()
     base = yaml.safe_load(open(args.config))
     bcfg = yaml.safe_load(open(args.grid))
-    df = pd.read_csv(base["data"]["path"])
-    df["label"] = (df[base["data"]["label_column"]].str.lower() == "fake").astype(int)
+    # Shared loader, same as the SVM and XGBoost scripts: adds the NaN guard and the
+    # whitespace strip this path used to skip, and keeps the label mapping in one place.
+    df = load_data(base["data"]["path"], base["data"]["text_column"],
+                   base["data"]["label_column"])
 
-    from common.data import make_split
     train, val, test = make_split(df, seed=base["split"]["random_seed"],
                                   train_size=base["split"]["train_size"],
                                   validation_size=base["split"]["validation_size"])
@@ -79,6 +83,7 @@ def main():
             warmup_ratio=float(bcfg["training"]["warmup_ratio"]),
             eval_strategy="epoch",
             save_strategy="epoch",
+            save_total_limit=1,
             load_best_model_at_end=True,
             metric_for_best_model="f1",
             greater_is_better=True,
@@ -93,6 +98,15 @@ def main():
             compute_metrics=metrics_fn
         )
         trainer.train()
+
+        # load_best_model_at_end=True means the in-memory model is already the best epoch,
+        # so this writes config.json + weights to the top of run_dir -- which is what the
+        # final test evaluation below reloads. Without it that directory holds only
+        # checkpoint-*/ subdirs and from_pretrained() raises OSError after the whole grid.
+        trainer.save_model(str(run_dir))
+        for ckpt in run_dir.glob("checkpoint-*"):
+            shutil.rmtree(ckpt, ignore_errors=True)
+
         ev = trainer.evaluate(dval)
         clean = {k.replace("eval_", ""): float(v) for k, v in ev.items()
                  if isinstance(v, (float, int))}

@@ -1,0 +1,30 @@
+data:
+  # Read-only input. Identical texts, in identical order, to Hotel_Human_VS_HumanFake.csv;
+  # the two differ only in label vocabulary -- real/fake here, truthful/deceptive there --
+  # and it is this file's vocabulary that positive_label below expects.
+  # Only text_column and label_column are ever used as features: source is perfectly
+  # confounded with the label, and domain and is_synthetic are constant.
+  path: data/Hotel_Human_VS_HumanFake_relabelled.csv
+  text_column: text
+  label_column: Binary_label
+  positive_label: fake
+
+split:
+  train_size: 0.70
+  validation_size: 0.15
+  test_size: 0.15
+  random_seed: 42
+  stratify: true
+
+experiment:
+  seeds: [42, 43, 44, 45, 46]
+  output_dir: results
+  save_models: true
+
+features:
+  lowercase: true
+  strip_accents: unicode
+  ngram_range: [1, 2]
+  min_df: 2
+  max_df: 0.95
+  max_features: 100000

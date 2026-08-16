@@ -1,0 +1,24 @@
+# Single-combination grid for a cluster smoke test:
+#   GRID=src/config/bert_smoke.yaml sbatch src/slurm_bert.sh
+#
+# Exercises the whole path in one short run -- train, save_model, checkpoint cleanup, and
+# the final test evaluation that reloads run_001 -- before committing to the 24-run grid.
+# Identical to bert_grid.yaml except that every hyperparameter list holds one value.
+model:
+  pretrained_name: bert-base-uncased
+  max_length: 256
+
+hyperparameters:
+  learning_rate: [2.0e-5]
+  batch_size: [16]
+  num_train_epochs: [1]
+  weight_decay: [0.01]
+
+training:
+  warmup_ratio: 0.10
+  evaluation_strategy: epoch
+  save_strategy: epoch
+  load_best_model_at_end: true
+  metric_for_best_model: f1
+  greater_is_better: true
+  fp16: true
