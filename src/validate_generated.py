@@ -93,7 +93,6 @@ def reconstruct_instructions(gen: pd.DataFrame, examples_csv: Path, tolerance: f
     """
     pool = ExamplePool(examples_csv)
     targets = {k: dict(v) for k, v in cfg.LENGTH_TARGETS.items()}
-    combo_ordinal = {c: i for i, c in enumerate(ALL_CELLS)}
 
     # The replay reproduces the CURRENT prompt code. A CSV written before the opener draw
     # was added has an RNG stream offset by one call per review, so recovered aspects and
@@ -109,15 +108,37 @@ def reconstruct_instructions(gen: pd.DataFrame, examples_csv: Path, tolerance: f
         print(f"  ! multiple seeds {list(seeds)} in one file; replay skipped")
         return {}
     seed = int(seeds[0])
-    n_per_cell = int(gen["rep_index"].max()) + 1
+
+    # Per-cell rep counts, read from the data rather than assumed uniform: a
+    # --total-reviews run (e.g. 200 split across 16 cells) gives cells 12 or 13 rows
+    # each, not one shared n_per_cell. Offsets are cumulative over ALL_CELLS order,
+    # mirroring generate_synthetic_reviews.py's cell_offset -- NOT the old
+    # ordinal * n_per_cell formula, which only holds when every cell has equal count.
+    # A cell missing from the CSV entirely (e.g. a --cells-filtered partial run)
+    # replays as count 0, which only stays correct if no cell AFTER it in ALL_CELLS
+    # order has data -- true for any full-factorial run, which is all this pipeline
+    # currently produces.
+    counts_by_cell_id = (gen.groupby("cell_id")["rep_index"].max() + 1).to_dict()
+    cell_target = {
+        combo: int(counts_by_cell_id.get(f"{combo[0]}_{combo[1]}_{combo[2]}_{combo[3]}", 0))
+        for combo in ALL_CELLS
+    }
+    cell_offset = {}
+    running = 0
+    for combo in ALL_CELLS:
+        cell_offset[combo] = running
+        running += cell_target[combo]
 
     recovered = {}
-    for (length, sentiment, structure, example_mode) in ALL_CELLS:
+    for combo in ALL_CELLS:
+        length, sentiment, structure, example_mode = combo
+        n_target = cell_target[combo]
+        if n_target == 0:
+            continue
         cell_id = f"{length}_{sentiment}_{structure}_{example_mode}"
         rng = random.Random(f"{seed}:{cell_id}")
-        for rep in range(n_per_cell):
-            ordinal = combo_ordinal[(length, sentiment, structure, example_mode)] \
-                * n_per_cell + rep
+        for rep in range(n_target):
+            ordinal = cell_offset[combo] + rep
             hotel = pool.hotels[ordinal % len(pool.hotels)]
             messages, opener_move = build_messages(
                 length, sentiment, structure, example_mode, hotel, pool, targets, rng,

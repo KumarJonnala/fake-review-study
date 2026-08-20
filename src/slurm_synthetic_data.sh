@@ -1,16 +1,20 @@
 #!/bin/bash
 #SBATCH --job-name=fake_review_llm
-#SBATCH --partition=gpu
+#SBATCH --partition=gpu-stud
 #SBATCH --nodelist=ant2
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-gpu=8
-#SBATCH --mem=16G
+#SBATCH --mem=32G
 #SBATCH --time=08:00:00
 #SBATCH --output=logs/job_%j.out
 #SBATCH --error=logs/job_%j.err
 
 # Submit from the repo root:   sbatch src/slurm_synthetic_data.sh
-# Override the model/volume:   MODEL=llama3.1:8b N_PER_CELL=10 sbatch src/slurm_synthetic_data.sh
+# By default this generates reviews for all 4 study models in one job, one after
+# another, reusing a single Ollama server.
+#
+# Override the volume:            TOTAL_REVIEWS=50 sbatch src/slurm_synthetic_data.sh
+# Run just ONE model instead:     MODEL=llama3.2:3b sbatch src/slurm_synthetic_data.sh
 
 set -euo pipefail
 
@@ -22,8 +26,21 @@ OLLAMA_DIR="${OLLAMA_DIR:-$HOME/ollama}"          # model cache, persists across
 OLLAMA_SIF="${OLLAMA_SIF:-$HOME/ollama.sif}"
 VENV="${VENV:-$HOME/.venvs/fake_reviews}"
 
-MODEL="${MODEL:-qwen2.5:32b}"
-N_PER_CELL="${N_PER_CELL:-10}"
+# The 4 study models. Keep this list in step with MODELS in src/config.py.
+# Set MODEL to override with a single model instead of running all 4.
+if [ -n "${MODEL:-}" ]; then
+  MODELS=("$MODEL")
+else
+  MODELS=(
+    "gemma4:e4b"
+    "doomgrave/ministral-3:8b"
+    "llama3.2:3b"
+    "qwen3.5:9b"
+  )
+fi
+
+# Total reviews per model, spread across the 16-cell factorial (~12-13 per cell).
+TOTAL_REVIEWS="${TOTAL_REVIEWS:-200}"
 SEED="${SEED:-12}"
 
 # Per-job port. A fixed 11434 collides with any other Ollama on this node, and the
@@ -31,14 +48,10 @@ SEED="${SEED:-12}"
 # whatever model it happens to be serving.
 PORT=$(( 11434 + (${SLURM_JOB_ID:-0} % 1000) ))
 
-# Model-tagged output, so a qwen run never lands in (or --resumes into) a llama file.
-MODEL_TAG=$(echo "$MODEL" | tr ':/' '__')
-OUTPUT="$REPO/data/generated/Hotel_LLM_Reviews_${MODEL_TAG}.csv"
-
 echo "======================================"
 echo "Job ${SLURM_JOB_ID:-local} on $(hostname)  |  $(date)"
-echo "model=$MODEL  n_per_cell=$N_PER_CELL  seed=$SEED  port=$PORT"
-echo "output=$OUTPUT"
+echo "models=${MODELS[*]}"
+echo "total_reviews_per_model=$TOTAL_REVIEWS  seed=$SEED  port=$PORT"
 echo "======================================"
 nvidia-smi || echo "WARNING: nvidia-smi unavailable"
 
@@ -51,7 +64,7 @@ if [ ! -f "$OLLAMA_SIF" ]; then
 fi
 
 # -----------------------------
-# START OLLAMA SERVER
+# START OLLAMA SERVER (once, shared across all models below)
 # -----------------------------
 echo "Starting Ollama server..."
 
@@ -95,24 +108,6 @@ curl -sf "http://localhost:$PORT/api/tags" > /dev/null || {
 }
 
 # -----------------------------
-# PULL MODEL (cached in $OLLAMA_DIR after the first job)
-# -----------------------------
-echo "Ensuring $MODEL is available..."
-
-apptainer exec --nv \
-  --env OLLAMA_HOST=0.0.0.0:$PORT \
-  --bind "$OLLAMA_DIR":/root/.ollama \
-  "$OLLAMA_SIF" \
-  ollama pull "$MODEL"
-
-# Confirm it actually landed -- `ollama pull` can report progress and still fail on a
-# full quota, and the generator would then 404 on every single call.
-curl -sf "http://localhost:$PORT/api/tags" | grep -q "$MODEL" || {
-  echo "ERROR: $MODEL not present after pull"
-  exit 1
-}
-
-# -----------------------------
 # PYTHON ENV
 # -----------------------------
 # A venv built once and reused, rather than `pip install --user` on every job:
@@ -126,26 +121,51 @@ fi
 PYTHON="$VENV/bin/python"
 echo "Python: $($PYTHON --version) at $PYTHON"
 
-# -----------------------------
-# RUN GENERATION
-# -----------------------------
-echo "Running generation pipeline..."
-
 export OLLAMA_HOST="localhost:$PORT"
 
-# The two corpus CSVs under data/ are read-only inputs; the generator only reads them
-# for few-shot examples and the 20 hotel names.
-"$PYTHON" "$REPO/src/generate_synthetic_reviews.py" \
-  --model "$MODEL" \
-  --n-per-cell "$N_PER_CELL" \
-  --seed "$SEED" \
-  --host "localhost:$PORT" \
-  --output "$OUTPUT" \
-  --resume
+# -----------------------------
+# GENERATE FOR EACH MODEL IN TURN
+# -----------------------------
+for MODEL in "${MODELS[@]}"; do
+  echo "======================================"
+  echo "Model: $MODEL"
+  echo "======================================"
+
+  # Model-tagged output, so a run for one model never lands in (or --resumes into)
+  # another model's file.
+  MODEL_TAG=$(echo "$MODEL" | tr ':/' '__')
+  OUTPUT="$REPO/data/generated/Hotel_LLM_Reviews_${MODEL_TAG}.csv"
+
+  echo "Ensuring $MODEL is available..."
+  apptainer exec --nv \
+    --env OLLAMA_HOST=0.0.0.0:$PORT \
+    --bind "$OLLAMA_DIR":/root/.ollama \
+    "$OLLAMA_SIF" \
+    ollama pull "$MODEL"
+
+  # Confirm it actually landed -- `ollama pull` can report progress and still fail on a
+  # full quota, and the generator would then 404 on every single call.
+  curl -sf "http://localhost:$PORT/api/tags" | grep -q "$MODEL" || {
+    echo "ERROR: $MODEL not present after pull -- skipping"
+    continue
+  }
+
+  echo "Running generation pipeline for $MODEL..."
+  # The two corpus CSVs under data/ are read-only inputs; the generator only reads them
+  # for few-shot examples and the 20 hotel names.
+  "$PYTHON" "$REPO/src/generate_synthetic_reviews.py" \
+    --model "$MODEL" \
+    --total-reviews "$TOTAL_REVIEWS" \
+    --seed "$SEED" \
+    --host "localhost:$PORT" \
+    --output "$OUTPUT" \
+    --resume
+
+  echo "Rows written for $MODEL: $(( $(wc -l < "$OUTPUT") - 1 ))"
+  FAILURES="${OUTPUT%.csv}_failures.jsonl"
+  [ -s "$FAILURES" ] && echo "Failures: $(wc -l < "$FAILURES")  -> $FAILURES"
+done
 
 echo "======================================"
-echo "Rows written: $(( $(wc -l < "$OUTPUT") - 1 ))"
-FAILURES="${OUTPUT%.csv}_failures.jsonl"
-[ -s "$FAILURES" ] && echo "Failures: $(wc -l < "$FAILURES")  -> $FAILURES"
-echo "Job finished at $(date)"
+echo "All models finished at $(date)"
 echo "======================================"

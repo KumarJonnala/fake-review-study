@@ -24,11 +24,13 @@ jurisdictions.
 
 LABEL LEAKAGE — READ BEFORE TRAINING ANYTHING ON THIS OUTPUT
 ------------------------------------------------------------
-Drop `source` and `is_synthetic` from your feature set. In the merged corpus both are
-perfect giveaways:
+Drop `model`, `is_synthetic`, and (once merged with the human corpus) `source` from
+your feature set. All are perfect giveaways:
 
-    source:        MTurk -> fake,  TripAdvisor/Web -> real,  <model id> -> LLM
+    model:         non-null on exactly the LLM class, NaN everywhere else
     is_synthetic:  1 on exactly the LLM class, 0 everywhere else
+    source:        set only on human rows after a merge (MTurk -> fake,
+                    TripAdvisor/Web -> real); NaN on every LLM row
 
 A classifier handed either column scores ~100% and has learned nothing about language.
 Keep them as metadata for slicing results, never as inputs.
@@ -393,7 +395,13 @@ def parse_args(argv=None):
 
     p.add_argument("--model", default=cfg.DEFAULT_MODEL, help="Any model pulled in Ollama")
     p.add_argument("--n-per-cell", type=int, default=cfg.DEFAULT_N_PER_CELL,
-                   help=f"Reviews per cell (x{len(ALL_CELLS)} cells)")
+                   help=f"Reviews per cell (x{len(ALL_CELLS)} cells). Ignored if "
+                        "--total-reviews is given.")
+    p.add_argument("--total-reviews", type=int, default=None,
+                   help="Total reviews for this run, split as evenly as possible across "
+                        f"all {len(ALL_CELLS)} cells (overrides --n-per-cell). Hotel "
+                        "rotation offsets are always computed from the full factorial, "
+                        "so a --cells filter still reproduces the same per-cell counts.")
     p.add_argument(
         "--host",
         default=os.getenv("OLLAMA_HOST", cfg.DEFAULT_HOST),
@@ -430,6 +438,16 @@ def parse_args(argv=None):
     p.add_argument("--resume", action="store_true", help="Skip cells already in --output")
 
     return p.parse_args(argv)
+
+
+def distribute_total(total: int, n_cells: int):
+    """Split `total` as evenly as possible across `n_cells` buckets.
+
+    200 / 16 = 12.5: the first `remainder` cells get one
+    extra rather than leaving reviews unassigned or overshooting the total.
+    """
+    base, remainder = divmod(total, n_cells)
+    return [base + 1 if i < remainder else base for i in range(n_cells)]
 
 
 def cell_matches(cell_id: str, pattern: str) -> bool:
@@ -471,17 +489,31 @@ def main(argv=None):
     url = f"http://{args.host}{cfg.OLLAMA_CHAT_PATH}"
     pool = ExamplePool(args.examples_csv)
 
-    # Ordinal is taken from the FULL cell list so --cells filtering and --resume never
-    # shift which hotel a given (cell, rep) gets.
-    combo_ordinal = {c: i for i, c in enumerate(ALL_CELLS)}
+    # Per-cell review counts and hotel-rotation offsets are both computed from the FULL
+    # cell list (not the filtered `combos`) so a --cells filter or --resume never shifts
+    # which hotel a given (cell, rep) gets, and a given cell_id always gets the same
+    # target count regardless of what else is being run alongside it.
+    if args.total_reviews is not None:
+        counts = distribute_total(args.total_reviews, len(ALL_CELLS))
+    else:
+        counts = [args.n_per_cell] * len(ALL_CELLS)
+    cell_target = dict(zip(ALL_CELLS, counts))
+
+    cell_offset = {}
+    running = 0
+    for c in ALL_CELLS:
+        cell_offset[c] = running
+        running += cell_target[c]
+
     combos = [c for c in ALL_CELLS if cell_matches("_".join(c), args.cells)]
     if not combos:
         print(f"No cells match --cells {args.cells!r}", file=sys.stderr)
         return 1
 
+    total_reviews = sum(cell_target[c] for c in combos)
     print(f"Ollama:     {url}")
     print(f"Model:      {args.model}")
-    print(f"Cells:      {len(combos)} x {args.n_per_cell} = {len(combos) * args.n_per_cell} reviews")
+    print(f"Cells:      {len(combos)} cells, {total_reviews} reviews total")
     print(f"Lengths:    short ~{args.short_chars} chars, long ~{args.long_chars} chars")
     print(f"Examples:   {args.examples_csv} ({len(pool.hotels)} hotels, read-only)")
     print(f"Output:     {args.output}")
@@ -507,10 +539,12 @@ def main(argv=None):
     try:
         for length, sentiment, structure, example_mode in combos:
             cell_id = f"{length}_{sentiment}_{structure}_{example_mode}"
+            combo = (length, sentiment, structure, example_mode)
+            n_target = cell_target[combo]
             already = completed.get(cell_id, 0)
-            if already >= args.n_per_cell:
+            if already >= n_target:
                 print(f"[skip] {cell_id} — {already} rows already present")
-                n_skipped += args.n_per_cell
+                n_skipped += n_target
                 continue
 
             # Seed per cell so a resumed or filtered run reproduces the same choices.
@@ -521,23 +555,21 @@ def main(argv=None):
             # prompts differ from an uninterrupted run and validate_generated.py's
             # replay (which walks rep 0..n) no longer matches what was sent.
             for skipped in range(already):
-                ordinal = combo_ordinal[(length, sentiment, structure, example_mode)] \
-                    * args.n_per_cell + skipped
+                ordinal = cell_offset[combo] + skipped
                 build_messages(
                     length, sentiment, structure, example_mode,
                     pool.hotels[ordinal % len(pool.hotels)], pool, targets, rng,
                     args.length_tolerance,
                 )
 
-            todo = range(already, args.n_per_cell)
+            todo = range(already, n_target)
             desc = f"{cell_id:<45}"
             for rep in tqdm(todo, desc=desc, unit="rev", leave=True):
                 # Round-robin over ALL 20 hotels, continuing across cells rather than
                 # restarting each one. Indexing by `rep` alone would pin every cell to
                 # the same first few hotels (and to hotels[0] entirely at n-per-cell=1),
                 # reintroducing the constant-hotel confound this design exists to avoid.
-                ordinal = combo_ordinal[(length, sentiment, structure, example_mode)] \
-                    * args.n_per_cell + rep
+                ordinal = cell_offset[combo] + rep
                 hotel = pool.hotels[ordinal % len(pool.hotels)]
                 messages, opener_move = build_messages(
                     length, sentiment, structure, example_mode, hotel, pool, targets, rng,
@@ -593,7 +625,7 @@ def main(argv=None):
                         "domain": cfg.OUTPUT_DOMAIN,
                         "text": text,
                         "is_synthetic": cfg.OUTPUT_IS_SYNTHETIC,
-                        "source": args.model,
+                        "model": args.model,
                         "length": length,
                         "sentiment": sentiment,
                         "structure": structure,

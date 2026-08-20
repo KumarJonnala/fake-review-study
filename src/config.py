@@ -44,6 +44,18 @@ DEFAULT_N_PER_CELL = 10                   # x16 cells = 160 reviews.
                                           # keep the two in step, or a local run and a
                                           # cluster run silently produce different volumes.
 
+# The four models the study compares. slurm_synthetic_data.sh loops over this list by
+# default (override with MODEL=<tag> for a single one-off run).
+MODELS = [
+    "gemma4:e4b",
+    "ministral-3:8b",
+    "llama3.2:3b",
+    "qwen3.5:9b",
+]
+
+# Total reviews generated per model, spread across all 16 cells.
+DEFAULT_TOTAL_REVIEWS_PER_MODEL = 200
+
 # ---------------------------------------------------------------------------
 # Factorial axes  —  2 x 2 x 2 x 2 = 16 cells
 # ---------------------------------------------------------------------------
@@ -311,7 +323,7 @@ CSV_COLUMNS = [
     "domain",
     "text",
     "is_synthetic",
-    "source",
+    "model",
     # Factor metadata for the analysis.
     "length",
     "sentiment",
@@ -330,8 +342,9 @@ CSV_COLUMNS = [
     "timestamp",
 ]
 
-# LABEL LEAKAGE: drop `source` and `is_synthetic` before training. In the merged
-# corpus both are perfect giveaways — source maps MTurk->fake, TripAdvisor/Web->real,
-# <model id>->LLM, and is_synthetic is 1 on exactly the LLM class. Keep them as
-# metadata for slicing results, never as model inputs.
-LEAKY_COLUMNS = ["source", "is_synthetic"]
+# LABEL LEAKAGE: drop `model` and `is_synthetic` before training
+# once merged with the human corpus, which uses that column for MTurk/TripAdvisor/Web.
+# All are perfect giveaways — model is non-null on exactly the LLM class,
+# is_synthetic is 1 on exactly the LLM class. Keep them as metadata for slicing
+# results, never as model inputs.
+LEAKY_COLUMNS = ["model", "is_synthetic"]
