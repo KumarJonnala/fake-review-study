@@ -270,6 +270,7 @@ def call_ollama(url, model, messages, temperature, num_predict):
         "model": model,
         "messages": messages,
         "stream": False,
+        "think": False,
         "options": {"temperature": temperature, "num_predict": num_predict},
     }
     resp = requests.post(url, json=payload, timeout=cfg.REQUEST_TIMEOUT)
