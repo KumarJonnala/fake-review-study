@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=fake_review_llm
-#SBATCH --partition=gpu-stud
-#SBATCH --nodelist=ant2
+#SBATCH --partition=gpu
+#SBATCH --nodelist=ant1
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-gpu=8
 #SBATCH --mem=32G
