@@ -183,14 +183,48 @@ SENTIMENT_BRIEFS = {
 }
 
 # Aspects named in the `structured` condition.
+# Phrased as JUDGEMENTS to make, not slots to fill.
+#
+# The earlier wording named topics as bare nouns -- "how long the stay was", "breakfast" --
+# and models answered each with one stock value. On a gemma4 run, 59% of stay-length
+# mentions were "four nights" (the real corpus spreads over 18 values, top share 21%), and
+# every single breakfast mention was "pastries" (the corpus uses 13 distinct items, top
+# share 28%). The rate of mentioning each topic was human-like; only the VALUE collapsed.
+#
+# A slot has one obvious filler. A judgement has many phrasings, so the same instruction
+# admits far more surface variety without weakening the structured-vs-unstructured
+# contrast, which is a factorial axis and must stay.
+#
+# Twelve, not the original seven. With ASPECTS_PER_REVIEW fixed at 4, a longer list means
+# any given aspect is named in ~33% of structured reviews instead of ~57%, so the same
+# instruction produces a wider spread of subject matter across a 200-review run.
+#
+# The five additions are grounded in what the real corpus actually discusses, not invented:
+# bathroom 30.7% of real reviews, bed/sleep 29.0%, decor 28.5%, the view 19.3%, wifi 13.7%.
+# Check-in scored highest of all the candidates at 41.8% but is deliberately absent -- the
+# staff regex already matches it, so it would double-count rather than add an aspect.
+#
+# REORDERING OR RESIZING THIS LIST SHIFTS THE RNG. `rng.sample(ASPECTS, 4)` draws
+# positions, so 4-of-12 is a different stream from 4-of-7 and CSVs generated under the
+# old list no longer replay. Rewording an entry in place is safe; changing the length is
+# not, and was done here deliberately.
+#
+# Every entry must also be a key of ASPECT_PATTERNS in validate_generated.py, which looks
+# aspects up by exact string -- a missing key would score zero coverage silently, so there
+# is an import-time guard there that raises instead.
 ASPECTS = [
-    "the location",
-    "the price / value for money",
-    "room cleanliness",
-    "how long the stay was",
-    "the staff",
-    "noise levels",
-    "breakfast",
+    "how convenient the location was",
+    "whether it felt worth the price",
+    "how clean the room was",
+    "whether the stay felt too short or too long",
+    "how the staff behaved",
+    "how quiet or noisy it was",
+    "what breakfast was like",
+    "what the bathroom was like",
+    "how well you slept",
+    "whether the decor felt dated or fresh",
+    "what the view was like",
+    "whether the wifi worked",
 ]
 
 # How many aspects to name per structured review (sampled from ASPECTS).
@@ -218,8 +252,8 @@ PROMPT_STRUCTURED = (
 )
 
 PROMPT_UNSTRUCTURED = (
-    "Write it as a free-flowing, natural review. Do not work through a checklist of "
-    "aspects. Let it read the way a real guest rambles about whatever stood out to them."
+    "Write it as a free-flowing, natural review. "
+    "Let it read the way a real guest rambles about whatever stood out to them."
 )
 
 # WHY THERE IS NO OPENER INSTRUCTION
@@ -267,10 +301,9 @@ PROMPT_UNSTRUCTURED = (
 # artifact that then looks like an LLM signature. Keep the pressure toward concreteness
 # generic; naming the concretes is what does the damage.
 PROMPT_DIVERSITY = (
+    "The reviews should look like genuine user opinions."
     "Vary sentence structure, vocabulary, and concrete details so the output does not "
-    "feel templated. Avoid filler phrases like 'overall a great experience' or 'would "
-    "definitely recommend' unless a real reviewer would plausibly write them. Small "
-    "imperfections help: casual tone, tangents, uneven pacing."
+    "feel templated."
 )
 
 PROMPT_OUTPUT_RULE = (
