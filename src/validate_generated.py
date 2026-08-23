@@ -140,7 +140,7 @@ def reconstruct_instructions(gen: pd.DataFrame, examples_csv: Path, tolerance: f
         for rep in range(n_target):
             ordinal = cell_offset[combo] + rep
             hotel = pool.hotels[ordinal % len(pool.hotels)]
-            messages, opener_move = build_messages(
+            messages, opener_move, _ = build_messages(
                 length, sentiment, structure, example_mode, hotel, pool, targets, rng,
                 tolerance,
             )

@@ -164,6 +164,8 @@ for MODEL in "${MODELS[@]}"; do
   echo "Rows written for $MODEL: $(( $(wc -l < "$OUTPUT") - 1 ))"
   FAILURES="${OUTPUT%.csv}_failures.jsonl"
   [ -s "$FAILURES" ] && echo "Failures: $(wc -l < "$FAILURES")  -> $FAILURES"
+  PROMPTS="${OUTPUT%.csv}_prompts.jsonl"
+  [ -s "$PROMPTS" ] && echo "Prompts:  $(wc -l < "$PROMPTS") cells  -> $PROMPTS"
 done
 
 echo "======================================"

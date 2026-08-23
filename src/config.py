@@ -97,9 +97,12 @@ DEFAULT_LENGTH_ATTEMPTS = 2
 # overshoots the length target badly without it (long reviews averaged 1097 chars
 # against a 700 target, outside the real corpus IQR). Note this is a real edit to
 # the generated text — it can cut a review before its closing sentiment. Set to
-# False if you switch to a model that respects the length instruction on its own.
+# False if you switch to a model that respects the length instruction on its own,
+# or pass --no-trim-overlong for a single run without editing this file.
 # NOT yet re-measured on qwen2.5:32b — check the in-band rate on the first run and
 # turn this off if the model hits the target unaided, since trimming is lossy.
+# Whichever way it ends up, the value is recorded per run in the _prompts.jsonl
+# sidecar, so no output is ever ambiguous about whether its text was trimmed.
 DEFAULT_TRIM_OVERLONG = True
 
 # Token ceiling per review = upper_band_chars / this. English runs ~4 chars/token,

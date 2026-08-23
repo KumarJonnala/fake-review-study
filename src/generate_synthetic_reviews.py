@@ -147,11 +147,16 @@ def length_band(target_chars: int, tolerance: float):
 
 
 def build_system_prompt(length, sentiment, structure, hotel, targets, rng, tolerance):
-    """Returns (system_prompt, opener_move).
+    """Returns (system_prompt, opener_move, aspects).
 
     The opener move is returned so it can be written to the CSV as a factor column:
     the analysis needs to know how each review was told to open, and the validator
     replays this same function to recover it.
+
+    `aspects` (the sampled list, or None for unstructured cells) is returned for the
+    same reason, into the prompts sidecar. Both are drawn from `rng` and so exist
+    nowhere else once this returns -- the alternative is regexing them back out of the
+    prose, which is what validate_generated.py has to do today.
     """
     target = targets[length]
     w_min, w_max = target["words"]
@@ -173,6 +178,7 @@ def build_system_prompt(length, sentiment, structure, hotel, targets, rng, toler
         chosen = rng.sample(cfg.ASPECTS, k=min(cfg.ASPECTS_PER_REVIEW, len(cfg.ASPECTS)))
         parts.append(cfg.PROMPT_STRUCTURED.format(aspects=", ".join(chosen)))
     else:
+        chosen = None
         parts.append(cfg.PROMPT_UNSTRUCTURED)
 
     # Drawn after the structure clause so the RNG sequence stays deterministic per cell.
@@ -183,16 +189,23 @@ def build_system_prompt(length, sentiment, structure, hotel, targets, rng, toler
     parts.append(cfg.PROMPT_DIVERSITY)
     parts.append(cfg.PROMPT_OUTPUT_RULE)
 
-    return "\n".join(parts), opener_move
+    return "\n".join(parts), opener_move, chosen
 
 
 def build_messages(length, sentiment, structure, example_mode, hotel, pool, targets, rng,
                    tolerance):
-    """Returns (messages, opener_move)."""
-    system_prompt, opener_move = build_system_prompt(
+    """Returns (messages, opener_move, resolved).
+
+    `resolved` holds the values drawn from `rng` inside this call -- the sampled aspects,
+    the two few-shot examples, and whether the few-shot path fell back. They are recorded
+    in the prompts sidecar; callers that only need the messages discard the dict.
+    """
+    system_prompt, opener_move, aspects = build_system_prompt(
         length, sentiment, structure, hotel, targets, rng, tolerance
     )
     messages = [{"role": "system", "content": system_prompt}]
+    real_ex = fake_ex = None
+    fallback = False
 
     if example_mode == "few_shot":
         real_ex, fake_ex = pool.get_pair(sentiment, hotel, length, rng)
@@ -200,12 +213,21 @@ def build_messages(length, sentiment, structure, example_mode, hotel, pool, targ
             content = cfg.PROMPT_FEWSHOT.format(real_example=real_ex, fake_example=fake_ex)
         else:
             # No usable pair in the corpus — fall back rather than send a half-built prompt.
+            # Recorded, because this makes a few_shot cell behave as zero_shot: silent, it
+            # would corrupt the example_mode factor without ever showing up in the data.
             content = cfg.PROMPT_ZEROSHOT
+            fallback = True
     else:
         content = cfg.PROMPT_ZEROSHOT
 
     messages.append({"role": "user", "content": content})
-    return messages, opener_move
+    resolved = {
+        "aspects": aspects,
+        "real_example": real_ex or None,
+        "fake_example": fake_ex or None,
+        "few_shot_fallback": fallback,
+    }
+    return messages, opener_move, resolved
 
 
 # ---------------------------------------------------------------------------
@@ -425,16 +447,26 @@ def parse_args(argv=None):
                         "inside the real corpus IQR of 487-988)")
     p.add_argument("--length-attempts", type=int, default=cfg.DEFAULT_LENGTH_ATTEMPTS,
                    help="Fresh samples to draw trying to land in the band; closest is kept")
-    p.add_argument("--trim-overlong", action="store_true",
+    # BooleanOptionalAction, not store_true: the default is True, and a store_true flag
+    # whose default is already True is unreachable -- there was no way to turn trimming
+    # off from the CLI. This gives both --trim-overlong and --no-trim-overlong, so the
+    # "turn this off if the model hits the target unaided" note in config.py is now
+    # actionable per run rather than requiring an edit to that file.
+    p.add_argument("--trim-overlong", action=argparse.BooleanOptionalAction,
                    default=cfg.DEFAULT_TRIM_OVERLONG,
-                   help="Trim still-overlong output back to a sentence boundary")
+                   help="Trim still-overlong output back to a sentence boundary. Lossy: "
+                        "it can cut a review before its closing sentiment, so prefer "
+                        "--no-trim-overlong on a model that respects the length target.")
 
     p.add_argument("--temperature", type=float, default=cfg.DEFAULT_TEMPERATURE,
                    help="Higher = more diverse")
     p.add_argument("--seed", type=int, default=cfg.DEFAULT_SEED,
                    help="Seeds hotel and example sampling")
     p.add_argument("--cells", default=None,
-                   help="Substring/glob filter on cell_id, e.g. 'long_positive*'")
+                   help="Substring/glob filter on cell_id, e.g. 'long_positive*'. The "
+                        "_prompts.jsonl sidecar then covers only the cells this run "
+                        "touched, replacing any fuller file already there — it always "
+                        "describes the run that wrote it.")
     p.add_argument("--dry-run", action="store_true", help="Print prompts, make no API calls")
     p.add_argument("--resume", action="store_true", help="Skip cells already in --output")
 
@@ -535,6 +567,26 @@ def main(argv=None):
     else:
         out_file = writer = fail_file = failures_path = None
 
+    # One record per cell, holding the exact messages sent for that condition. The CSV
+    # and the failures file accumulate across --resume runs; this one is a complete
+    # snapshot of the run that wrote it, so it opens "w" rather than "a" -- appending
+    # would give 32 records on the second run and 48 on the third.
+    #
+    # Written on a --dry-run too, which makes that flag a zero-API-call way to produce
+    # the file. Its directory is created here because the dry-run branch above skips the
+    # mkdir that the CSV would otherwise have done.
+    def _rel(p):
+        """Repo-relative if the path is inside the repo, else absolute. Keeps the record
+        portable instead of baking in whoever's home directory ran it."""
+        try:
+            return str(Path(p).resolve().relative_to(cfg.REPO_ROOT))
+        except ValueError:
+            return str(p)
+
+    prompts_path = args.output.with_name(args.output.stem + "_prompts.jsonl")
+    prompts_path.parent.mkdir(parents=True, exist_ok=True)
+    prompts_file = prompts_path.open("w", encoding="utf-8")
+
     n_ok = n_failed = n_skipped = 0
 
     try:
@@ -543,6 +595,82 @@ def main(argv=None):
             combo = (length, sentiment, structure, example_mode)
             n_target = cell_target[combo]
             already = completed.get(cell_id, 0)
+
+            # Record rep 0's prompt for this cell, on every run.
+            #
+            # `probe_rng` is a FRESH Random seeded identically to the generation RNG
+            # below. Seeding twice from the same string reproduces rep 0's draws exactly
+            # while leaving that stream untouched. Drawing from `rng` here instead would
+            # shift it by one build_messages call for every later review, which is
+            # precisely the breakage validate_generated.py's replay warns about.
+            #
+            # Placed ABOVE the --resume skip: slurm_synthetic_data.sh always passes
+            # --resume, so re-running a finished model would otherwise write an empty file.
+            probe_rng = random.Random(f"{args.seed}:{cell_id}")
+            hotel0 = pool.hotels[cell_offset[combo] % len(pool.hotels)]
+            messages0, opener_move0, resolved0 = build_messages(
+                length, sentiment, structure, example_mode, hotel0, pool, targets,
+                probe_rng, args.length_tolerance,
+            )
+            lo0, hi0 = length_band(targets[length]["chars"], args.length_tolerance)
+            w_min0, w_max0 = targets[length]["words"]
+            # Did the same-hotel preference in ExamplePool._pick actually find a match,
+            # or did it fall back to the whole pool? Derived by looking the returned text
+            # back up rather than changing _pick's signature.
+            def _hotel_matched(ex):
+                if not ex:
+                    return None
+                same = pool.df[pool.df["Category"] == hotel0]
+                return bool((same["text"].str.strip() == ex).any())
+            # Only what VARIES by cell lives here; everything constant across the run
+            # is written once as a footer record at the end of the file. The four
+            # factorial axes are not repeated as columns either -- cell_id is
+            # "{length}_{sentiment}_{structure}_{example_mode}" and already carries them.
+            #
+            # KEY ORDER IS DELIBERATE: short scalars first, the four long text fields
+            # last. A JSONL record is one line, so a 250-800 char example sitting
+            # mid-record pushes the rest of the conditions out past column 1000, where an
+            # editor without soft-wrap never shows them. json.dumps preserves order.
+            prompts_file.write(
+                json.dumps(
+                    {
+                        "record_type": "cell",
+                        # cell_id encodes length, sentiment, structure and example_mode.
+                        "cell_id": cell_id,
+                        "n_reps_in_cell": n_target,
+                        # -- rep 0's own draw: the hotel rotates over all 20, and aspects,
+                        # opener and few-shot examples are resampled per review. This file
+                        # documents the 16 conditions, not every prompt the run sent. --
+                        "hotel": hotel0,
+                        "hotel_ordinal": cell_offset[combo],
+                        "opener_move": opener_move0,
+                        "aspects": resolved0["aspects"],
+                        "few_shot_fallback": resolved0["few_shot_fallback"],
+                        "real_example_hotel_matched": _hotel_matched(resolved0["real_example"]),
+                        "fake_example_hotel_matched": _hotel_matched(resolved0["fake_example"]),
+                        # -- resolved length spec, exactly as substituted --
+                        "target_chars": targets[length]["chars"],
+                        "words_min": w_min0,
+                        "words_max": w_max0,
+                        "length_band": [lo0, hi0],
+                        "num_predict": num_predict_by_length[length],
+                        "example_quantiles": list(cfg.EXAMPLE_QUANTILES[length]),
+                        # -- resolved sentiment. The real example is sentiment-matched
+                        # through `source`; the fake half is MTurk-only and cannot be. --
+                        "sentiment_brief": cfg.SENTIMENT_BRIEFS[sentiment],
+                        "real_example_source": cfg.REAL_SOURCE_BY_SENTIMENT[sentiment],
+                        # -- long text last. Example char counts are omitted: they are
+                        # len() of the two fields right here. --
+                        "real_example": resolved0["real_example"],
+                        "fake_example": resolved0["fake_example"],
+                        "system": messages0[0]["content"],
+                        "user": messages0[1]["content"],
+                    }
+                )
+                + "\n"
+            )
+            prompts_file.flush()
+
             if already >= n_target:
                 print(f"[skip] {cell_id} — {already} rows already present")
                 n_skipped += n_target
@@ -572,7 +700,7 @@ def main(argv=None):
                 # reintroducing the constant-hotel confound this design exists to avoid.
                 ordinal = cell_offset[combo] + rep
                 hotel = pool.hotels[ordinal % len(pool.hotels)]
-                messages, opener_move = build_messages(
+                messages, opener_move, _ = build_messages(
                     length, sentiment, structure, example_mode, hotel, pool, targets, rng,
                     args.length_tolerance,
                 )
@@ -656,16 +784,98 @@ def main(argv=None):
         if fail_file:
             fail_file.close()
 
+        # Everything constant across the run, written once as the LAST line rather than
+        # repeated on all 16 cell records. Emitted from `finally` so it lands even if the
+        # run is interrupted -- a partial file still ends with the settings that produced
+        # it. The trade-off of not repeating: a cell record no longer stands alone, so
+        # read the footer alongside it (see the pandas note in the module docstring).
+        prompts_file.write(
+            json.dumps(
+                {
+                    "record_type": "run_settings",
+                    # -- what was run --
+                    "model": args.model,
+                    "gen_seed": args.seed,
+                    "gen_temperature": args.temperature,
+                    "n_cells_in_run": len(combos),
+                    "n_cells_full_factorial": len(ALL_CELLS),
+                    "total_reviews_in_run": total_reviews,
+                    "rep_index_recorded": 0,
+                    "cells_filter": args.cells,
+                    "dry_run": args.dry_run,
+                    "resume": args.resume,
+                    # -- length / acceptance controls --
+                    "length_tolerance": args.length_tolerance,
+                    "length_attempts": args.length_attempts,
+                    "trim_overlong": args.trim_overlong,
+                    "normalize_ascii": cfg.DEFAULT_NORMALIZE_ASCII,
+                    "min_acceptable_words": cfg.MIN_ACCEPTABLE_WORDS,
+                    "aspects_per_review": cfg.ASPECTS_PER_REVIEW,
+                    # The fake example is always MTurk; only the real one is
+                    # sentiment-matched, which is why that source is per-cell.
+                    "fake_example_source": cfg.FAKE_SOURCE,
+                    # -- API / retry behaviour --
+                    "host": args.host,
+                    "ollama_chat_path": cfg.OLLAMA_CHAT_PATH,
+                    "max_retries": cfg.MAX_RETRIES,
+                    "retry_sleep": cfg.RETRY_SLEEP,
+                    "request_timeout": cfg.REQUEST_TIMEOUT,
+                    "num_predict_chars_per_token": cfg.NUM_PREDICT_CHARS_PER_TOKEN,
+                    "num_predict_floor": cfg.NUM_PREDICT_FLOOR,
+                    # -- provenance, repo-relative so the record carries no home dir --
+                    "examples_csv": _rel(args.examples_csv),
+                    "output_csv": _rel(args.output),
+                    # -- constant columns on the generated CSV, and the two that leak
+                    # the label and must be dropped before training --
+                    "output_binary_label": cfg.OUTPUT_BINARY_LABEL,
+                    "output_domain": cfg.OUTPUT_DOMAIN,
+                    "output_is_synthetic": cfg.OUTPUT_IS_SYNTHETIC,
+                    "leaky_columns": cfg.LEAKY_COLUMNS,
+                    # -- the pools each per-cell draw came from, so what was NOT chosen
+                    # is visible: 4 aspects of 7, 1 opener of 7 weighted, 1 hotel of 20 --
+                    "aspects_pool": cfg.ASPECTS,
+                    "opener_moves_pool": [list(m) for m in cfg.OPENER_MOVES],
+                    "n_hotels": len(pool.hotels),
+                    "hotels": pool.hotels,
+                    # The map that rewrote the model's punctuation. Not cosmetic: em dash
+                    # -> "--" is why generated text carries "--" at rates the human
+                    # corpus never does.
+                    "ascii_normalization": cfg.ASCII_NORMALIZATION,
+                    # -- raw templates before substitution. config.py has been reworded
+                    # mid-study more than once; with these here an output stays
+                    # interpretable regardless of what that file says later. --
+                    "prompt_templates": {
+                        "opening": cfg.PROMPT_OPENING,
+                        "sentiment": cfg.PROMPT_SENTIMENT,
+                        "length_short": cfg.PROMPT_LENGTH_SHORT,
+                        "length_long": cfg.PROMPT_LENGTH_LONG,
+                        "structured": cfg.PROMPT_STRUCTURED,
+                        "unstructured": cfg.PROMPT_UNSTRUCTURED,
+                        "opener": cfg.PROMPT_OPENER,
+                        "diversity": cfg.PROMPT_DIVERSITY,
+                        "output_rule": cfg.PROMPT_OUTPUT_RULE,
+                        "fewshot": cfg.PROMPT_FEWSHOT,
+                        "zeroshot": cfg.PROMPT_ZEROSHOT,
+                    },
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+            )
+            + "\n"
+        )
+        prompts_file.close()
+
     print()
     print("=" * 60)
     if args.dry_run:
         print(f"Dry run — {len(combos)} cells, no API calls made.")
+        print(f"Prompts:   {prompts_path} ({len(combos)} cells, rep 0 of each)")
     else:
         print(f"Generated: {n_ok}")
         print(f"Failed:    {n_failed}" + (f"  -> {failures_path}" if n_failed else ""))
         if n_skipped:
             print(f"Skipped:   {n_skipped} (already present, --resume)")
         print(f"Output:    {args.output}")
+        print(f"Prompts:   {prompts_path} ({len(combos)} cells, rep 0 of each)")
 
         # Achieved vs target length — the `long` condition is meant to sit inside the
         # real corpus band, so surface it rather than making the user go looking.
@@ -686,7 +896,13 @@ def main(argv=None):
                 )
             if done["in_length_band"].mean() < 0.6:
                 print("  NOTE: poor length adherence — small models are weak at this.")
-                print("        Try a larger model, --length-attempts 3, or --trim-overlong.")
+                # Only suggest trimming when it is actually off. Recommending
+                # --trim-overlong while it is already on (the default) sends the reader
+                # after a setting that is doing nothing for them.
+                remedies = ["a larger model", "--length-attempts 3"]
+                if not args.trim_overlong:
+                    remedies.append("--trim-overlong")
+                print(f"        Try {', '.join(remedies[:-1])} or {remedies[-1]}.")
         print()
         leaky = " and ".join(f"`{c}`" for c in cfg.LEAKY_COLUMNS)
         print(f"Reminder: drop {leaky} before training — both leak the label.")
