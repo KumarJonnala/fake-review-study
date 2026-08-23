@@ -155,7 +155,7 @@ Lengths:    short ~200 chars, long ~700 chars
 Examples:   /home/bumu60du/Academic/fake-review-study/data/Hotel_Human_VS_HumanFake_relabelled.csv (20 hotels, read-only)
 Output:     /home/bumu60du/Academic/fake-review-study/data/generated/Hotel_LLM_Reviews_doomgrave_ministral-3_8b.csv
 
-[skip] short_positive_structured_few_shot — 13 rows already present
+  [skip] short_positive_structured_few_shot — 13 rows already present
 [skip] short_positive_structured_zero_shot — 13 rows already present
 [skip] short_positive_unstructured_few_shot — 13 rows already present
 [skip] short_positive_unstructured_zero_shot — 13 rows already present
@@ -604,3 +604,56 @@ Output:     /home/bumu60du/Academic/fake-review-study/data/generated/Hotel_LLM_R
 [GIN] 2026/08/24 - 00:05:29 | 200 |  1.495255455s |             ::1 | POST     "/api/chat"
 [GIN] 2026/08/24 - 00:05:31 | 200 |   2.37415931s |             ::1 | POST     "/api/chat"
 [GIN] 2026/08/24 - 00:05:33 | 200 |  1.841461655s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:05:35 | 200 |   2.08616083s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:05:37 | 200 |  1.842887599s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:05:40 | 200 |  2.611184838s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:05:43 | 200 |  3.136130801s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:05:45 | 200 |  2.302539165s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:05:47 | 200 |  1.719297581s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:05:49 | 200 |  2.412578101s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:05:53 | 200 |  3.129062411s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:05:55 | 200 |  2.464063691s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:05:57 | 200 |  1.355479952s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:05:58 | 200 |  1.532004037s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:01 | 200 |  2.459130377s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:02 | 200 |  1.856088778s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:04 | 200 |  1.454524392s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:06 | 200 |   2.04833804s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:09 | 200 |  3.146734582s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:11 | 200 |  2.107945244s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:13 | 200 |  1.538143456s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:15 | 200 |  2.149358789s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:17 | 200 |  1.936556405s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:19 | 200 |  2.454501028s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:21 | 200 |  1.367940181s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:23 | 200 |  2.382090821s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:25 | 200 |   1.70366881s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:28 | 200 |  2.950248459s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:30 | 200 |  2.050684952s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:32 | 200 |  2.557055042s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:34 | 200 |  2.069522437s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:37 | 200 |  2.518009252s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:39 | 200 |  2.196006577s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:42 | 200 |   2.49640732s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:44 | 200 |   2.08876662s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:47 | 200 |  3.187827856s |             ::1 | POST     "/api/chat"
+[GIN] 2026/08/24 - 00:06:49 | 200 |  1.756819751s |             ::1 | POST     "/api/chat"
+
+============================================================
+Generated: 200
+Failed:    0
+Output:    /home/bumu60du/Academic/fake-review-study/data/generated/Hotel_LLM_Reviews_qwen3.5_9b.csv
+Prompts:   /home/bumu60du/Academic/fake-review-study/data/generated/Hotel_LLM_Reviews_qwen3.5_9b_prompts.jsonl (16 cells, rep 0 of each)
+
+Length (target -> achieved):
+  short target  200 chars (band 130-270)  ->  mean    234, in band 43%
+  long  target  700 chars (band 455-945)  ->  mean    744, in band 97%
+
+Reminder: drop `model` and `is_synthetic` before training — both leak the label.
+============================================================
+Rows written for qwen3.5:9b: 202
+Prompts:  17 cells  -> /home/bumu60du/Academic/fake-review-study/data/generated/Hotel_LLM_Reviews_qwen3.5_9b_prompts.jsonl
+======================================
+All models finished at Mo 24. Aug 00:06:49 CEST 2026
+======================================
+Stopping Ollama (pid 1837657)...
