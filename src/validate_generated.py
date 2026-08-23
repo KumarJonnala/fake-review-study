@@ -35,6 +35,7 @@ import unicodedata
 from collections import Counter
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import requests
 
@@ -342,6 +343,77 @@ def report_stylometry(gen, hum):
     print("  LLM top openers:", Counter(llm.map(opener_word)).most_common(6))
 
 
+def _five_grams(text):
+    words = re.findall(r"[a-z']+", str(text).lower())
+    return {tuple(words[i:i + 5]) for i in range(len(words) - 4)}
+
+
+def reuse_rate(texts):
+    """Fraction of these reviews sharing at least one 5-gram with another of them.
+
+    Strongly size-dependent -- a larger sample has more chances to collide -- so every
+    comparison below is against a human baseline bootstrapped to the SAME n. Comparing
+    200 generated reviews against all 796 real ones would show the humans as the
+    repetitive ones.
+    """
+    texts = [t for t in texts if isinstance(t, str) or not pd.isna(t)]
+    if not texts:
+        return float("nan")
+    grams = [_five_grams(t) for t in texts]
+    counts = Counter(g for s in grams for g in s)
+    return sum(1 for s in grams if any(counts[g] > 1 for g in s)) / len(texts)
+
+
+def _baseline(real, n, draws=60, seed=0):
+    rng = np.random.default_rng(seed)
+    vals = [reuse_rate(list(rng.choice(real, min(n, len(real)), replace=False)))
+            for _ in range(draws)]
+    return np.mean(vals), np.percentile(vals, 2.5), np.percentile(vals, 97.5)
+
+
+def report_repetition(gen, hum):
+    section("10. REPETITION WITHIN THE GENERATED SET")
+    print("  Self-similarity, not similarity to the corpus. A model that writes 200")
+    print("  variations of one review still passes every stylometric check above.\n")
+
+    real = hum[hum.Binary_label == cfg.REAL_LABEL].text.dropna().astype(str).tolist()
+    llm = gen.text.dropna().astype(str).tolist()
+
+    whole = reuse_rate(llm)
+    b_mean, b_lo, b_hi = _baseline(real, len(llm))
+    flag = "OK" if whole <= b_hi else "ABOVE real-corpus range"
+    print(f"  whole set (n={len(llm)}):   LLM {whole:6.1%}   "
+          f"real {b_mean:.1%} (95% {b_lo:.1%}-{b_hi:.1%})   -> {flag}")
+
+    # Within a cell the prompts are near-identical, so this is where prompt-induced
+    # convergence shows up most clearly.
+    per_cell = [reuse_rate(g.text.dropna().astype(str).tolist())
+                for _, g in gen.groupby("cell_id")]
+    cell_n = int(np.median([len(g) for _, g in gen.groupby("cell_id")]))
+    within = float(np.mean(per_cell))
+    c_mean, c_lo, c_hi = _baseline(real, cell_n, draws=200)
+    flag = "OK" if within <= c_hi else "ABOVE real-corpus range"
+    print(f"  within cell (n~{cell_n}):    LLM {within:6.1%}   "
+          f"real {c_mean:.1%} (95% {c_lo:.1%}-{c_hi:.1%})   -> {flag}")
+
+    counts = Counter(g for t in llm for g in _five_grams(t))
+    top = [(n, " ".join(g)) for g, n in counts.most_common(6) if n > 1]
+    if top:
+        print("\n  most-repeated 5-grams:")
+        for n, g in top:
+            print(f"    {n:>3}x  {g}")
+
+    # Specific guard for the detail-type artifact: PROMPT_DIVERSITY used to name
+    # "room numbers" among the concretes to include, and every model converged on it at
+    # roughly 10x the human rate. If a future edit reintroduces a named detail type,
+    # this is where it surfaces.
+    pat = r"\b(?:\d+(?:st|nd|rd|th)\s+floor|floor\s+\d+|room\s+\d+)"
+    llm_rate = gen.text.astype(str).str.contains(pat, regex=True).mean()
+    hum_rate = hum.text.astype(str).str.contains(pat, regex=True).mean()
+    verdict = "OK" if llm_rate < 3 * hum_rate else "INFLATED -- check for a named detail type in the prompt"
+    print(f"\n  room/floor number mentions: LLM {llm_rate:.1%}  human {hum_rate:.1%}  -> {verdict}")
+
+
 def report_perfect_separators(gen, hum):
     section("7. PERFECT SEPARATORS (generic artifact scan)")
     print("  Any character common in LLM output but effectively absent from BOTH human")
@@ -440,6 +512,7 @@ def main(argv=None):
     flagged = report_perfect_separators(gen, hum)
     report_hygiene(gen)
     n_bad_lang = report_language(gen)
+    report_repetition(gen, hum)
 
     print()
     # Non-zero exit on a perfect separator: this is the failure mode that silently

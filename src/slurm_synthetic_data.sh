@@ -15,6 +15,8 @@
 #
 # Override the volume:            TOTAL_REVIEWS=50 sbatch src/slurm_synthetic_data.sh
 # Run just ONE model instead:     MODEL=llama3.2:3b sbatch src/slurm_synthetic_data.sh
+# Re-run a model without         MODEL=llama3.2:3b RUN_TAG=nodetail \
+#   clobbering its existing CSV:    sbatch src/slurm_synthetic_data.sh
 
 set -euo pipefail
 
@@ -133,8 +135,14 @@ for MODEL in "${MODELS[@]}"; do
 
   # Model-tagged output, so a run for one model never lands in (or --resumes into)
   # another model's file.
+  #
+  # RUN_TAG additionally separates a re-run of the SAME model from what is already on
+  # disk. Without it, generation is invoked with --resume against a complete CSV and
+  # every cell is skipped -- so a prompt change could not be measured against the old
+  # output without moving files by hand.
+  #   MODEL=llama3.2:3b RUN_TAG=nodetail sbatch src/slurm_synthetic_data.sh
   MODEL_TAG=$(echo "$MODEL" | tr ':/' '__')
-  OUTPUT="$REPO/data/generated/Hotel_LLM_Reviews_${MODEL_TAG}.csv"
+  OUTPUT="$REPO/data/generated/Hotel_LLM_Reviews_${MODEL_TAG}${RUN_TAG:+_$RUN_TAG}.csv"
 
   echo "Ensuring $MODEL is available..."
   apptainer exec --nv \

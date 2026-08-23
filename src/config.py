@@ -223,12 +223,23 @@ OPENER_MOVES = [
 PROMPT_OPENER = "Open the review with {move}."
 
 # Anti-templating nudge, applied to every cell.
+#
+# DO NOT NAME SPECIFIC DETAIL TYPES HERE. This line used to ask for "concrete details
+# (dates, room numbers, staff names, small incidents)", and because that wording is
+# identical in all 200 prompts, every model converged on the same handful of concretes.
+# Room or floor numbers appeared in 44-57.5% of generated reviews against 5.8% of the
+# human corpus -- llama3.2 wrote "room on the Nth floor" 15 times in 200. The
+# anti-templating instruction was itself the template, and at 10x the human rate it was
+# also a detection tell in its own right.
+#
+# Same failure mode as the PUNCTUATION RULE above: prompt wording manufacturing an
+# artifact that then looks like an LLM signature. Keep the pressure toward concreteness
+# generic; naming the concretes is what does the damage.
 PROMPT_DIVERSITY = (
-    "Vary sentence structure, vocabulary, and concrete details (dates, room numbers, "
-    "staff names, small incidents) so the output does not feel templated. Avoid filler "
-    "phrases like 'overall a great experience' or 'would definitely recommend' unless a "
-    "real reviewer would plausibly write them. Small imperfections help: casual tone, "
-    "tangents, uneven pacing."
+    "Vary sentence structure, vocabulary, and concrete details so the output does not "
+    "feel templated. Avoid filler phrases like 'overall a great experience' or 'would "
+    "definitely recommend' unless a real reviewer would plausibly write them. Small "
+    "imperfections help: casual tone, tangents, uneven pacing."
 )
 
 PROMPT_OUTPUT_RULE = (
