@@ -112,25 +112,48 @@ NUM_PREDICT_CHARS_PER_TOKEN = 2
 NUM_PREDICT_FLOOR = 80
 
 # ---------------------------------------------------------------------------
-# Few-shot example selection
+# Few-shot examples  —  ONE FIXED PAIR, shared by every prompt and every model
 # ---------------------------------------------------------------------------
-# `source` encodes polarity for the REAL half of the corpus (Ott et al. structure,
-# confirmed by keyword rates: TripAdvisor 0.68 positive-word / 0.05 negative-word;
-# Web 0.17 / 0.45). The MTurk (fake) half is mixed polarity and CANNOT be
-# sentiment-matched — the original positive/negative split is absent from this CSV.
+# Pinned by corpus row index, not drawn at run time. The examples used to be resampled
+# per review (sentiment-matched by `source`, length-banded by cell, same-hotel preferred),
+# which meant `few_shot` was not one condition but ~100 different ones, and no two models
+# ever saw the same examples. Fixing the pair makes few_shot vs zero_shot a clean
+# contrast, and makes cross-model comparison exact.
+#
+# Constants rather than a seeded draw: a draw would still shift if the seed, the pool
+# filters or the RNG call order ever changed. These indices cannot.
+#
+# WHAT THIS GIVES UP, deliberately:
+#   - Sentiment matching. `source` encodes polarity for the REAL half (TripAdvisor 0.68
+#     positive-word / 0.05 negative-word; Web 0.17 / 0.45), so a per-sentiment draw used
+#     to hand positive cells a positive example. One pair cannot. PROMPT_FEWSHOT already
+#     covers this: it tells the model to follow the sentiment and length in its
+#     instructions, not the example's -- wording that existed because the MTurk half is
+#     mixed polarity and never could be matched.
+#   - Length banding. Short cells no longer get a short example. Both texts below sit at
+#     the real corpus median (~710 / ~680 chars) so neither cell type gets an outlier.
+#
+# WHAT TO WATCH: with 100 few-shot reviews per model seeing the SAME two texts, any
+# borrowed phrasing is now borrowed 100 times instead of once. validate_generated.py
+# section 4 measures verbatim 6-gram copying and currently reports 0; if that rises, the
+# examples are being parroted and this decision needs revisiting.
+#
+# Both chosen near the median length of their half, and both POSITIVE, so the pair
+# contrasts register -- genuine guest vs paid writer -- rather than polarity, which is
+# what PROMPT_FEWSHOT says the two examples are there to show.
+#   real: row 3    TripAdvisor, omni,  707 chars
+#   fake: row 647  MTurk,       james, 681 chars
+# Indices are into DEFAULT_EXAMPLES_CSV, which is a read-only input; ExamplePool asserts
+# the label and source on load, so a wrong index fails loudly rather than silently
+# feeding the wrong register into every prompt.
+FEWSHOT_REAL_INDEX = 3
+FEWSHOT_FAKE_INDEX = 647
 
-REAL_SOURCE_BY_SENTIMENT = {"positive": "TripAdvisor", "negative": "Web"}
 FAKE_SOURCE = "MTurk"
+REAL_SOURCE = "TripAdvisor"
 
 REAL_LABEL = "real"
 FAKE_LABEL = "fake"
-
-# Length band examples are drawn from, per condition. Short cells get the shortest
-# quartile; long cells get the interquartile middle.
-EXAMPLE_QUANTILES = {
-    "short": (0.0, 0.25),
-    "long": (0.25, 0.75),
-}
 
 # Columns the examples CSV must contain.
 REQUIRED_EXAMPLE_COLUMNS = {"Binary_label", "Category", "text", "source"}
@@ -199,28 +222,36 @@ PROMPT_UNSTRUCTURED = (
     "aspects. Let it read the way a real guest rambles about whatever stood out to them."
 )
 
-# Opening move, sampled per review with the cell RNG so the choice is reproducible and
-# replayable by the validator. A generic "vary your openings" line does not work: it is
-# what PROMPT_DIVERSITY already does for sentence structure, and the llama3.2 sample still
-# collapsed to 6 distinct openers across 48 reviews (a real-corpus sample of the same size
-# averages 20.6), with the long cells opening "I" 100% of the time.
+# WHY THERE IS NO OPENER INSTRUCTION
+# ----------------------------------
+# There used to be one: an OPENER_MOVES pool of 7 weighted categories, one sampled per
+# review and injected as "Open the review with {move}." It was added because a generic
+# "vary your openings" line did nothing -- llama3.2 collapsed to 6 distinct openers across
+# 48 reviews, long cells opening "I" 100% of the time.
 #
-# Weights approximate the real corpus's own opener distribution (n=796, 132 distinct
-# openers): I 21%, We 16%, My 9%, The 8%, This 7%, plus a 28% long tail. Deliberately a
-# CATEGORY of opening rather than a mandated first word -- mandating exact openers would
-# over-constrain the prose and would be imposing a prior about what LLM text looks like,
-# rather than removing an artifact this prompt file created.
-OPENER_MOVES = [
-    ("first person singular, starting with the word I", 3),
-    ("first person plural, starting with the word We or Our", 3),
-    ("the room or the hotel itself as the subject", 2),
-    ("a time or occasion, such as a month, a season, or a trip event", 2),
-    ("the reason for the trip", 1),
-    ("a verdict stated up front", 1),
-    ("a specific detail or small incident", 1),
-]
-
-PROMPT_OPENER = "Open the review with {move}."
+# It was removed because it became the ceiling rather than the floor. Grouping a 183-review
+# qwen3.5 run by the move each was given showed the collapse happening INSIDE a mandated
+# category: the 40 reviews told "first person plural, starting with the word We or Our"
+# gave 15 distinct two-word openings, led by "we arrived" (6), "our three" (5), "we loved"
+# (5). Two of the seven categories named the literal first word and carried 46% of the
+# draw weight, which contradicted the pool's own stated design of steering a CATEGORY
+# rather than a word. The distribution went with it:
+#
+#     opener   human real   steered
+#     my            9.4%       0.5%   <- singular category named only "I"
+#     this          7.3%       0.0%   <- no category covered it
+#     the           8.4%      19.1%
+#
+# and 17 of the 25 commonest human openers (this, after, while, when, if, booked, first,
+# great, ...) never appeared at all. Distinct opening words: 32 in 183, against a human
+# 95% range of 44-61 at the same n. The real corpus gets its spread from a long tail --
+# 109 words used three times or fewer, covering 19.1% of reviews -- which seven fixed
+# categories cannot reproduce by construction.
+#
+# So this is a deliberate re-test of the 6-in-48 result, which was measured before the
+# detail-spec removal above. If opener diversity does not improve without steering, that
+# finding stands and the answer is a WIDER pool, not no pool -- do not simply restore the
+# old 7 categories, which are now known to suppress "my" and "this".
 
 # Anti-templating nudge, applied to every cell.
 #
@@ -343,7 +374,9 @@ CSV_COLUMNS = [
     "sentiment",
     "structure",
     "example_mode",
-    "opener_move",
+    # No `opener_move`: opener steering was removed (see the block above PROMPT_DIVERSITY).
+    # Its absence is also the provenance marker -- a CSV carrying that column was generated
+    # WITH steering, and its RNG stream differs from anything produced since.
     "cell_id",
     "rep_index",
     "n_chars",

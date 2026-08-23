@@ -13,10 +13,15 @@
 # By default this generates reviews for all 4 study models in one job, one after
 # another, reusing a single Ollama server.
 #
+# Every output is suffixed with the SLURM job id, so each run writes its own files and
+# never appends to or overwrites an earlier run's:
+#   data/generated/Hotel_LLM_Reviews_<model>[_<RUN_TAG>]_<jobid>.csv
+#                                      ..._<jobid>_failures.jsonl
+#                                      ..._<jobid>_prompts.jsonl
+#
 # Override the volume:            TOTAL_REVIEWS=50 sbatch src/slurm_synthetic_data.sh
 # Run just ONE model instead:     MODEL=llama3.2:3b sbatch src/slurm_synthetic_data.sh
-# Re-run a model without         MODEL=llama3.2:3b RUN_TAG=nodetail \
-#   clobbering its existing CSV:    sbatch src/slurm_synthetic_data.sh
+# Label a run's purpose:          RUN_TAG=nodetail sbatch src/slurm_synthetic_data.sh
 
 set -euo pipefail
 
@@ -45,6 +50,20 @@ fi
 TOTAL_REVIEWS="${TOTAL_REVIEWS:-200}"
 SEED="${SEED:-12}"
 
+# Every output filename ends with this, so each run writes its OWN files and can never
+# append to, resume into, or overwrite a previous run's.
+#
+# This matters more than it looks. Output used to be named by model alone, and generation
+# is invoked with --resume: job 1683069 therefore appended 66 new-prompt reviews onto 134
+# old-prompt ones in a single gemma4 CSV, and skipped llama3.2 and ministral entirely
+# while still rewriting their _prompts.jsonl sidecars (those open "w") to describe a
+# prompt none of their rows were generated under.
+#
+# Computed ONCE here, not per model, so all models from one job share an id and group
+# together on disk. Falls back to a timestamp off the cluster, where SLURM_JOB_ID is
+# unset -- "local" would collide across repeated local runs, which is the bug being fixed.
+RUN_ID="${SLURM_JOB_ID:-$(date +%Y%m%d-%H%M%S)}"
+
 # Per-job port. A fixed 11434 collides with any other Ollama on this node, and the
 # readiness check would then pass against THAT server -- silently generating with
 # whatever model it happens to be serving.
@@ -54,6 +73,7 @@ echo "======================================"
 echo "Job ${SLURM_JOB_ID:-local} on $(hostname)  |  $(date)"
 echo "models=${MODELS[*]}"
 echo "total_reviews_per_model=$TOTAL_REVIEWS  seed=$SEED  port=$PORT"
+echo "run_id=$RUN_ID${RUN_TAG:+  run_tag=$RUN_TAG}  (all output files end with _$RUN_ID)"
 echo "======================================"
 nvidia-smi || echo "WARNING: nvidia-smi unavailable"
 
@@ -133,16 +153,12 @@ for MODEL in "${MODELS[@]}"; do
   echo "Model: $MODEL"
   echo "======================================"
 
-  # Model-tagged output, so a run for one model never lands in (or --resumes into)
-  # another model's file.
-  #
-  # RUN_TAG additionally separates a re-run of the SAME model from what is already on
-  # disk. Without it, generation is invoked with --resume against a complete CSV and
-  # every cell is skipped -- so a prompt change could not be measured against the old
-  # output without moving files by hand.
-  #   MODEL=llama3.2:3b RUN_TAG=nodetail sbatch src/slurm_synthetic_data.sh
+  # Model-tagged so one model's run never lands in another's file, RUN_ID-suffixed so it
+  # never lands in an EARLIER run's either. Optional RUN_TAG in between labels what a run
+  # was for, since a bare job id says nothing about intent:
+  #   Hotel_LLM_Reviews_llama3.2_3b_nodetail_1683070.csv
   MODEL_TAG=$(echo "$MODEL" | tr ':/' '__')
-  OUTPUT="$REPO/data/generated/Hotel_LLM_Reviews_${MODEL_TAG}${RUN_TAG:+_$RUN_TAG}.csv"
+  OUTPUT="$REPO/data/generated/Hotel_LLM_Reviews_${MODEL_TAG}${RUN_TAG:+_$RUN_TAG}_${RUN_ID}.csv"
 
   echo "Ensuring $MODEL is available..."
   apptainer exec --nv \
@@ -161,6 +177,10 @@ for MODEL in "${MODELS[@]}"; do
   echo "Running generation pipeline for $MODEL..."
   # The two corpus CSVs under data/ are read-only inputs; the generator only reads them
   # for few-shot examples and the 20 hotel names.
+  #
+  # --resume is kept, but with a RUN_ID-unique output it only ever fires on a SLURM
+  # requeue, which reuses the job id. A fresh submission gets a fresh id and so always
+  # generates from scratch -- which is the point.
   "$PYTHON" "$REPO/src/generate_synthetic_reviews.py" \
     --model "$MODEL" \
     --total-reviews "$TOTAL_REVIEWS" \
@@ -178,4 +198,6 @@ done
 
 echo "======================================"
 echo "All models finished at $(date)"
+echo "This run's files (all ending _$RUN_ID):"
+ls -1 "$REPO/data/generated/"*"_${RUN_ID}."* 2>/dev/null | sed 's|^|  |' || echo "  (none)"
 echo "======================================"

@@ -95,14 +95,17 @@ def reconstruct_instructions(gen: pd.DataFrame, examples_csv: Path, tolerance: f
     pool = ExamplePool(examples_csv)
     targets = {k: dict(v) for k, v in cfg.LENGTH_TARGETS.items()}
 
-    # The replay reproduces the CURRENT prompt code. A CSV written before the opener draw
-    # was added has an RNG stream offset by one call per review, so recovered aspects and
-    # examples are wrong for every rep after the first. Stylometry does not depend on the
-    # replay and stays valid either way.
-    if "opener_move" not in gen.columns:
-        print("\n  ! This CSV predates opener steering. The RNG stream has since changed,")
-        print("    so sections 3 and 4 (structure, example_mode) are NOT valid for it.")
-        print("    Sections 1, 6, 7, 8 are unaffected.")
+    # The replay reproduces the CURRENT prompt code, so any CSV generated under a
+    # different set of RNG draws replays wrong. `opener_move` is the marker: the column
+    # exists only on runs made while opener steering was in place, and that steering was
+    # one rng.choices() call per review. Removing it shifted every later draw, so the
+    # recovered aspects and examples for such a CSV are wrong from rep 0 onward.
+    # Stylometry does not depend on the replay and stays valid either way.
+    if "opener_move" in gen.columns and gen["opener_move"].notna().any():
+        print("\n  ! This CSV was generated WITH opener steering, which has since been")
+        print("    removed. The RNG stream is offset by one draw per review, so sections")
+        print("    3 and 4 (structure, example_mode) are NOT valid for it.")
+        print("    Sections 1, 2, 6, 7, 8, 9, 10 are unaffected.")
 
     seeds = gen["gen_seed"].unique()
     if len(seeds) != 1:
@@ -141,7 +144,7 @@ def reconstruct_instructions(gen: pd.DataFrame, examples_csv: Path, tolerance: f
         for rep in range(n_target):
             ordinal = cell_offset[combo] + rep
             hotel = pool.hotels[ordinal % len(pool.hotels)]
-            messages, opener_move, _ = build_messages(
+            messages, _ = build_messages(
                 length, sentiment, structure, example_mode, hotel, pool, targets, rng,
                 tolerance,
             )
@@ -153,7 +156,6 @@ def reconstruct_instructions(gen: pd.DataFrame, examples_csv: Path, tolerance: f
             recovered[(cell_id, rep)] = {
                 "hotel": hotel,
                 "aspects": aspects,
-                "opener_move": opener_move,
                 "user_msg": messages[1]["content"],
             }
     return recovered
@@ -287,26 +289,47 @@ def report_example_mode(gen, recovered):
         print("  ! substantial copying: the few_shot cells may be parroting examples")
 
 
-def report_opener(gen, recovered):
-    section("5. OPENER COMPLIANCE")
-    if "opener_move" not in gen.columns:
-        print("  (no opener_move column: CSV predates opener steering)")
-        return
-    fw = gen.text.map(opener_word)
-    first_person_sg = fw.isin(["i", "i'm", "i've", "id", "my"])
-    first_person_pl = fw.isin(["we", "we've", "our", "us"])
-    for mv, g in gen.groupby("opener_move"):
-        sub_fw = g.text.map(opener_word)
-        if mv.startswith("first person singular"):
-            ok = sub_fw.isin(["i", "i'm", "i've", "my"]).mean()
-        elif mv.startswith("first person plural"):
-            ok = sub_fw.isin(["we", "we've", "our", "us"]).mean()
-        else:
-            # For the open-ended moves, the check is only that it did NOT fall back to
-            # the default first-person opener.
-            ok = 1 - sub_fw.isin(["i", "i'm", "i've", "we", "my", "our"]).mean()
-        label = "opens as asked" if mv.startswith("first person") else "avoided I/We default"
-        print(f"  {mv[:52]:54s} n={len(g):3d}  {label}: {100 * ok:5.1f}%")
+def report_opener(gen, hum):
+    section("5. OPENER DIVERSITY")
+    print("  Opener steering was removed, so this measures the spread the models produce")
+    print("  unaided. The real corpus wins on its LONG TAIL, not its top few openers:")
+    print("  109 of its 132 distinct opening words are used three times or fewer.\n")
+
+    real = hum[hum.Binary_label == cfg.REAL_LABEL].text.dropna().astype(str)
+    llm = gen.text.dropna().astype(str)
+    n = len(llm)
+
+    # Bootstrapped to the LLM's own n, the way report_stylometry does it -- distinct-word
+    # counts grow with sample size, so an unmatched comparison is meaningless.
+    rng = np.random.default_rng(0)
+    boots = [len({opener_word(t) for t in rng.choice(real.tolist(), min(n, len(real)),
+                                                     replace=False)})
+             for _ in range(300)]
+    lo, hi = np.percentile(boots, 2.5), np.percentile(boots, 97.5)
+    got = llm.map(opener_word).nunique()
+    flag = "OK" if lo <= got <= hi else "BELOW real-corpus range" if got < lo else "above range"
+    print(f"  distinct opening words in {n}: LLM={got}   "
+          f"real 95% range={lo:.0f}-{hi:.0f} (median {np.median(boots):.0f})   -> {flag}")
+
+    def tail_share(s):
+        c = Counter(s.map(opener_word))
+        return sum(v for v in c.values() if v <= 3) / len(s)
+    print(f"  share opening with a rare word (<=3 uses): "
+          f"LLM {tail_share(llm):.1%}   real {tail_share(real):.1%}")
+
+    # Per-word comparison. `my` and `this` are called out because opener steering
+    # suppressed both -- the singular category named only "I", and nothing covered "This".
+    # If they stay near zero without steering, that is the models' own bias, not the prompt.
+    print(f"\n  {'opener':10} {'LLM':>8} {'real':>8}")
+    lw, rw = llm.map(opener_word), real.map(opener_word)
+    for w in ("i", "we", "my", "the", "this", "our"):
+        print(f"  {w:10} {lw.eq(w).mean():>7.1%} {rw.eq(w).mean():>7.1%}")
+    print(f"  {'FIRST-PER':10} {lw.isin(['i','we','our','my']).mean():>7.1%} "
+          f"{rw.isin(['i','we','our','my']).mean():>7.1%}")
+    print("\n  LLM top openers:", Counter(lw).most_common(6))
+    missing = [w for w, _ in Counter(rw).most_common(25) if lw.eq(w).sum() == 0]
+    if missing:
+        print(f"  common real openers absent from the LLM set: {missing}")
 
 
 def report_stylometry(gen, hum):
@@ -507,7 +530,7 @@ def main(argv=None):
     report_sentiment(gen, url, args.model, use_judge=not args.no_judge)
     report_structure(gen, recovered)
     report_example_mode(gen, recovered)
-    report_opener(gen, recovered)
+    report_opener(gen, hum)
     report_stylometry(gen, hum)
     flagged = report_perfect_separators(gen, hum)
     report_hygiene(gen)

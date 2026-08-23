@@ -89,49 +89,41 @@ class ExamplePool:
         df = df.dropna(subset=["text"]).copy()
         df["n_chars"] = df["text"].str.len()
         self.df = df
+        self.csv_path = csv_path
         self.hotels = sorted(df["Category"].dropna().unique())
         if not self.hotels:
             raise ValueError(f"No hotel categories found in {csv_path}")
 
-    def _pick(self, pool: pd.DataFrame, hotel: str, length: str, rng: random.Random) -> str:
-        """Prefer the same hotel; prefer a length band suiting the cell."""
-        if pool.empty:
-            return ""
+    def _pinned(self, idx: int, want_label: str, want_source: str) -> str:
+        """One example, pinned by corpus row index and checked on the way out.
 
-        same_hotel = pool[pool["Category"] == hotel]
-        candidates = same_hotel if not same_hotel.empty else pool
-
-        # Short cells get the shortest quartile; long cells get the middle band.
-        q_lo, q_hi = cfg.EXAMPLE_QUANTILES[length]
-        lo = candidates["n_chars"].quantile(q_lo)
-        hi = candidates["n_chars"].quantile(q_hi)
-        banded = candidates[(candidates["n_chars"] >= lo) & (candidates["n_chars"] <= hi)]
-
-        if banded.empty:
-            banded = candidates
-
-        idx = rng.choice(list(banded.index))
-        return str(self.df.at[idx, "text"]).strip()
-
-    def get_pair(self, sentiment: str, hotel: str, length: str, rng: random.Random):
-        """Return (real_example, fake_example).
-
-        The real example is sentiment-matched via `source`. The fake example is drawn
-        from MTurk and CANNOT be sentiment-matched — polarity is absent from this CSV.
+        The check is the point: an index silently pointing at the wrong row would feed
+        the wrong register into every single few-shot prompt, for every model, and the
+        output would look plausible while the condition meant nothing.
         """
-        real_source = cfg.REAL_SOURCE_BY_SENTIMENT[sentiment]
-        real_pool = self.df[
-            (self.df["Binary_label"] == cfg.REAL_LABEL)
-            & (self.df["source"] == real_source)
-        ]
-        fake_pool = self.df[
-            (self.df["Binary_label"] == cfg.FAKE_LABEL)
-            & (self.df["source"] == cfg.FAKE_SOURCE)
-        ]
+        if idx not in self.df.index:
+            raise ValueError(
+                f"few-shot index {idx} is not a row of {self.csv_path}. "
+                "The corpus CSVs are read-only inputs; if one changed, re-pin "
+                "FEWSHOT_REAL_INDEX / FEWSHOT_FAKE_INDEX in config.py."
+            )
+        row = self.df.loc[idx]
+        if row["Binary_label"] != want_label or row["source"] != want_source:
+            raise ValueError(
+                f"few-shot index {idx} is {row['Binary_label']}/{row['source']}, "
+                f"expected {want_label}/{want_source}."
+            )
+        return str(row["text"]).strip()
 
+    def get_pair(self):
+        """The ONE (real_example, fake_example) pair, identical for every prompt.
+
+        Takes no rng, no sentiment, no hotel and no length: see the fixed-pair block in
+        config.py for what that trades away and why.
+        """
         return (
-            self._pick(real_pool, hotel, length, rng),
-            self._pick(fake_pool, hotel, length, rng),
+            self._pinned(cfg.FEWSHOT_REAL_INDEX, cfg.REAL_LABEL, cfg.REAL_SOURCE),
+            self._pinned(cfg.FEWSHOT_FAKE_INDEX, cfg.FAKE_LABEL, cfg.FAKE_SOURCE),
         )
 
 
@@ -147,16 +139,13 @@ def length_band(target_chars: int, tolerance: float):
 
 
 def build_system_prompt(length, sentiment, structure, hotel, targets, rng, tolerance):
-    """Returns (system_prompt, opener_move, aspects).
+    """Returns (system_prompt, aspects).
 
-    The opener move is returned so it can be written to the CSV as a factor column:
-    the analysis needs to know how each review was told to open, and the validator
-    replays this same function to recover it.
+    `aspects` (the sampled list, or None for unstructured cells) is drawn from `rng` and
+    so exists nowhere else once this returns; it is returned to be recorded as a factor,
+    the alternative being to regex it back out of the prose.
 
-    `aspects` (the sampled list, or None for unstructured cells) is returned for the
-    same reason, into the prompts sidecar. Both are drawn from `rng` and so exist
-    nowhere else once this returns -- the alternative is regexing them back out of the
-    prose, which is what validate_generated.py has to do today.
+    No opener is drawn -- see the "WHY THERE IS NO OPENER INSTRUCTION" block in config.py.
     """
     target = targets[length]
     w_min, w_max = target["words"]
@@ -181,26 +170,21 @@ def build_system_prompt(length, sentiment, structure, hotel, targets, rng, toler
         chosen = None
         parts.append(cfg.PROMPT_UNSTRUCTURED)
 
-    # Drawn after the structure clause so the RNG sequence stays deterministic per cell.
-    moves, weights = zip(*cfg.OPENER_MOVES)
-    opener_move = rng.choices(moves, weights=weights, k=1)[0]
-    parts.append(cfg.PROMPT_OPENER.format(move=opener_move))
-
     parts.append(cfg.PROMPT_DIVERSITY)
     parts.append(cfg.PROMPT_OUTPUT_RULE)
 
-    return "\n".join(parts), opener_move, chosen
+    return "\n".join(parts), chosen
 
 
 def build_messages(length, sentiment, structure, example_mode, hotel, pool, targets, rng,
                    tolerance):
-    """Returns (messages, opener_move, resolved).
+    """Returns (messages, resolved).
 
     `resolved` holds the values drawn from `rng` inside this call -- the sampled aspects,
     the two few-shot examples, and whether the few-shot path fell back. They are recorded
     in the prompts sidecar; callers that only need the messages discard the dict.
     """
-    system_prompt, opener_move, aspects = build_system_prompt(
+    system_prompt, aspects = build_system_prompt(
         length, sentiment, structure, hotel, targets, rng, tolerance
     )
     messages = [{"role": "system", "content": system_prompt}]
@@ -208,7 +192,7 @@ def build_messages(length, sentiment, structure, example_mode, hotel, pool, targ
     fallback = False
 
     if example_mode == "few_shot":
-        real_ex, fake_ex = pool.get_pair(sentiment, hotel, length, rng)
+        real_ex, fake_ex = pool.get_pair()
         if real_ex and fake_ex:
             content = cfg.PROMPT_FEWSHOT.format(real_example=real_ex, fake_example=fake_ex)
         else:
@@ -227,7 +211,7 @@ def build_messages(length, sentiment, structure, example_mode, hotel, pool, targ
         "fake_example": fake_ex or None,
         "few_shot_fallback": fallback,
     }
-    return messages, opener_move, resolved
+    return messages, resolved
 
 
 # ---------------------------------------------------------------------------
@@ -521,6 +505,9 @@ def main(argv=None):
 
     url = f"http://{args.host}{cfg.OLLAMA_CHAT_PATH}"
     pool = ExamplePool(args.examples_csv)
+    # Resolved once here so the pinned-index validation fails at startup rather than on
+    # the first few_shot cell, and so the footer can record what every prompt was given.
+    _fewshot_real, _fewshot_fake = pool.get_pair()
 
     # Per-cell review counts and hotel-rotation offsets are both computed from the FULL
     # cell list (not the filtered `combos`) so a --cells filter or --resume never shifts
@@ -608,20 +595,12 @@ def main(argv=None):
             # --resume, so re-running a finished model would otherwise write an empty file.
             probe_rng = random.Random(f"{args.seed}:{cell_id}")
             hotel0 = pool.hotels[cell_offset[combo] % len(pool.hotels)]
-            messages0, opener_move0, resolved0 = build_messages(
+            messages0, resolved0 = build_messages(
                 length, sentiment, structure, example_mode, hotel0, pool, targets,
                 probe_rng, args.length_tolerance,
             )
             lo0, hi0 = length_band(targets[length]["chars"], args.length_tolerance)
             w_min0, w_max0 = targets[length]["words"]
-            # Did the same-hotel preference in ExamplePool._pick actually find a match,
-            # or did it fall back to the whole pool? Derived by looking the returned text
-            # back up rather than changing _pick's signature.
-            def _hotel_matched(ex):
-                if not ex:
-                    return None
-                same = pool.df[pool.df["Category"] == hotel0]
-                return bool((same["text"].str.strip() == ex).any())
             # Only what VARIES by cell lives here; everything constant across the run
             # is written once as a footer record at the end of the file. The four
             # factorial axes are not repeated as columns either -- cell_id is
@@ -643,26 +622,20 @@ def main(argv=None):
                         # documents the 16 conditions, not every prompt the run sent. --
                         "hotel": hotel0,
                         "hotel_ordinal": cell_offset[combo],
-                        "opener_move": opener_move0,
                         "aspects": resolved0["aspects"],
                         "few_shot_fallback": resolved0["few_shot_fallback"],
-                        "real_example_hotel_matched": _hotel_matched(resolved0["real_example"]),
-                        "fake_example_hotel_matched": _hotel_matched(resolved0["fake_example"]),
                         # -- resolved length spec, exactly as substituted --
                         "target_chars": targets[length]["chars"],
                         "words_min": w_min0,
                         "words_max": w_max0,
                         "length_band": [lo0, hi0],
                         "num_predict": num_predict_by_length[length],
-                        "example_quantiles": list(cfg.EXAMPLE_QUANTILES[length]),
                         # -- resolved sentiment. The real example is sentiment-matched
                         # through `source`; the fake half is MTurk-only and cannot be. --
                         "sentiment_brief": cfg.SENTIMENT_BRIEFS[sentiment],
-                        "real_example_source": cfg.REAL_SOURCE_BY_SENTIMENT[sentiment],
-                        # -- long text last. Example char counts are omitted: they are
-                        # len() of the two fields right here. --
-                        "real_example": resolved0["real_example"],
-                        "fake_example": resolved0["fake_example"],
+                        # The two few-shot examples are now run-level constants and
+                        # live in the footer, not repeated on all 16 cell records.
+                        # -- long text last --
                         "system": messages0[0]["content"],
                         "user": messages0[1]["content"],
                     }
@@ -700,7 +673,7 @@ def main(argv=None):
                 # reintroducing the constant-hotel confound this design exists to avoid.
                 ordinal = cell_offset[combo] + rep
                 hotel = pool.hotels[ordinal % len(pool.hotels)]
-                messages, opener_move, _ = build_messages(
+                messages, _ = build_messages(
                     length, sentiment, structure, example_mode, hotel, pool, targets, rng,
                     args.length_tolerance,
                 )
@@ -759,7 +732,6 @@ def main(argv=None):
                         "sentiment": sentiment,
                         "structure": structure,
                         "example_mode": example_mode,
-                        "opener_move": opener_move,
                         "cell_id": cell_id,
                         "rep_index": rep,
                         "n_chars": len(text),
@@ -813,6 +785,10 @@ def main(argv=None):
                     "aspects_per_review": cfg.ASPECTS_PER_REVIEW,
                     # The fake example is always MTurk; only the real one is
                     # sentiment-matched, which is why that source is per-cell.
+                    # THE fixed few-shot pair -- one per run, identical across models.
+                    "fewshot_real_index": cfg.FEWSHOT_REAL_INDEX,
+                    "fewshot_fake_index": cfg.FEWSHOT_FAKE_INDEX,
+                    "real_example_source": cfg.REAL_SOURCE,
                     "fake_example_source": cfg.FAKE_SOURCE,
                     # -- API / retry behaviour --
                     "host": args.host,
@@ -834,7 +810,6 @@ def main(argv=None):
                     # -- the pools each per-cell draw came from, so what was NOT chosen
                     # is visible: 4 aspects of 7, 1 opener of 7 weighted, 1 hotel of 20 --
                     "aspects_pool": cfg.ASPECTS,
-                    "opener_moves_pool": [list(m) for m in cfg.OPENER_MOVES],
                     "n_hotels": len(pool.hotels),
                     "hotels": pool.hotels,
                     # The map that rewrote the model's punctuation. Not cosmetic: em dash
@@ -851,13 +826,15 @@ def main(argv=None):
                         "length_long": cfg.PROMPT_LENGTH_LONG,
                         "structured": cfg.PROMPT_STRUCTURED,
                         "unstructured": cfg.PROMPT_UNSTRUCTURED,
-                        "opener": cfg.PROMPT_OPENER,
                         "diversity": cfg.PROMPT_DIVERSITY,
                         "output_rule": cfg.PROMPT_OUTPUT_RULE,
                         "fewshot": cfg.PROMPT_FEWSHOT,
                         "zeroshot": cfg.PROMPT_ZEROSHOT,
                     },
                     "timestamp": datetime.now(timezone.utc).isoformat(),
+                    # Long text last, as in the cell records.
+                    "real_example": _fewshot_real,
+                    "fake_example": _fewshot_fake,
                 }
             )
             + "\n"
