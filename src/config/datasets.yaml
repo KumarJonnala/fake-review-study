@@ -1,0 +1,41 @@
+# Inputs and sampling settings for src/make_datasets_and_splits.py.
+#
+# Three datasets, each 1592 rows at 796 real / 796 fake, differing ONLY in what the fake
+# half is made of. Holding the real half and the totals fixed is the point: any gap in
+# classifier performance between them is then attributable to composition rather than to
+# sample size or to which reviews happened to be drawn.
+#
+# LEAKY COLUMNS. `origin` and `cell_id` are written to the output for stratification and
+# error analysis. Both perfectly determine the label. They must never reach a vectorizer.
+# `source` (fake == MTurk only), `is_synthetic` and `model` are dropped outright.
+
+seed: 42
+
+inputs:
+  # Read-only. The generator and this script only ever read the corpus CSVs.
+  human_corpus: data/Hotel_Human_VS_HumanFake_relabelled.csv
+
+  # Listed explicitly, not globbed: qwen comes from its own clean re-run while the other
+  # three come from job 1683072. A glob cannot express that, and would silently pick up
+  # Hotel_LLM_Reviews_qwen3.5_9b_1683072.csv -- a resume-splice of 144 rows from the job
+  # that was killed mid-cell plus 56 added afterwards. All four files were checked to
+  # carry byte-identical prompts, so they remain comparable.
+  synthetic_files:
+    - data/generated/Hotel_LLM_Reviews_gemma4_e4b_1683072.csv
+    - data/generated/Hotel_LLM_Reviews_doomgrave_ministral-3_8b_1683072.csv
+    - data/generated/Hotel_LLM_Reviews_llama3.2_3b_1683072.csv
+    - data/generated/Hotel_LLM_Reviews_qwen3.5_9b_redo_1710344.csv
+
+output_dir: data/datasets
+
+split:
+  test_size: 0.25
+  # `origin` determines the label in all three datasets, so stratifying on it stratifies
+  # the label too -- and additionally guarantees each model is proportionally present in
+  # the test half, which stratifying on the label alone does not.
+  stratify_on: origin
+
+datasets:
+  d1_human_real_vs_human_fake: {real: 796, human_fake: 796, synthetic: 0}
+  d2_human_real_vs_synthetic:  {real: 796, human_fake: 0,   synthetic: 796}
+  d3_human_real_vs_mixed:      {real: 796, human_fake: 398, synthetic: 398}
