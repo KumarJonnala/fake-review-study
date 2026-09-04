@@ -5,9 +5,18 @@
 # classifier performance between them is then attributable to composition rather than to
 # sample size or to which reviews happened to be drawn.
 #
-# LEAKY COLUMNS. `origin` and `cell_id` are written to the output for stratification and
-# error analysis. Both perfectly determine the label. They must never reach a vectorizer.
-# `source` (fake == MTurk only), `is_synthetic` and `model` are dropped outright.
+# LEAKY COLUMNS. `origin`, `source_dataset` and `cell_id_variation` are written to the
+# output for stratification and error analysis. Each determines or narrows the label -- a
+# generated filename identifies a model, hence `fake` -- so none may ever reach a
+# vectorizer. `is_synthetic`, `model`, and the corpus's own `source` column
+# (TripAdvisor/Web/MTurk, where MTurk identifies every human fake) are dropped outright.
+#
+# `origin` is human_real, human_fake, or the model name. There is no separate `source`
+# column: it would be `origin` with the two human values collapsed to "human", which is
+# recoverable from `origin` alone.
+#
+# `Category` and `cell_id` are renamed to `hotel` and `cell_id_variation` on the way out.
+# The inputs below keep their own names and are never modified.
 
 seed: 42
 

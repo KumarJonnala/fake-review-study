@@ -20,9 +20,21 @@ from sklearn.model_selection import train_test_split
 
 REPO = Path(__file__).resolve().parent.parent
 
-# Written to the output for stratification and error analysis; both perfectly determine
-# the label, so neither may ever be used as a feature.
-OUTPUT_COLUMNS = ["text", "Binary_label", "label", "Category", "origin", "cell_id", "split"]
+# `Category` and `cell_id` are renamed on the way out -- the inputs keep their own names,
+# so the sampling code below still addresses them as they really are.
+RENAME_ON_WRITE = {"Category": "hotel", "cell_id": "cell_id_variation"}
+
+# `origin`, `source_dataset` and `cell_id_variation` are written for stratification and
+# error analysis. Each one determines or narrows the label -- a generated filename
+# identifies a model, hence `fake` -- so none may be used as a feature.
+#
+# No separate `source` column: it would be `origin` with human_real/human_fake collapsed
+# to "human", which is recoverable from `origin` alone. For a per-generator groupby, use
+#     df.origin.where(~df.origin.str.startswith("human_"), "human")
+OUTPUT_COLUMNS = [
+    "text", "Binary_label", "label", "hotel",
+    "origin", "source_dataset", "cell_id_variation", "split",
+]
 
 
 def largest_remainder(total, keys, avail, rng):
@@ -105,7 +117,8 @@ def sample_synthetic(pool, n, rng):
 
 def load_inputs(cfg, rng_seed):
     """The human corpus and the synthetic pool, both shuffled once, deterministically."""
-    human = pd.read_csv(REPO / cfg["inputs"]["human_corpus"])
+    corpus = REPO / cfg["inputs"]["human_corpus"]
+    human = pd.read_csv(corpus)
     human["cell_id"] = pd.NA
 
     frames = []
@@ -113,11 +126,20 @@ def load_inputs(cfg, rng_seed):
         path = REPO / rel
         if not path.exists():
             sys.exit(f"ERROR: synthetic input not found: {rel}")
-        frames.append(pd.read_csv(path))
+        frame = pd.read_csv(path)
+        # Stamped per file, inside the loop: after the concat below the filename is gone,
+        # and two of these four files come from different runs (job 1683072 for three
+        # models, a separate clean re-run for qwen).
+        frame["source_dataset"] = path.name
+        frames.append(frame)
     synth = pd.concat(frames, ignore_index=True)
 
-    # `origin` replaces `model`/`is_synthetic` and, for the human rows, `source`.
+    # `origin` is the stratification key and the only column separating a human real
+    # review from a human fake. It replaces `model` and `is_synthetic`, and the corpus's
+    # own `source` column (TripAdvisor/Web/MTurk) is dropped rather than carried, because
+    # MTurk identifies every human fake.
     human["origin"] = "human_" + human["Binary_label"]
+    human["source_dataset"] = corpus.name
     synth["origin"] = synth["model"]
 
     shuffle = dict(frac=1, random_state=rng_seed)
@@ -147,7 +169,8 @@ def build(name, spec, human, synth, cfg, seed):
         stratify_col=cfg["split"]["stratify_on"],
     )
     train["split"], test["split"] = "train", "test"
-    out = pd.concat([train, test], ignore_index=True)[OUTPUT_COLUMNS]
+    out = pd.concat([train, test], ignore_index=True)
+    out = out.rename(columns=RENAME_ON_WRITE)[OUTPUT_COLUMNS]
 
     path = REPO / cfg["output_dir"] / f"{name}.csv"
     out.to_csv(path, index=False)
@@ -162,14 +185,16 @@ def summarise(name, df, path):
         f"{k} {v}" for k, v in df["origin"].value_counts().sort_index().items()))
     print("  by split:   " + "  ".join(
         f"{k} {v}" for k, v in df["split"].value_counts().items()))
+    print("  from files: " + "  ".join(
+        f"{k} {v}" for k, v in df["source_dataset"].value_counts().sort_index().items()))
 
-    cells = df.dropna(subset=["cell_id"])
+    cells = df.dropna(subset=["cell_id_variation"])
     if len(cells):
-        per = cells.groupby(["origin", "cell_id"]).size()
-        pooled = cells.groupby("cell_id").size()
-        print(f"  cells:      16/{cells['cell_id'].nunique()} present   "
+        per = cells.groupby(["origin", "cell_id_variation"]).size()
+        pooled = cells.groupby("cell_id_variation").size()
+        print(f"  cells:      16/{cells['cell_id_variation'].nunique()} present   "
               f"per model-cell {per.min()}-{per.max()}   pooled {pooled.min()}-{pooled.max()}")
-    print(f"  hotels:     {df['Category'].nunique()}/20")
+    print(f"  hotels:     {df['hotel'].nunique()}/20")
 
 
 def main(argv=None):
@@ -189,8 +214,8 @@ def main(argv=None):
         df, path = build(name, spec, human, synth, cfg, seed)
         summarise(name, df, path)
 
-    print("\nReminder: `origin` and `cell_id` are metadata — both leak the label and must "
-          "never be used as features.")
+    print("\nReminder: origin, source_dataset and cell_id_variation are metadata — each "
+          "leaks the label and must never be used as a feature.")
     return 0
 
 
