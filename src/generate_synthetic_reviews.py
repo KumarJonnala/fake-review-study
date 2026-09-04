@@ -617,9 +617,11 @@ def main(argv=None):
                         # cell_id encodes length, sentiment, structure and example_mode.
                         "cell_id": cell_id,
                         "n_reps_in_cell": n_target,
-                        # -- rep 0's own draw: the hotel rotates over all 20, and aspects,
-                        # opener and few-shot examples are resampled per review. This file
-                        # documents the 16 conditions, not every prompt the run sent. --
+                        # -- rep 0's own draw. Only the hotel and the aspects vary by
+                        # rep: the hotel rotates over all 20 by `cell_offset + rep`, and
+                        # aspects are resampled from `rng` (None when unstructured). The
+                        # few-shot pair is pinned run-level and lives in the footer. This
+                        # file documents the 16 conditions, not every prompt the run sent. --
                         "hotel": hotel0,
                         "hotel_ordinal": cell_offset[combo],
                         "aspects": resolved0["aspects"],
