@@ -1,9 +1,16 @@
 # Inputs and sampling settings for src/make_datasets_and_splits.py.
 #
-# Three datasets, each 1592 rows at 796 real / 796 fake, differing ONLY in what the fake
-# half is made of. Holding the real half and the totals fixed is the point: any gap in
-# classifier performance between them is then attributable to composition rather than to
-# sample size or to which reviews happened to be drawn.
+# THREE SAMPLED datasets, each 1592 rows at 796 real / 796 fake, differing ONLY in what
+# the fake half is made of. Holding the real half and the totals fixed is the point: any
+# gap in classifier performance between them is then attributable to composition rather
+# than to sample size or to which reviews happened to be drawn.
+#
+# ONE UNSAMPLED dataset, d3_unsampled, which takes every human review and every generated
+# review with no subsampling: 2392 rows at 796 real (33.3%) / 1596 fake (66.7%). The
+# stratified split preserves that 1:2 ratio in both halves. Because of it, the
+# majority-class accuracy baseline is 66.7% rather than 50%, so raw accuracy is not
+# readable on its own here and is NOT comparable to the three sampled datasets -- quote
+# F1 or PR-AUC instead.
 #
 # LEAKY COLUMNS. `origin`, `source_dataset` and `cell_id_variation` are written to the
 # output for stratification and error analysis. Each determines or narrows the label -- a
@@ -44,7 +51,13 @@ split:
   # the test half, which stratifying on the label alone does not.
   stratify_on: origin
 
+# Counts per block. `all` means every available row -- preferred over writing the literal
+# number, because it states the intent and cannot silently under-draw if a synthetic file
+# is later added, replaced or corrected.
+#
+# d1 needs no sampled/unsampled suffix: both its blocks already take the whole corpus.
 datasets:
-  d1_human_real_vs_human_fake: {real: 796, human_fake: 796, synthetic: 0}
-  d2_human_real_vs_synthetic:  {real: 796, human_fake: 0,   synthetic: 796}
-  d3_human_real_vs_mixed:      {real: 796, human_fake: 398, synthetic: 398}
+  d1_human_real_vs_human_fake:        {real: 796, human_fake: 796, synthetic: 0}
+  d2_sampled_human_real_vs_synthetic: {real: 796, human_fake: 0,   synthetic: 796}
+  d3_sampled_human_real_vs_mixed:     {real: 796, human_fake: 398, synthetic: 398}
+  d3_unsampled_human_real_vs_mixed:   {real: all, human_fake: all, synthetic: all}

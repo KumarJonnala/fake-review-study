@@ -146,15 +146,28 @@ def load_inputs(cfg, rng_seed):
     return human.sample(**shuffle), synth.sample(**shuffle)
 
 
+def _count(value, pool):
+    """`all` means every available row; anything else is a literal count.
+
+    Asking for the whole pool needs no special path -- `largest_remainder` hands back
+    exactly the available rows once the request equals what there is -- so an unsampled
+    dataset is the sampled code with the numbers turned up to the ceiling.
+    """
+    return len(pool) if value == "all" else int(value)
+
+
 def build(name, spec, human, synth, cfg, seed):
+    # The dataset NAME is part of the seed, so each dataset draws its own stream and
+    # adding or removing one does not shift the others. Renaming one does shift its own
+    # draw, which is why d2/d3 moved by 2 and 10 rows when they gained the `_sampled` tag.
     rng = random.Random(f"{seed}:{name}")
     real = human[human["Binary_label"] == "real"]
     fake = human[human["Binary_label"] == "fake"]
 
     parts = [
-        take(real, spec["real"], "Category", rng),
-        take(fake, spec["human_fake"], "Category", rng),
-        sample_synthetic(synth, spec["synthetic"], rng),
+        take(real, _count(spec["real"], real), "Category", rng),
+        take(fake, _count(spec["human_fake"], fake), "Category", rng),
+        sample_synthetic(synth, _count(spec["synthetic"], synth), rng),
     ]
     df = pd.concat([p for p in parts if len(p)], ignore_index=True)
 
