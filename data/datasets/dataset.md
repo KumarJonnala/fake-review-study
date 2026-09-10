@@ -1,29 +1,18 @@
 # Study datasets
 
-Four datasets for the fake-review detection study, each with a seeded 75-25 stratified
-train/test split. All four are **generated artifacts** — do not edit them by hand. They are
-rebuilt from scratch by:
+## The eight datasets
 
-```
-python3 src/make_datasets_and_splits.py [--config src/config/datasets.yaml]
-```
 
-Composition, inputs and the seed live in `src/config/datasets.yaml`. Re-running is
-byte-identical (seed 42, verified).
-
-## The four datasets
-
-Every dataset answers the same question — can a classifier tell real hotel reviews from
-fake ones — and they differ **only in what the fake half is made of**. The three sampled
-datasets hold the real half and the totals fixed, so any gap in performance between them
-is attributable to composition rather than to sample size or to which rows were drawn.
-
-| file | rows | real | human fake | synthetic | train/test |
-|---|---|---|---|---|---|
-| `d1_human_real_vs_human_fake.csv` | 1592 | 796 | 796 | — | 1194 / 398 |
-| `d2_sampled_human_real_vs_synthetic.csv` | 1592 | 796 | — | 796 | 1194 / 398 |
-| `d3_sampled_human_real_vs_mixed.csv` | 1592 | 796 | 398 | 398 | 1194 / 398 |
-| `d3_unsampled_human_real_vs_mixed.csv` | 2392 | 796 | 796 | 800 | 1794 / 598 |
+| file | rows | real | human fake | synthetic | pool | train/test |
+|---|---|---|---|---|---|---|
+| `d1_human_real_vs_human_fake.csv` | 1592 | 796 | 796 | — | — | 1194 / 398 |
+| `d2_sampled_human_real_vs_synthetic.csv` | 1592 | 796 | — | 796 | small | 1194 / 398 |
+| `d3_sampled_human_real_vs_mixed.csv` | 1592 | 796 | 398 | 398 | small | 1194 / 398 |
+| `d3_unsampled_human_real_vs_mixed.csv` | 2392 | 796 | 796 | 800 | small | 1794 / 598 |
+| `d2.5_sampled_human_real_vs_synthetic.csv` | 1592 | 796 | — | 796 | large | 1194 / 398 |
+| `d2.5_unsampled_human_real_vs_synthetic.csv` | 2716 | 796 | — | 1920 | large | 2037 / 679 |
+| `d3.5_sampled_human_real_vs_mixed.csv` | 1592 | 796 | 398 | 398 | large | 1194 / 398 |
+| `d3.5_unsampled_human_real_vs_mixed.csv` | 3512 | 796 | 796 | 1920 | large | 2634 / 878 |
 
 **d1** — the human corpus in full, no sampling. Real vs. MTurk-written fakes.
 
@@ -37,16 +26,11 @@ fakes. 398 human fakes plus 398 generated (100/100/99/99 per model, 6-7 per mode
 **d3_unsampled** — every human review and every generated review, with no subsampling at
 all. 200 per model, the entire pool.
 
-### ⚠️ d3_unsampled is class-imbalanced
+**d2.5_sampled / d3.5_sampled** — the large-model equivalents of d2 and d3: 199 per model
+(12–13 per model-cell), and 100/100/99/99 (6–7 per model-cell) respectively.
 
-796 real (33.3%) against 1596 fake (66.7%). The stratified split preserves that 1:2 ratio
-in both halves. Two consequences:
-
-- The majority-class accuracy baseline is **66.7%, not 50%**. Raw accuracy is not readable
-  on its own for this dataset.
-- Its accuracy is **not comparable** to d1 / d2_sampled / d3_sampled, which are all 50/50.
-
-Quote F1 or PR-AUC, and consider `class_weight="balanced"` when training on it.
+**d2.5_unsampled / d3.5_unsampled** — every human review and all 1920 large-model reviews,
+no subsampling.
 
 ## Columns
 
