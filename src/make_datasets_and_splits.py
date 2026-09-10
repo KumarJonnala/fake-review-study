@@ -115,24 +115,46 @@ def sample_synthetic(pool, n, rng):
     )
 
 
-def load_inputs(cfg, rng_seed):
-    """The human corpus and the synthetic pool, both shuffled once, deterministically."""
-    corpus = REPO / cfg["inputs"]["human_corpus"]
-    human = pd.read_csv(corpus)
-    human["cell_id"] = pd.NA
-
+def load_pool(entries, rng_seed):
+    """One named pool of synthetic reviews, shuffled once, deterministically."""
     frames = []
-    for rel in cfg["inputs"]["synthetic_files"]:
+    for entry in entries:
+        # A plain path keeps the file's own `model`; a {path, model} mapping overrides it.
+        # The override is not cosmetic: gpt5.6-luna and gpt5.6-terra both ship
+        # `model = "custom_review-luna-gpt"` despite being different runs with zero shared
+        # texts, so without it sample_synthetic would group them into one 800-row model and
+        # balance four generators three ways.
+        rel = entry["path"] if isinstance(entry, dict) else entry
         path = REPO / rel
         if not path.exists():
             sys.exit(f"ERROR: synthetic input not found: {rel}")
         frame = pd.read_csv(path)
-        # Stamped per file, inside the loop: after the concat below the filename is gone,
-        # and two of these four files come from different runs (job 1683072 for three
-        # models, a separate clean re-run for qwen).
+        if isinstance(entry, dict) and entry.get("model"):
+            frame["model"] = entry["model"]
+
+        # Two large-model files contain reruns of the same (cell_id, rep_index) from an
+        # aborted start: deepseek repeats rep 0 of one cell, glm repeats reps 0-2. The
+        # later row belongs to the run that completed, so keep="last". The small-model
+        # files contain none, so this does not move d1/d2/d3.
+        before = len(frame)
+        frame = frame.drop_duplicates(subset=["cell_id", "rep_index"], keep="last")
+        if len(frame) != before:
+            print(f"  [dedup] {path.name}: {before} -> {len(frame)} rows")
+
+        # Stamped per file, inside the loop: after the concat below the filename is gone.
         frame["source_dataset"] = path.name
         frames.append(frame)
-    synth = pd.concat(frames, ignore_index=True)
+
+    pool = pd.concat(frames, ignore_index=True)
+    pool["origin"] = pool["model"]
+    return pool.sample(frac=1, random_state=rng_seed)
+
+
+def load_inputs(cfg, rng_seed):
+    """The human corpus and every named synthetic pool, each shuffled deterministically."""
+    corpus = REPO / cfg["inputs"]["human_corpus"]
+    human = pd.read_csv(corpus)
+    human["cell_id"] = pd.NA
 
     # `origin` is the stratification key and the only column separating a human real
     # review from a human fake. It replaces `model` and `is_synthetic`, and the corpus's
@@ -140,10 +162,10 @@ def load_inputs(cfg, rng_seed):
     # MTurk identifies every human fake.
     human["origin"] = "human_" + human["Binary_label"]
     human["source_dataset"] = corpus.name
-    synth["origin"] = synth["model"]
 
-    shuffle = dict(frac=1, random_state=rng_seed)
-    return human.sample(**shuffle), synth.sample(**shuffle)
+    pools = {name: load_pool(entries, rng_seed)
+             for name, entries in cfg["inputs"]["pools"].items()}
+    return human.sample(frac=1, random_state=rng_seed), pools
 
 
 def _count(value, pool):
@@ -156,13 +178,14 @@ def _count(value, pool):
     return len(pool) if value == "all" else int(value)
 
 
-def build(name, spec, human, synth, cfg, seed):
+def build(name, spec, human, pools, cfg, seed):
     # The dataset NAME is part of the seed, so each dataset draws its own stream and
     # adding or removing one does not shift the others. Renaming one does shift its own
     # draw, which is why d2/d3 moved by 2 and 10 rows when they gained the `_sampled` tag.
     rng = random.Random(f"{seed}:{name}")
     real = human[human["Binary_label"] == "real"]
     fake = human[human["Binary_label"] == "fake"]
+    synth = pools[spec["pool"]]
 
     parts = [
         take(real, _count(spec["real"], real), "Category", rng),
@@ -219,12 +242,15 @@ def main(argv=None):
     seed = cfg["seed"]
     (REPO / cfg["output_dir"]).mkdir(parents=True, exist_ok=True)
 
-    human, synth = load_inputs(cfg, seed)
-    print(f"human corpus: {len(human)} rows   synthetic pool: {len(synth)} rows "
-          f"({synth['model'].nunique()} models, {synth['cell_id'].nunique()} cells)")
+    human, pools = load_inputs(cfg, seed)
+    print(f"human corpus: {len(human)} rows")
+    for pool_name, pool in pools.items():
+        print(f"  pool {pool_name:<14} {len(pool):>5} rows  "
+              f"{pool['model'].nunique()} models, {pool['cell_id'].nunique()} cells  "
+              f"({', '.join(f'{m} {n}' for m, n in sorted(pool['model'].value_counts().items()))})")
 
     for name, spec in cfg["datasets"].items():
-        df, path = build(name, spec, human, synth, cfg, seed)
+        df, path = build(name, spec, human, pools, cfg, seed)
         summarise(name, df, path)
 
     print("\nReminder: origin, source_dataset and cell_id_variation are metadata — each "

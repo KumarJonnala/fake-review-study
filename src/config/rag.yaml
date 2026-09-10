@@ -1,0 +1,53 @@
+# Retrieval-augmented LLM classification of fake reviews.
+#   python3 -m src.rag_classifier.classify [--config src/config/rag.yaml]
+#
+# The vector store holds ONLY the `split == "train"` rows; every classified review comes
+# from `split == "test"`. The datasets already carry that column from
+# make_datasets_and_splits.py, so this script never splits anything itself -- which is what
+# keeps RAG on the same partition as the SVM, XGBoost and BERT classifiers.
+#
+# READ THE BASELINE BEFORE THE HEADLINE. Taking the majority label of the k nearest
+# training neighbours, with no LLM in the loop at all, already scores ~78% on d1, ~98% on
+# d2 and ~81% on d3 (TF-IDF proxy). The generated reviews repeat themselves heavily --
+# within-cell 5-gram reuse of 27-65% against a human 8.3% -- so a synthetic test review
+# retrieves near-identical synthetic training reviews that are already labelled `fake`.
+# A RAG accuracy near 0.96 on d2 would therefore say almost nothing about the LLM's
+# judgment. Every run reports the retrieval-only baseline next to the model numbers.
+
+seed: 42
+
+# Any CSV in data/datasets/. The three sampled datasets are 1592 rows at 50/50 and are
+# directly comparable to each other; d3_unsampled is 2:1 imbalanced with 598 test rows, so
+# it is left out of the default table rather than silently averaged in. Add it here if
+# wanted.
+datasets:
+  - data/datasets/d1_human_real_vs_human_fake.csv
+  - data/datasets/d2_sampled_human_real_vs_synthetic.csv
+  - data/datasets/d3_sampled_human_real_vs_mixed.csv
+
+# The judges. NOTE: these four models also WROTE the synthetic reviews in d2 and d3, so a
+# model is partly detecting its own output -- a self-recognition confound, not a general
+# detection result. The per-origin breakdown in the output exists to make that visible.
+#
+# Tags are the ones actually pulled: config.py:51 says `ministral-3:8b`, but the model that
+# generated the corpus is `doomgrave/ministral-3:8b`.
+models:
+  - gemma4:e4b
+  - doomgrave/ministral-3:8b
+  - llama3.2:3b
+  - qwen3.5:9b
+
+retrieval:
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2
+  k: 5
+
+ollama:
+  host: localhost:11434       # overridden by the OLLAMA_HOST env var
+  temperature: 0              # judging, not generating: no diversity wanted
+  request_timeout: 300
+
+# Set an integer for a smoke run. Full volume is 3 datasets x 398 test rows x 4 models =
+# 4776 LLM calls, roughly two hours.
+limit_test_rows: null
+
+output_dir: results/rag

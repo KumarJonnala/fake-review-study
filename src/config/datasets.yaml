@@ -31,16 +31,44 @@ inputs:
   # Read-only. The generator and this script only ever read the corpus CSVs.
   human_corpus: data/Hotel_Human_VS_HumanFake_relabelled.csv
 
-  # Listed explicitly, not globbed: qwen comes from its own clean re-run while the other
-  # three come from job 1683072. A glob cannot express that, and would silently pick up
-  # Hotel_LLM_Reviews_qwen3.5_9b_1683072.csv -- a resume-splice of 144 rows from the job
-  # that was killed mid-cell plus 56 added afterwards. All four files were checked to
-  # carry byte-identical prompts, so they remain comparable.
-  synthetic_files:
-    - data/generated/Hotel_LLM_Reviews_gemma4_e4b_1683072.csv
-    - data/generated/Hotel_LLM_Reviews_doomgrave_ministral-3_8b_1683072.csv
-    - data/generated/Hotel_LLM_Reviews_llama3.2_3b_1683072.csv
-    - data/generated/Hotel_LLM_Reviews_qwen3.5_9b_redo_1710344.csv
+  # Named pools. d1/d2/d3 draw from the small local models, d2.5/d3.5 from the large
+  # API-served ones; each dataset below names the pool it uses.
+  #
+  # An entry is either a plain path (the file's own `model` column is the label) or a
+  # {path, model} mapping that overrides it. The override exists because the large-model
+  # files cannot be told apart by their own metadata -- see large_models below.
+  #
+  # Rows sharing a (cell_id, rep_index) are deduplicated at load with keep="last": two
+  # large-model files contain reruns from an aborted start, and the later row belongs to
+  # the run that actually completed. The small-model files contain none, so this is a
+  # no-op for d1/d2/d3.
+  pools:
+    # Listed explicitly, not globbed: qwen comes from its own clean re-run while the other
+    # three come from job 1683072. A glob cannot express that, and would silently pick up
+    # Hotel_LLM_Reviews_qwen3.5_9b_1683072.csv -- a resume-splice of 144 rows from the job
+    # that was killed mid-cell plus 56 added afterwards. All four files were checked to
+    # carry byte-identical prompts, so they remain comparable.
+    small_models:
+      - data/generated/Hotel_LLM_Reviews_gemma4_e4b_1683072.csv
+      - data/generated/Hotel_LLM_Reviews_doomgrave_ministral-3_8b_1683072.csv
+      - data/generated/Hotel_LLM_Reviews_llama3.2_3b_1683072.csv
+      - data/generated/Hotel_LLM_Reviews_qwen3.5_9b_redo_1710344.csv
+
+    # EVERY entry needs a `model` override. The files' own values name router endpoints,
+    # not models -- and worse, luna and terra BOTH carry "custom_review-luna-gpt" despite
+    # being different runs two hours apart with zero shared texts. Without the override
+    # the two collapse into one 800-row model and the four-way balance silently becomes
+    # three-way.
+    #
+    # gemini-3.7 is deliberately ABSENT, not overlooked. 107 of its 400 generations failed
+    # with "output too short (1-6 words)", all in the short cells, leaving its four
+    # short x zero_shot cells holding 1, 2, 3 and 5 reviews of 25. That caps a balanced
+    # five-model draw at 16 x 5 x 1 = 80 rows against the 796 these datasets need.
+    large_models:
+      - {path: data/generated/Hotel_LLM_Reviews_deepseekv4_flash.csv, model: deepseekv4-flash}
+      - {path: data/generated/Hotel_LLM_Reviews_gpt5.6_luna.csv,      model: gpt5.6-luna}
+      - {path: data/generated/Hotel_LLM_Reviews_gpt5.6_terra.csv,     model: gpt5.6-terra}
+      - {path: data/generated/Hotel_LLM_Reviews_glm-5.3-flash.csv,    model: glm-5.3-flash}
 
 output_dir: data/datasets
 
@@ -57,7 +85,21 @@ split:
 #
 # d1 needs no sampled/unsampled suffix: both its blocks already take the whole corpus.
 datasets:
-  d1_human_real_vs_human_fake:        {real: 796, human_fake: 796, synthetic: 0}
-  d2_sampled_human_real_vs_synthetic: {real: 796, human_fake: 0,   synthetic: 796}
-  d3_sampled_human_real_vs_mixed:     {real: 796, human_fake: 398, synthetic: 398}
-  d3_unsampled_human_real_vs_mixed:   {real: all, human_fake: all, synthetic: all}
+  d1_human_real_vs_human_fake:        {real: 796, human_fake: 796, synthetic: 0,   pool: small_models}
+  d2_sampled_human_real_vs_synthetic: {real: 796, human_fake: 0,   synthetic: 796, pool: small_models}
+  d3_sampled_human_real_vs_mixed:     {real: 796, human_fake: 398, synthetic: 398, pool: small_models}
+  d3_unsampled_human_real_vs_mixed:   {real: all, human_fake: all, synthetic: all, pool: small_models}
+
+  # The .5 pair mirrors d2/d3 exactly, swapping the small-model pool for the large one, so
+  # the only thing differing between d2 and d2.5 is which models wrote the fakes.
+  #
+  # The unsampled pair is far more imbalanced than d3_unsampled's 33/67: the large pool is
+  # 1920 rows against the small pool's 800, giving 29.3% and 22.7% real. Their
+  # majority-class baselines are 70.7% and 77.3%, so raw accuracy is unreadable on its own
+  # and comparable to nothing else here -- quote F1 or PR-AUC. Their synthetic half is also
+  # model-skewed (deepseek 800, luna 400, terra 400, glm 320); the sampled pair is the
+  # balanced comparison.
+  d2.5_sampled_human_real_vs_synthetic:   {real: 796, human_fake: 0,   synthetic: 796, pool: large_models}
+  d2.5_unsampled_human_real_vs_synthetic: {real: all, human_fake: 0,   synthetic: all, pool: large_models}
+  d3.5_sampled_human_real_vs_mixed:       {real: 796, human_fake: 398, synthetic: 398, pool: large_models}
+  d3.5_unsampled_human_real_vs_mixed:     {real: all, human_fake: all, synthetic: all, pool: large_models}
