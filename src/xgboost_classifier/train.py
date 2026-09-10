@@ -1,73 +1,100 @@
-import argparse, itertools, json, sys
-from pathlib import Path
-import joblib, yaml, numpy as np
+"""TF-IDF + XGBoost over the study datasets.
+
+Runs every dataset listed in src/config/config.yaml by default:
+    python3 -m src.xgboost_classifier.train
+    python3 -m src.xgboost_classifier.train --dataset d1_human_real_vs_human_fake
+
+Train and test come from each dataset's own `split` column; validation is carved out of
+the train half. Results land in results/<dataset>/xgboost/ and are written as each
+dataset finishes, so an interrupted run keeps whatever already completed.
+"""
+import argparse
+import itertools
+
+import joblib
+import numpy as np
+import yaml
+from scipy.sparse import vstack
 from xgboost import XGBClassifier
-from src.data import load_data, make_split
+
+from src.data import prepare_dataset
+from src.evaluation import evaluate_binary, results_dir, run_provenance, save_json
 from src.vectorizer import build_vectorizer
-from src.evaluation import evaluate_binary, save_json
+
 
 def grid(cfg):
     keys = list(cfg["hyperparameters"])
     vals = [cfg["hyperparameters"][k] for k in keys]
     return [dict(zip(keys, v)) for v in itertools.product(*vals)]
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--config", default="src/config/config.yaml")
-    ap.add_argument("--grid", default="src/config/xgboost_grid.yaml")
-    args = ap.parse_args()
 
-    base = yaml.safe_load(open(args.config))
-    grid_cfg = yaml.safe_load(open(args.grid))
-    df = load_data(base["data"]["path"], base["data"]["text_column"], base["data"]["label_column"])
-    train, val, test = make_split(df, **{
-        "seed": base["split"]["random_seed"],
-        "train_size": base["split"]["train_size"],
-        "validation_size": base["split"]["validation_size"],
-    })
+def run_one(dataset, base, grid_cfg):
+    train, val, test = prepare_dataset(base, dataset)
+    provenance = run_provenance(dataset, train, val, test)
+    print(f"\n=== xgboost  {dataset}  "
+          f"train {len(train)} / val {len(val)} / test {len(test)} ===")
 
+    # Only `text` is ever vectorized. origin, source_dataset and cell_id_variation each
+    # determine or narrow the label and must never become features.
     vec = build_vectorizer(base["features"])
     Xtr = vec.fit_transform(train["text"])
     Xv = vec.transform(val["text"])
     Xt = vec.transform(test["text"])
 
+    seed = base["split"]["random_seed"]
+    combos = grid(grid_cfg)
     results = []
-    for i, params in enumerate(grid(grid_cfg), 1):
+    for i, params in enumerate(combos, 1):
         model = XGBClassifier(
             objective="binary:logistic",
             eval_metric="logloss",
-            random_state=base["split"]["random_seed"],
+            random_state=seed,
             n_jobs=-1,
             tree_method="hist",
             **params,
         )
         model.fit(Xtr, train["label"])
         pv = model.predict_proba(Xv)[:, 1]
-        yv = (pv >= 0.5).astype(int)
-        metrics = evaluate_binary(val["label"], yv, pv)
+        metrics = evaluate_binary(val["label"], (pv >= 0.5).astype(int), pv)
         results.append({"run": i, "params": params, **metrics})
-        print(f"{i}/{len(grid(grid_cfg))}: val_f1={metrics['f1']:.4f}")
+        print(f"  {i}/{len(combos)}: val_f1={metrics['f1']:.4f}")
 
-    results = sorted(results, key=lambda x: x["f1"], reverse=True)
-    out = Path(base["experiment"]["output_dir"]) / "xgboost"
-    out.mkdir(parents=True, exist_ok=True)
-    save_json({"validation_results": results}, out / "validation_results.json")
+    results.sort(key=lambda x: x["f1"], reverse=True)
+    out = results_dir(base, dataset, "xgboost")
+    save_json({**provenance, "validation_results": results}, out / "validation_results.json")
 
     best = results[0]["params"]
     final = XGBClassifier(
         objective="binary:logistic", eval_metric="logloss",
-        random_state=base["split"]["random_seed"], n_jobs=-1,
-        tree_method="hist", **best
+        random_state=seed, n_jobs=-1, tree_method="hist", **best,
     )
-    X_trainval = __import__("scipy").sparse.vstack([Xtr, Xv])
-    y_trainval = np.concatenate([train["label"].values, val["label"].values])
-    final.fit(X_trainval, y_trainval)
+    final.fit(vstack([Xtr, Xv]),
+              np.concatenate([train["label"].values, val["label"].values]))
     pt = final.predict_proba(Xt)[:, 1]
-    yt = (pt >= 0.5).astype(int)
-    test_metrics = evaluate_binary(test["label"], yt, pt)
-    save_json({"best_validation_params": best, "test_metrics": test_metrics},
+    test_metrics = evaluate_binary(test["label"], (pt >= 0.5).astype(int), pt)
+    save_json({**provenance, "best_validation_params": best, "test_metrics": test_metrics},
               out / "final_test_results.json")
-    joblib.dump({"vectorizer": vec, "model": final}, out / "model.joblib")
+    if base["experiment"].get("save_models", True):
+        joblib.dump({"vectorizer": vec, "model": final}, out / "model.joblib")
+    print(f"  -> test f1={test_metrics['f1']:.4f} "
+          f"acc={test_metrics['accuracy']:.4f} "
+          f"(majority baseline {provenance['majority_class_accuracy']:.4f})")
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--config", default="src/config/config.yaml")
+    ap.add_argument("--grid", default="src/config/xgboost_grid.yaml")
+    ap.add_argument("--dataset", action="append",
+                    help="dataset name (repeatable). Default: every entry in config.yaml")
+    args = ap.parse_args()
+
+    base = yaml.safe_load(open(args.config))
+    grid_cfg = yaml.safe_load(open(args.grid))
+
+    for dataset in (args.dataset or base["data"]["datasets"]):
+        run_one(dataset, base, grid_cfg)
+
 
 if __name__ == "__main__":
     main()

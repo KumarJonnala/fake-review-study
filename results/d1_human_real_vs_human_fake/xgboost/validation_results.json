@@ -1,0 +1,38 @@
+{
+  "dataset": "d1_human_real_vs_human_fake",
+  "n_train": 1014,
+  "n_validation": 180,
+  "n_test": 398,
+  "test_fake_fraction": 0.5,
+  "majority_class_accuracy": 0.5,
+  "validation_results": [
+    {
+      "run": 1,
+      "params": {
+        "n_estimators": 200,
+        "max_depth": 3,
+        "learning_rate": 0.1,
+        "min_child_weight": 1,
+        "subsample": 1.0,
+        "colsample_bytree": 1.0,
+        "reg_lambda": 1
+      },
+      "accuracy": 0.8333333333333334,
+      "precision": 0.8409090909090909,
+      "recall": 0.8222222222222222,
+      "f1": 0.8314606741573034,
+      "confusion_matrix": [
+        [
+          76,
+          14
+        ],
+        [
+          16,
+          74
+        ]
+      ],
+      "roc_auc": 0.9059259259259259,
+      "pr_auc": 0.9019175747789844
+    }
+  ]
+}

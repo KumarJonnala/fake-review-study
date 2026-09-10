@@ -1,0 +1,32 @@
+{
+  "dataset": "d3.5_unsampled_human_real_vs_mixed",
+  "n_train": 2238,
+  "n_validation": 396,
+  "n_test": 878,
+  "test_fake_fraction": 0.7733485193621867,
+  "majority_class_accuracy": 0.7733485193621867,
+  "best_validation_params": {
+    "C": 1.0,
+    "kernel": "linear",
+    "gamma": "scale",
+    "class_weight": null
+  },
+  "test_metrics": {
+    "accuracy": 0.9498861047835991,
+    "precision": 0.9662261380323054,
+    "recall": 0.9690721649484536,
+    "f1": 0.9676470588235294,
+    "confusion_matrix": [
+      [
+        176,
+        23
+      ],
+      [
+        21,
+        658
+      ]
+    ],
+    "roc_auc": 0.9854611792393484,
+    "pr_auc": 0.9959147804906598
+  }
+}

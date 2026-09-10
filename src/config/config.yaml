@@ -1,20 +1,55 @@
 data:
-  # Read-only input. Identical texts, in identical order, to Hotel_Human_VS_HumanFake.csv;
-  # the two differ only in label vocabulary -- real/fake here, truthful/deceptive there --
-  # and it is this file's vocabulary that positive_label below expects.
-  # Only text_column and label_column are ever used as features: source is perfectly
-  # confounded with the label, and domain and is_synthetic are constant.
-  path: data/Hotel_Human_VS_HumanFake_relabelled.csv
+  # The four study datasets, built by src/make_datasets_and_splits.py from
+  # src/config/datasets.yaml. Read-only inputs; see data/datasets/dataset.md for what
+  # each one contains and why.
+  #
+  # Every trainer runs this whole list by default. Restrict a run with a repeatable
+  # --dataset flag, e.g.
+  #     python3 -m src.svm_classifier.train --dataset d1_human_real_vs_human_fake
+  dataset_dir: data/datasets
+  # All eight. The `.5` variants are the LARGE-model pool (deepseek, glm-5.3, gpt5.6
+  # luna/terra); d2/d3 are the small local pool (gemma4, ministral, llama3.2, qwen3.5).
+  #
+  # ORDERED SMALLEST FIRST, deliberately. Each trainer writes a dataset's results as that
+  # dataset finishes, so a job that hits its wall clock keeps everything before the cut.
+  # Running the five 1014-row datasets first means a timeout costs at most the three big
+  # ones rather than an arbitrary slice.
+  datasets:
+    - d1_human_real_vs_human_fake
+    - d2_sampled_human_real_vs_synthetic
+    - d2.5_sampled_human_real_vs_synthetic
+    - d3_sampled_human_real_vs_mixed
+    - d3.5_sampled_human_real_vs_mixed
+    - d3_unsampled_human_real_vs_mixed        # 1524 train
+    - d2.5_unsampled_human_real_vs_synthetic  # 1731 train
+    - d3.5_unsampled_human_real_vs_mixed      # 2238 train
+  #
+  # There is no d2_unsampled: the small-model pool holds 800 generated reviews against 796
+  # real, so an unsampled d2 would be within 4 rows of the sampled one. The large pool is
+  # 1920, which is why d2.5 has both.
+  #
+  # CLASS BALANCE: the five sampled datasets are 50/50. The three unsampled ones are not --
+  # majority-class accuracy floors are 0.667 (d3_unsampled), 0.707 (d2.5_unsampled) and
+  # 0.773 (d3.5_unsampled). Accuracy is not comparable across those; quote F1 or PR-AUC.
+  # Every results file records its own floor via run_provenance().
+
+  # `text` is the ONLY feature. The datasets also carry origin, source_dataset and
+  # cell_id_variation for stratification and error analysis -- each determines or narrows
+  # the label, so none may ever reach the vectorizer.
   text_column: text
   label_column: Binary_label
   positive_label: fake
 
 split:
-  train_size: 0.70
+  # Train and test come from each CSV's own `split` column and are NOT recomputed here.
+  # This is the fraction of the TRAIN half held out for validation, so 0.15 of 1194 gives
+  # 1014 train / 180 validation / 398 test on the three 1592-row datasets.
   validation_size: 0.15
-  test_size: 0.15
+  # Stratify the validation draw on `origin`, matching how the train/test boundary was
+  # drawn: it keeps each generating model proportionally present, which stratifying on
+  # the label alone does not. `origin` determines the label, so the label follows.
+  stratify_on: origin
   random_seed: 42
-  stratify: true
 
 experiment:
   seeds: [42, 43, 44, 45, 46]

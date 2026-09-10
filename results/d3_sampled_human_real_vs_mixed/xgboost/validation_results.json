@@ -1,0 +1,38 @@
+{
+  "dataset": "d3_sampled_human_real_vs_mixed",
+  "n_train": 1014,
+  "n_validation": 180,
+  "n_test": 398,
+  "test_fake_fraction": 0.5,
+  "majority_class_accuracy": 0.5,
+  "validation_results": [
+    {
+      "run": 1,
+      "params": {
+        "n_estimators": 200,
+        "max_depth": 3,
+        "learning_rate": 0.1,
+        "min_child_weight": 1,
+        "subsample": 1.0,
+        "colsample_bytree": 1.0,
+        "reg_lambda": 1
+      },
+      "accuracy": 0.85,
+      "precision": 0.9090909090909091,
+      "recall": 0.7777777777777778,
+      "f1": 0.8383233532934131,
+      "confusion_matrix": [
+        [
+          83,
+          7
+        ],
+        [
+          20,
+          70
+        ]
+      ],
+      "roc_auc": 0.9370370370370371,
+      "pr_auc": 0.940781254986057
+    }
+  ]
+}

@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .DS_Store
 env
+
+# Trained model weights (reproducible from training code, too large for git)
+*.safetensors

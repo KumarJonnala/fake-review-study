@@ -1,0 +1,35 @@
+{
+  "dataset": "d2_sampled_human_real_vs_synthetic",
+  "n_train": 1014,
+  "n_validation": 180,
+  "n_test": 398,
+  "test_fake_fraction": 0.5,
+  "majority_class_accuracy": 0.5,
+  "validation_results": [
+    {
+      "run": 1,
+      "params": {
+        "C": 1.0,
+        "kernel": "linear",
+        "gamma": "scale",
+        "class_weight": null
+      },
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          0,
+          90
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 0.9999999999999999
+    }
+  ]
+}

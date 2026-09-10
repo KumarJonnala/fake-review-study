@@ -1,0 +1,28 @@
+{
+  "dataset": "d1_human_real_vs_human_fake",
+  "n_train": 1014,
+  "n_validation": 180,
+  "n_test": 398,
+  "test_fake_fraction": 0.5,
+  "majority_class_accuracy": 0.5,
+  "best_validation_params": {
+    "learning_rate": 2e-05,
+    "batch_size": 16,
+    "num_train_epochs": 1,
+    "weight_decay": 0.01
+  },
+  "best_run_dir": "run_001",
+  "test_metrics": {
+    "eval_loss": 0.5269802212715149,
+    "eval_model_preparation_time": 0.0,
+    "eval_accuracy": 0.7537688442211056,
+    "eval_precision": 0.6735395189003437,
+    "eval_recall": 0.9849246231155779,
+    "eval_f1": 0.8,
+    "eval_roc_auc": 0.8943966061463094,
+    "eval_pr_auc": 0.861919657036686,
+    "eval_runtime": 82.0709,
+    "eval_samples_per_second": 4.849,
+    "eval_steps_per_second": 0.609
+  }
+}

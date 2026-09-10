@@ -66,8 +66,12 @@ def largest_remainder(total, keys, avail, rng):
 
 
 def make_train_test_split(df, seed, test_size, stratify_col):
-    """Two-way split. Lives here rather than in src/data.py, which holds the fixed
-    70/15/15 `make_split` that the three training scripts call.
+    """Two-way split, written into the dataset's `split` column.
+
+    Lives here rather than in src/data.py, which holds `split_from_column` -- the reader
+    side that the three training scripts call to recover this boundary and carve a
+    validation set out of the train half. This function decides the boundary; that one
+    only ever reads it back.
 
     Stratifying on `origin` (human_real / human_fake / model name) rather than on `label`
     keeps every model proportionally represented in the test half; with the label alone a
