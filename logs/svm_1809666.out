@@ -1,0 +1,251 @@
+======================================
+Job 1809666 on ant2  |  Fr 11. Sep 08:12:20 CEST 2026
+model=svm  config=src/config/config.yaml  grid=src/config/svm_grid.yaml
+venv=/home/anuj97og/.venvs/fake_reviews_bert  threads=8
+output=/home/anuj97og/fake-review-study/results/<dataset>/svm/
+======================================
+Reusing existing venv at /home/anuj97og/.venvs/fake_reviews_bert
+Python: Python 3.9.25 at /home/anuj97og/.venvs/fake_reviews_bert/bin/python
+  sklearn        1.6.1
+  yaml           6.0.3
+  pandas         2.3.3
+  scipy          1.13.1
+  joblib         1.5.3
+Running svm grid over every dataset in src/config/config.yaml...
+
+=== svm  d1_human_real_vs_human_fake  train 1014 / val 180 / test 398 ===
+  1/24: val_f1=0.7742
+  2/24: val_f1=0.7742
+  3/24: val_f1=0.6667
+  4/24: val_f1=0.6667
+  5/24: val_f1=0.6667
+  6/24: val_f1=0.6667
+  7/24: val_f1=0.6667
+  8/24: val_f1=0.6667
+  9/24: val_f1=0.8306
+  10/24: val_f1=0.8306
+  11/24: val_f1=0.8398
+  12/24: val_f1=0.8398
+  13/24: val_f1=0.6667
+  14/24: val_f1=0.6667
+  15/24: val_f1=0.6667
+  16/24: val_f1=0.6667
+  17/24: val_f1=0.8261
+  18/24: val_f1=0.8261
+  19/24: val_f1=0.8398
+  20/24: val_f1=0.8398
+  21/24: val_f1=0.7927
+  22/24: val_f1=0.7927
+  23/24: val_f1=0.6667
+  24/24: val_f1=0.6667
+  -> test f1=0.9246 acc=0.9246 (majority baseline 0.5000)
+
+=== svm  d2_sampled_human_real_vs_synthetic  train 1014 / val 180 / test 398 ===
+  1/24: val_f1=0.9944
+  2/24: val_f1=0.9944
+  3/24: val_f1=0.9655
+  4/24: val_f1=0.9655
+  5/24: val_f1=0.6667
+  6/24: val_f1=0.6667
+  7/24: val_f1=0.6667
+  8/24: val_f1=0.6667
+  9/24: val_f1=1.0000
+  10/24: val_f1=1.0000
+  11/24: val_f1=0.9944
+  12/24: val_f1=0.9944
+  13/24: val_f1=0.9655
+  14/24: val_f1=0.9655
+  15/24: val_f1=0.6667
+  16/24: val_f1=0.6667
+  17/24: val_f1=1.0000
+  18/24: val_f1=1.0000
+  19/24: val_f1=0.9944
+  20/24: val_f1=0.9944
+  21/24: val_f1=0.9944
+  22/24: val_f1=0.9944
+  23/24: val_f1=0.9595
+  24/24: val_f1=0.9595
+  -> test f1=0.9975 acc=0.9975 (majority baseline 0.5000)
+
+=== svm  d2.5_sampled_human_real_vs_synthetic  train 1014 / val 180 / test 398 ===
+  1/24: val_f1=1.0000
+  2/24: val_f1=1.0000
+  3/24: val_f1=0.9655
+  4/24: val_f1=0.9655
+  5/24: val_f1=0.6667
+  6/24: val_f1=0.6667
+  7/24: val_f1=0.6667
+  8/24: val_f1=0.6667
+  9/24: val_f1=1.0000
+  10/24: val_f1=1.0000
+  11/24: val_f1=1.0000
+  12/24: val_f1=1.0000
+  13/24: val_f1=0.9655
+  14/24: val_f1=0.9655
+  15/24: val_f1=0.6667
+  16/24: val_f1=0.6667
+  17/24: val_f1=1.0000
+  18/24: val_f1=1.0000
+  19/24: val_f1=1.0000
+  20/24: val_f1=1.0000
+  21/24: val_f1=1.0000
+  22/24: val_f1=1.0000
+  23/24: val_f1=0.9655
+  24/24: val_f1=0.9655
+  -> test f1=1.0000 acc=1.0000 (majority baseline 0.5000)
+
+=== svm  d3_sampled_human_real_vs_mixed  train 1014 / val 180 / test 398 ===
+  1/24: val_f1=0.7703
+  2/24: val_f1=0.7703
+  3/24: val_f1=0.6667
+  4/24: val_f1=0.6667
+  5/24: val_f1=0.6667
+  6/24: val_f1=0.6667
+  7/24: val_f1=0.6667
+  8/24: val_f1=0.6667
+  9/24: val_f1=0.8977
+  10/24: val_f1=0.8977
+  11/24: val_f1=0.8914
+  12/24: val_f1=0.8914
+  13/24: val_f1=0.6667
+  14/24: val_f1=0.6667
+  15/24: val_f1=0.6667
+  16/24: val_f1=0.6667
+  17/24: val_f1=0.8876
+  18/24: val_f1=0.8876
+  19/24: val_f1=0.8914
+  20/24: val_f1=0.8914
+  21/24: val_f1=0.8434
+  22/24: val_f1=0.8434
+  23/24: val_f1=0.6667
+  24/24: val_f1=0.6667
+  -> test f1=0.8978 acc=0.8970 (majority baseline 0.5000)
+
+=== svm  d3.5_sampled_human_real_vs_mixed  train 1014 / val 180 / test 398 ===
+  1/24: val_f1=0.6906
+  2/24: val_f1=0.6906
+  3/24: val_f1=0.7303
+  4/24: val_f1=0.7303
+  5/24: val_f1=0.6667
+  6/24: val_f1=0.6667
+  7/24: val_f1=0.6667
+  8/24: val_f1=0.6667
+  9/24: val_f1=0.9071
+  10/24: val_f1=0.9071
+  11/24: val_f1=0.8950
+  12/24: val_f1=0.8950
+  13/24: val_f1=0.6667
+  14/24: val_f1=0.6667
+  15/24: val_f1=0.6667
+  16/24: val_f1=0.6667
+  17/24: val_f1=0.8889
+  18/24: val_f1=0.8889
+  19/24: val_f1=0.9011
+  20/24: val_f1=0.9011
+  21/24: val_f1=0.8521
+  22/24: val_f1=0.8521
+  23/24: val_f1=0.6667
+  24/24: val_f1=0.6667
+  -> test f1=0.8953 acc=0.8995 (majority baseline 0.5000)
+
+=== svm  d3_unsampled_human_real_vs_mixed  train 1524 / val 270 / test 598 ===
+  1/24: val_f1=0.9032
+  2/24: val_f1=0.8753
+  3/24: val_f1=0.8902
+  4/24: val_f1=0.8000
+  5/24: val_f1=0.8968
+  6/24: val_f1=0.8000
+  7/24: val_f1=0.9288
+  8/24: val_f1=0.8000
+  9/24: val_f1=0.9356
+  10/24: val_f1=0.9352
+  11/24: val_f1=0.9128
+  12/24: val_f1=0.9133
+  13/24: val_f1=0.9032
+  14/24: val_f1=0.8000
+  15/24: val_f1=0.9032
+  16/24: val_f1=0.8000
+  17/24: val_f1=0.9326
+  18/24: val_f1=0.9326
+  19/24: val_f1=0.9195
+  20/24: val_f1=0.9195
+  21/24: val_f1=0.9032
+  22/24: val_f1=0.8673
+  23/24: val_f1=0.9032
+  24/24: val_f1=0.8000
+  -> test f1=0.9348 acc=0.9130 (majority baseline 0.6672)
+
+=== svm  d2.5_unsampled_human_real_vs_synthetic  train 1731 / val 306 / test 679 ===
+  1/24: val_f1=1.0000
+  2/24: val_f1=1.0000
+  3/24: val_f1=1.0000
+  4/24: val_f1=0.9841
+  5/24: val_f1=1.0000
+  6/24: val_f1=0.8276
+  7/24: val_f1=1.0000
+  8/24: val_f1=0.8276
+  9/24: val_f1=1.0000
+  10/24: val_f1=1.0000
+  11/24: val_f1=1.0000
+  12/24: val_f1=1.0000
+  13/24: val_f1=1.0000
+  14/24: val_f1=0.8276
+  15/24: val_f1=1.0000
+  16/24: val_f1=0.8276
+  17/24: val_f1=1.0000
+  18/24: val_f1=1.0000
+  19/24: val_f1=1.0000
+  20/24: val_f1=1.0000
+  21/24: val_f1=1.0000
+  22/24: val_f1=1.0000
+  23/24: val_f1=1.0000
+  24/24: val_f1=0.8276
+  -> test f1=1.0000 acc=1.0000 (majority baseline 0.7069)
+
+=== svm  d3.5_unsampled_human_real_vs_mixed  train 2238 / val 396 / test 878 ===
+  1/24: val_f1=0.9449
+  2/24: val_f1=0.8716
+  3/24: val_f1=0.9414
+  4/24: val_f1=0.8718
+  5/24: val_f1=0.9482
+  6/24: val_f1=0.8718
+  7/24: val_f1=0.9455
+  8/24: val_f1=0.8718
+  9/24: val_f1=0.9463
+  10/24: val_f1=0.9462
+  11/24: val_f1=0.9455
+  12/24: val_f1=0.9392
+  13/24: val_f1=0.9449
+  14/24: val_f1=0.8718
+  15/24: val_f1=0.9465
+  16/24: val_f1=0.8718
+  17/24: val_f1=0.9481
+  18/24: val_f1=0.9481
+  19/24: val_f1=0.9421
+  20/24: val_f1=0.9421
+  21/24: val_f1=0.9449
+  22/24: val_f1=0.9088
+  23/24: val_f1=0.9449
+  24/24: val_f1=0.8718
+  -> test f1=0.9567 acc=0.9339 (majority baseline 0.7733)
+======================================
+  OK       d1_human_real_vs_human_fake  accuracy=0.9246  f1=0.9246  roc_auc=0.9770  pr_auc=0.9801
+           majority baseline=0.5000  params={'C': 1.0, 'kernel': 'rbf', 'gamma': 'scale', 'class_weight': None}
+  OK       d2_sampled_human_real_vs_synthetic  accuracy=0.9975  f1=0.9975  roc_auc=0.9998  pr_auc=0.9998
+           majority baseline=0.5000  params={'C': 1.0, 'kernel': 'linear', 'gamma': 'scale', 'class_weight': None}
+  OK       d2.5_sampled_human_real_vs_synthetic  accuracy=1.0000  f1=1.0000  roc_auc=1.0000  pr_auc=1.0000
+           majority baseline=0.5000  params={'C': 0.1, 'kernel': 'linear', 'gamma': 'scale', 'class_weight': None}
+  OK       d3_sampled_human_real_vs_mixed  accuracy=0.8970  f1=0.8978  roc_auc=0.9619  pr_auc=0.9672
+           majority baseline=0.5000  params={'C': 1.0, 'kernel': 'linear', 'gamma': 'scale', 'class_weight': None}
+  OK       d3.5_sampled_human_real_vs_mixed  accuracy=0.8995  f1=0.8953  roc_auc=0.9677  pr_auc=0.9738
+           majority baseline=0.5000  params={'C': 1.0, 'kernel': 'linear', 'gamma': 'scale', 'class_weight': None}
+  OK       d3_unsampled_human_real_vs_mixed  accuracy=0.9130  f1=0.9348  roc_auc=0.9658  pr_auc=0.9837
+           majority baseline=0.6672  params={'C': 1.0, 'kernel': 'linear', 'gamma': 'scale', 'class_weight': None}
+  OK       d2.5_unsampled_human_real_vs_synthetic  accuracy=1.0000  f1=1.0000  roc_auc=1.0000  pr_auc=1.0000
+           majority baseline=0.7069  params={'C': 0.1, 'kernel': 'linear', 'gamma': 'scale', 'class_weight': None}
+  OK       d3.5_unsampled_human_real_vs_mixed  accuracy=0.9339  f1=0.9567  roc_auc=0.9790  pr_auc=0.9942
+           majority baseline=0.7733  params={'C': 0.1, 'kernel': 'rbf', 'gamma': 0.01, 'class_weight': None}
+
+8 of 8 datasets complete for svm.
+Job finished at Fr 11. Sep 08:34:18 CEST 2026
+======================================

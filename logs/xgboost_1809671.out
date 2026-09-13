@@ -1,0 +1,348 @@
+======================================
+Job 1809671 on ant1  |  Do 10. Sep 21:27:57 CEST 2026
+model=xgboost  config=src/config/config.yaml  grid=src/config/xgboost_grid.yaml
+venv=/home/anuj97og/.venvs/fake_reviews_bert  threads=8
+output=/home/anuj97og/fake-review-study/results/<dataset>/xgboost/
+======================================
+Reusing existing venv at /home/anuj97og/.venvs/fake_reviews_bert
+Python: Python 3.9.25 at /home/anuj97og/.venvs/fake_reviews_bert/bin/python
+  sklearn        1.6.1
+  xgboost        2.1.4
+  yaml           6.0.3
+  pandas         2.3.3
+  scipy          1.13.1
+  joblib         1.5.3
+Running xgboost grid over every dataset in src/config/config.yaml...
+
+=== xgboost  d1_human_real_vs_human_fake  train 1014 / val 180 / test 398 ===
+  1/36: val_f1=0.8090
+  2/36: val_f1=0.8182
+  3/36: val_f1=0.8315
+  4/36: val_f1=0.8222
+  5/36: val_f1=0.8398
+  6/36: val_f1=0.8136
+  7/36: val_f1=0.8136
+  8/36: val_f1=0.7978
+  9/36: val_f1=0.8043
+  10/36: val_f1=0.7797
+  11/36: val_f1=0.7978
+  12/36: val_f1=0.7889
+  13/36: val_f1=0.8287
+  14/36: val_f1=0.8136
+  15/36: val_f1=0.8343
+  16/36: val_f1=0.8156
+  17/36: val_f1=0.8242
+  18/36: val_f1=0.7978
+  19/36: val_f1=0.7889
+  20/36: val_f1=0.8222
+  21/36: val_f1=0.8132
+  22/36: val_f1=0.7771
+  23/36: val_f1=0.7933
+  24/36: val_f1=0.7978
+  25/36: val_f1=0.8427
+  26/36: val_f1=0.8229
+  27/36: val_f1=0.8161
+  28/36: val_f1=0.8111
+  29/36: val_f1=0.8152
+  30/36: val_f1=0.7753
+  31/36: val_f1=0.7978
+  32/36: val_f1=0.8066
+  33/36: val_f1=0.7978
+  34/36: val_f1=0.7865
+  35/36: val_f1=0.8000
+  36/36: val_f1=0.7841
+  -> test f1=0.8374 acc=0.8342 (majority baseline 0.5000)
+
+=== xgboost  d2_sampled_human_real_vs_synthetic  train 1014 / val 180 / test 398 ===
+  1/36: val_f1=0.9778
+  2/36: val_f1=0.9721
+  3/36: val_f1=0.9778
+  4/36: val_f1=0.9778
+  5/36: val_f1=0.9778
+  6/36: val_f1=0.9834
+  7/36: val_f1=0.9832
+  8/36: val_f1=0.9778
+  9/36: val_f1=0.9724
+  10/36: val_f1=0.9780
+  11/36: val_f1=0.9780
+  12/36: val_f1=0.9778
+  13/36: val_f1=0.9724
+  14/36: val_f1=0.9778
+  15/36: val_f1=0.9778
+  16/36: val_f1=0.9775
+  17/36: val_f1=0.9834
+  18/36: val_f1=0.9724
+  19/36: val_f1=0.9832
+  20/36: val_f1=0.9721
+  21/36: val_f1=0.9780
+  22/36: val_f1=0.9834
+  23/36: val_f1=0.9780
+  24/36: val_f1=0.9724
+  25/36: val_f1=0.9832
+  26/36: val_f1=0.9832
+  27/36: val_f1=0.9721
+  28/36: val_f1=0.9663
+  29/36: val_f1=0.9834
+  30/36: val_f1=0.9778
+  31/36: val_f1=0.9778
+  32/36: val_f1=0.9667
+  33/36: val_f1=0.9780
+  34/36: val_f1=0.9778
+  35/36: val_f1=0.9780
+  36/36: val_f1=0.9667
+  -> test f1=0.9548 acc=0.9548 (majority baseline 0.5000)
+
+=== xgboost  d2.5_sampled_human_real_vs_synthetic  train 1014 / val 180 / test 398 ===
+  1/36: val_f1=1.0000
+  2/36: val_f1=1.0000
+  3/36: val_f1=1.0000
+  4/36: val_f1=1.0000
+  5/36: val_f1=0.9945
+  6/36: val_f1=1.0000
+  7/36: val_f1=1.0000
+  8/36: val_f1=1.0000
+  9/36: val_f1=0.9944
+  10/36: val_f1=1.0000
+  11/36: val_f1=0.9944
+  12/36: val_f1=0.9944
+  13/36: val_f1=1.0000
+  14/36: val_f1=1.0000
+  15/36: val_f1=0.9944
+  16/36: val_f1=0.9944
+  17/36: val_f1=1.0000
+  18/36: val_f1=1.0000
+  19/36: val_f1=1.0000
+  20/36: val_f1=0.9944
+  21/36: val_f1=1.0000
+  22/36: val_f1=1.0000
+  23/36: val_f1=0.9888
+  24/36: val_f1=0.9944
+  25/36: val_f1=1.0000
+  26/36: val_f1=0.9944
+  27/36: val_f1=0.9944
+  28/36: val_f1=0.9944
+  29/36: val_f1=1.0000
+  30/36: val_f1=0.9944
+  31/36: val_f1=0.9944
+  32/36: val_f1=0.9888
+  33/36: val_f1=0.9944
+  34/36: val_f1=0.9944
+  35/36: val_f1=0.9888
+  36/36: val_f1=0.9944
+  -> test f1=0.9701 acc=0.9698 (majority baseline 0.5000)
+
+=== xgboost  d3_sampled_human_real_vs_mixed  train 1014 / val 180 / test 398 ===
+  1/36: val_f1=0.7811
+  2/36: val_f1=0.7882
+  3/36: val_f1=0.8383
+  4/36: val_f1=0.8235
+  5/36: val_f1=0.8166
+  6/36: val_f1=0.8144
+  7/36: val_f1=0.8144
+  8/36: val_f1=0.7879
+  9/36: val_f1=0.8095
+  10/36: val_f1=0.8187
+  11/36: val_f1=0.8025
+  12/36: val_f1=0.8095
+  13/36: val_f1=0.8284
+  14/36: val_f1=0.8304
+  15/36: val_f1=0.8452
+  16/36: val_f1=0.8095
+  17/36: val_f1=0.8284
+  18/36: val_f1=0.7976
+  19/36: val_f1=0.7927
+  20/36: val_f1=0.7730
+  21/36: val_f1=0.8144
+  22/36: val_f1=0.8214
+  23/36: val_f1=0.7826
+  24/36: val_f1=0.8121
+  25/36: val_f1=0.8256
+  26/36: val_f1=0.8383
+  27/36: val_f1=0.8193
+  28/36: val_f1=0.8000
+  29/36: val_f1=0.8144
+  30/36: val_f1=0.8144
+  31/36: val_f1=0.7952
+  32/36: val_f1=0.7901
+  33/36: val_f1=0.8049
+  34/36: val_f1=0.8025
+  35/36: val_f1=0.8025
+  36/36: val_f1=0.8144
+  -> test f1=0.8158 acc=0.8241 (majority baseline 0.5000)
+
+=== xgboost  d3.5_sampled_human_real_vs_mixed  train 1014 / val 180 / test 398 ===
+  1/36: val_f1=0.8047
+  2/36: val_f1=0.8047
+  3/36: val_f1=0.8161
+  4/36: val_f1=0.8315
+  5/36: val_f1=0.8353
+  6/36: val_f1=0.8118
+  7/36: val_f1=0.8506
+  8/36: val_f1=0.8092
+  9/36: val_f1=0.8353
+  10/36: val_f1=0.8140
+  11/36: val_f1=0.8276
+  12/36: val_f1=0.8161
+  13/36: val_f1=0.8208
+  14/36: val_f1=0.8229
+  15/36: val_f1=0.8276
+  16/36: val_f1=0.8457
+  17/36: val_f1=0.8471
+  18/36: val_f1=0.8092
+  19/36: val_f1=0.8256
+  20/36: val_f1=0.8324
+  21/36: val_f1=0.8187
+  22/36: val_f1=0.7910
+  23/36: val_f1=0.8161
+  24/36: val_f1=0.8161
+  25/36: val_f1=0.8046
+  26/36: val_f1=0.8229
+  27/36: val_f1=0.8409
+  28/36: val_f1=0.8276
+  29/36: val_f1=0.8391
+  30/36: val_f1=0.8427
+  31/36: val_f1=0.8324
+  32/36: val_f1=0.8343
+  33/36: val_f1=0.8353
+  34/36: val_f1=0.8114
+  35/36: val_f1=0.8372
+  36/36: val_f1=0.8046
+  -> test f1=0.7831 acc=0.7940 (majority baseline 0.5000)
+
+=== xgboost  d3_unsampled_human_real_vs_mixed  train 1524 / val 270 / test 598 ===
+  1/36: val_f1=0.8773
+  2/36: val_f1=0.8632
+  3/36: val_f1=0.8859
+  4/36: val_f1=0.8780
+  5/36: val_f1=0.8740
+  6/36: val_f1=0.8747
+  7/36: val_f1=0.8913
+  8/36: val_f1=0.8973
+  9/36: val_f1=0.8717
+  10/36: val_f1=0.8624
+  11/36: val_f1=0.8750
+  12/36: val_f1=0.8841
+  13/36: val_f1=0.8740
+  14/36: val_f1=0.8763
+  15/36: val_f1=0.8992
+  16/36: val_f1=0.8804
+  17/36: val_f1=0.8811
+  18/36: val_f1=0.8847
+  19/36: val_f1=0.8852
+  20/36: val_f1=0.8811
+  21/36: val_f1=0.8794
+  22/36: val_f1=0.8841
+  23/36: val_f1=0.8750
+  24/36: val_f1=0.8740
+  25/36: val_f1=0.8841
+  26/36: val_f1=0.8883
+  27/36: val_f1=0.8949
+  28/36: val_f1=0.9003
+  29/36: val_f1=0.8913
+  30/36: val_f1=0.8913
+  31/36: val_f1=0.8757
+  32/36: val_f1=0.8817
+  33/36: val_f1=0.8740
+  34/36: val_f1=0.8811
+  35/36: val_f1=0.8665
+  36/36: val_f1=0.8750
+  -> test f1=0.9069 acc=0.8729 (majority baseline 0.6672)
+
+=== xgboost  d2.5_unsampled_human_real_vs_synthetic  train 1731 / val 306 / test 679 ===
+  1/36: val_f1=0.9907
+  2/36: val_f1=0.9907
+  3/36: val_f1=0.9930
+  4/36: val_f1=0.9954
+  5/36: val_f1=0.9907
+  6/36: val_f1=0.9907
+  7/36: val_f1=0.9931
+  8/36: val_f1=0.9931
+  9/36: val_f1=0.9885
+  10/36: val_f1=0.9954
+  11/36: val_f1=0.9931
+  12/36: val_f1=0.9931
+  13/36: val_f1=0.9930
+  14/36: val_f1=0.9931
+  15/36: val_f1=0.9954
+  16/36: val_f1=0.9930
+  17/36: val_f1=0.9907
+  18/36: val_f1=0.9931
+  19/36: val_f1=0.9931
+  20/36: val_f1=0.9931
+  21/36: val_f1=0.9931
+  22/36: val_f1=0.9931
+  23/36: val_f1=0.9931
+  24/36: val_f1=0.9931
+  25/36: val_f1=0.9954
+  26/36: val_f1=0.9931
+  27/36: val_f1=0.9930
+  28/36: val_f1=0.9907
+  29/36: val_f1=0.9931
+  30/36: val_f1=0.9931
+  31/36: val_f1=0.9931
+  32/36: val_f1=0.9907
+  33/36: val_f1=0.9931
+  34/36: val_f1=0.9931
+  35/36: val_f1=0.9931
+  36/36: val_f1=0.9907
+  -> test f1=0.9804 acc=0.9720 (majority baseline 0.7069)
+
+=== xgboost  d3.5_unsampled_human_real_vs_mixed  train 2238 / val 396 / test 878 ===
+  1/36: val_f1=0.9137
+  2/36: val_f1=0.9119
+  3/36: val_f1=0.9187
+  4/36: val_f1=0.9297
+  5/36: val_f1=0.9192
+  6/36: val_f1=0.9157
+  7/36: val_f1=0.9147
+  8/36: val_f1=0.9228
+  9/36: val_f1=0.9238
+  10/36: val_f1=0.9221
+  11/36: val_f1=0.9256
+  12/36: val_f1=0.9263
+  13/36: val_f1=0.9140
+  14/36: val_f1=0.9187
+  15/36: val_f1=0.9243
+  16/36: val_f1=0.9191
+  17/36: val_f1=0.9295
+  18/36: val_f1=0.9246
+  19/36: val_f1=0.9211
+  20/36: val_f1=0.9221
+  21/36: val_f1=0.9231
+  22/36: val_f1=0.9228
+  23/36: val_f1=0.9275
+  24/36: val_f1=0.9256
+  25/36: val_f1=0.9241
+  26/36: val_f1=0.9258
+  27/36: val_f1=0.9208
+  28/36: val_f1=0.9186
+  29/36: val_f1=0.9226
+  30/36: val_f1=0.9223
+  31/36: val_f1=0.9168
+  32/36: val_f1=0.9243
+  33/36: val_f1=0.9194
+  34/36: val_f1=0.9211
+  35/36: val_f1=0.9223
+  36/36: val_f1=0.9223
+  -> test f1=0.9351 acc=0.8975 (majority baseline 0.7733)
+======================================
+  OK       d1_human_real_vs_human_fake  accuracy=0.8342  f1=0.8374  roc_auc=0.9187  pr_auc=0.9236
+           majority baseline=0.5000  params={'n_estimators': 800, 'max_depth': 3, 'learning_rate': 0.03, 'min_child_weight': 1, 'subsample': 1.0, 'colsample_bytree': 1.0, 'reg_lambda': 1}
+  OK       d2_sampled_human_real_vs_synthetic  accuracy=0.9548  f1=0.9548  roc_auc=0.9927  pr_auc=0.9927
+           majority baseline=0.5000  params={'n_estimators': 200, 'max_depth': 5, 'learning_rate': 0.03, 'min_child_weight': 3, 'subsample': 1.0, 'colsample_bytree': 1.0, 'reg_lambda': 1}
+  OK       d2.5_sampled_human_real_vs_synthetic  accuracy=0.9698  f1=0.9701  roc_auc=0.9982  pr_auc=0.9982
+           majority baseline=0.5000  params={'n_estimators': 200, 'max_depth': 3, 'learning_rate': 0.03, 'min_child_weight': 1, 'subsample': 1.0, 'colsample_bytree': 1.0, 'reg_lambda': 1}
+  OK       d3_sampled_human_real_vs_mixed  accuracy=0.8241  f1=0.8158  roc_auc=0.9086  pr_auc=0.9187
+           majority baseline=0.5000  params={'n_estimators': 400, 'max_depth': 3, 'learning_rate': 0.1, 'min_child_weight': 1, 'subsample': 1.0, 'colsample_bytree': 1.0, 'reg_lambda': 1}
+  OK       d3.5_sampled_human_real_vs_mixed  accuracy=0.7940  f1=0.7831  roc_auc=0.8862  pr_auc=0.8981
+           majority baseline=0.5000  params={'n_estimators': 200, 'max_depth': 5, 'learning_rate': 0.1, 'min_child_weight': 1, 'subsample': 1.0, 'colsample_bytree': 1.0, 'reg_lambda': 1}
+  OK       d3_unsampled_human_real_vs_mixed  accuracy=0.8729  f1=0.9069  roc_auc=0.9423  pr_auc=0.9720
+           majority baseline=0.6672  params={'n_estimators': 800, 'max_depth': 3, 'learning_rate': 0.1, 'min_child_weight': 3, 'subsample': 1.0, 'colsample_bytree': 1.0, 'reg_lambda': 1}
+  OK       d2.5_unsampled_human_real_vs_synthetic  accuracy=0.9720  f1=0.9804  roc_auc=0.9984  pr_auc=0.9993
+           majority baseline=0.7069  params={'n_estimators': 200, 'max_depth': 7, 'learning_rate': 0.03, 'min_child_weight': 3, 'subsample': 1.0, 'colsample_bytree': 1.0, 'reg_lambda': 1}
+  OK       d3.5_unsampled_human_real_vs_mixed  accuracy=0.8975  f1=0.9351  roc_auc=0.9603  pr_auc=0.9888
+           majority baseline=0.7733  params={'n_estimators': 200, 'max_depth': 3, 'learning_rate': 0.1, 'min_child_weight': 3, 'subsample': 1.0, 'colsample_bytree': 1.0, 'reg_lambda': 1}
+
+8 of 8 datasets complete for xgboost.
+Job finished at Do 10. Sep 21:47:48 CEST 2026
+======================================

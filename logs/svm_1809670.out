@@ -1,0 +1,649 @@
+======================================
+Job 1809670 on ant1  |  Do 10. Sep 20:08:03 CEST 2026
+model=svm  config=src/config/config.yaml  grid=src/config/svm_grid.yaml
+venv=/home/anuj97og/.venvs/fake_reviews_bert  threads=8
+output=/home/anuj97og/fake-review-study/results/<dataset>/svm/
+======================================
+--- building venv at /home/anuj97og/.venvs/fake_reviews_bert ---
+Requirement already satisfied: pip in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (21.3.1)
+Collecting pip
+  Downloading pip-26.0.1-py3-none-any.whl (1.8 MB)
+Installing collected packages: pip
+  Attempting uninstall: pip
+    Found existing installation: pip 21.3.1
+    Uninstalling pip-21.3.1:
+      Successfully uninstalled pip-21.3.1
+Successfully installed pip-26.0.1
+--- installing torch ---
+Collecting torch
+  Downloading torch-2.8.0-cp39-cp39-manylinux_2_28_x86_64.whl.metadata (30 kB)
+Collecting filelock (from torch)
+  Downloading filelock-3.19.1-py3-none-any.whl.metadata (2.1 kB)
+Collecting typing-extensions>=4.10.0 (from torch)
+  Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting sympy>=1.13.3 (from torch)
+  Downloading sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+Collecting networkx (from torch)
+  Downloading networkx-3.2.1-py3-none-any.whl.metadata (5.2 kB)
+Collecting jinja2 (from torch)
+  Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting fsspec (from torch)
+  Downloading fsspec-2025.10.0-py3-none-any.whl.metadata (10 kB)
+Collecting nvidia-cuda-nvrtc-cu12==12.8.93 (from torch)
+  Downloading nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cuda-runtime-cu12==12.8.90 (from torch)
+  Downloading nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cuda-cupti-cu12==12.8.90 (from torch)
+  Downloading nvidia_cuda_cupti_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cudnn-cu12==9.10.2.21 (from torch)
+  Downloading nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cublas-cu12==12.8.4.1 (from torch)
+  Downloading nvidia_cublas_cu12-12.8.4.1-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cufft-cu12==11.3.3.83 (from torch)
+  Downloading nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-curand-cu12==10.3.9.90 (from torch)
+  Downloading nvidia_curand_cu12-10.3.9.90-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cusolver-cu12==11.7.3.90 (from torch)
+  Downloading nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cusparse-cu12==12.5.8.93 (from torch)
+  Downloading nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cusparselt-cu12==0.7.1 (from torch)
+  Downloading nvidia_cusparselt_cu12-0.7.1-py3-none-manylinux2014_x86_64.whl.metadata (7.0 kB)
+Collecting nvidia-nccl-cu12==2.27.3 (from torch)
+  Downloading nvidia_nccl_cu12-2.27.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.0 kB)
+Collecting nvidia-nvtx-cu12==12.8.90 (from torch)
+  Downloading nvidia_nvtx_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-nvjitlink-cu12==12.8.93 (from torch)
+  Downloading nvidia_nvjitlink_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cufile-cu12==1.13.1.3 (from torch)
+  Downloading nvidia_cufile_cu12-1.13.1.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting triton==3.4.0 (from torch)
+  Downloading triton-3.4.0-cp39-cp39-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.7 kB)
+Requirement already satisfied: setuptools>=40.8.0 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from triton==3.4.0->torch) (53.0.0)
+Collecting importlib-metadata (from triton==3.4.0->torch)
+  Downloading importlib_metadata-8.7.1-py3-none-any.whl.metadata (4.7 kB)
+Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch)
+  Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Collecting zipp>=3.20 (from importlib-metadata->triton==3.4.0->torch)
+  Downloading zipp-3.23.1-py3-none-any.whl.metadata (3.6 kB)
+Collecting MarkupSafe>=2.0 (from jinja2->torch)
+  Downloading markupsafe-3.0.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Downloading torch-2.8.0-cp39-cp39-manylinux_2_28_x86_64.whl (888.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 888.0/888.0 MB 90.3 MB/s  0:00:10
+Downloading nvidia_cublas_cu12-12.8.4.1-py3-none-manylinux_2_27_x86_64.whl (594.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 594.3/594.3 MB 82.4 MB/s  0:00:06
+Downloading nvidia_cuda_cupti_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (10.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.2/10.2 MB 78.3 MB/s  0:00:00
+Downloading nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (88.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 88.0/88.0 MB 81.8 MB/s  0:00:01
+Downloading nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (954 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 954.8/954.8 kB 97.6 MB/s  0:00:00
+Downloading nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_x86_64.whl (706.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 706.8/706.8 MB 76.7 MB/s  0:00:09
+Downloading nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (193.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 193.1/193.1 MB 87.5 MB/s  0:00:02
+Downloading nvidia_cufile_cu12-1.13.1.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 85.9 MB/s  0:00:00
+Downloading nvidia_curand_cu12-10.3.9.90-py3-none-manylinux_2_27_x86_64.whl (63.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.6/63.6 MB 87.9 MB/s  0:00:00
+Downloading nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_x86_64.whl (267.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 267.5/267.5 MB 86.7 MB/s  0:00:03
+Downloading nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (288.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 288.2/288.2 MB 78.1 MB/s  0:00:03
+Downloading nvidia_cusparselt_cu12-0.7.1-py3-none-manylinux2014_x86_64.whl (287.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 287.2/287.2 MB 83.1 MB/s  0:00:03
+Downloading nvidia_nccl_cu12-2.27.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (322.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 322.4/322.4 MB 81.4 MB/s  0:00:03
+Downloading nvidia_nvjitlink_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (39.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 39.3/39.3 MB 76.1 MB/s  0:00:00
+Downloading nvidia_nvtx_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (89 kB)
+Downloading triton-3.4.0-cp39-cp39-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (155.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 155.4/155.4 MB 68.9 MB/s  0:00:02
+Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 68.6 MB/s  0:00:00
+Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 87.0 MB/s  0:00:00
+Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Downloading filelock-3.19.1-py3-none-any.whl (15 kB)
+Downloading fsspec-2025.10.0-py3-none-any.whl (200 kB)
+Downloading importlib_metadata-8.7.1-py3-none-any.whl (27 kB)
+Downloading zipp-3.23.1-py3-none-any.whl (10 kB)
+Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+Downloading markupsafe-3.0.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (20 kB)
+Downloading networkx-3.2.1-py3-none-any.whl (1.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.6/1.6 MB 73.2 MB/s  0:00:00
+Installing collected packages: nvidia-cusparselt-cu12, mpmath, zipp, typing-extensions, sympy, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufile-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, networkx, MarkupSafe, fsspec, filelock, nvidia-cusparse-cu12, nvidia-cufft-cu12, nvidia-cudnn-cu12, jinja2, importlib-metadata, triton, nvidia-cusolver-cu12, torch
+
+Successfully installed MarkupSafe-3.0.3 filelock-3.19.1 fsspec-2025.10.0 importlib-metadata-8.7.1 jinja2-3.1.6 mpmath-1.3.0 networkx-3.2.1 nvidia-cublas-cu12-12.8.4.1 nvidia-cuda-cupti-cu12-12.8.90 nvidia-cuda-nvrtc-cu12-12.8.93 nvidia-cuda-runtime-cu12-12.8.90 nvidia-cudnn-cu12-9.10.2.21 nvidia-cufft-cu12-11.3.3.83 nvidia-cufile-cu12-1.13.1.3 nvidia-curand-cu12-10.3.9.90 nvidia-cusolver-cu12-11.7.3.90 nvidia-cusparse-cu12-12.5.8.93 nvidia-cusparselt-cu12-0.7.1 nvidia-nccl-cu12-2.27.3 nvidia-nvjitlink-cu12-12.8.93 nvidia-nvtx-cu12-12.8.90 sympy-1.14.0 torch-2.8.0 triton-3.4.0 typing-extensions-4.16.0 zipp-3.23.1
+--- installing the rest ---
+Collecting numpy>=1.26 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 2))
+  Downloading numpy-2.0.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (60 kB)
+Collecting pandas>=2.2 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 3))
+  Downloading pandas-2.3.3-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (91 kB)
+Collecting scikit-learn>=1.4 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 4))
+  Downloading scikit_learn-1.6.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (18 kB)
+Collecting scipy>=1.12 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 5))
+  Downloading scipy-1.13.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (60 kB)
+Collecting xgboost>=2.0 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 6))
+  Downloading xgboost-2.1.4-py3-none-manylinux_2_28_x86_64.whl.metadata (2.1 kB)
+Collecting PyYAML>=6.0 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 7))
+  Downloading pyyaml-6.0.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting joblib>=1.3 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 8))
+  Downloading joblib-1.5.3-py3-none-any.whl.metadata (5.5 kB)
+Collecting requests>=2.31 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 15))
+  Downloading requests-2.32.5-py3-none-any.whl.metadata (4.9 kB)
+Collecting tqdm>=4.66 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 16))
+  Downloading tqdm-4.70.0-py3-none-any.whl.metadata (57 kB)
+Collecting transformers>=4.40 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 20))
+  Downloading transformers-4.57.6-py3-none-any.whl.metadata (43 kB)
+Collecting datasets>=2.18 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading datasets-4.5.0-py3-none-any.whl.metadata (19 kB)
+Requirement already satisfied: torch>=2.2 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from -r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (2.8.0)
+Collecting accelerate>=0.28 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 23))
+  Downloading accelerate-1.10.1-py3-none-any.whl.metadata (19 kB)
+Collecting sentence-transformers>=2.7 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 28))
+  Downloading sentence_transformers-5.1.2-py3-none-any.whl.metadata (16 kB)
+Collecting langchain-core>=0.2 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading langchain_core-0.3.86-py3-none-any.whl.metadata (3.2 kB)
+Collecting langchain-community>=0.2 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 30))
+  Downloading langchain_community-0.3.31-py3-none-any.whl.metadata (3.0 kB)
+Collecting langchain-huggingface>=0.0.3 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 31))
+  Downloading langchain_huggingface-0.3.1-py3-none-any.whl.metadata (996 bytes)
+Collecting langchain-ollama>=0.1 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 32))
+  Downloading langchain_ollama-0.3.10-py3-none-any.whl.metadata (2.1 kB)
+Collecting faiss-cpu>=1.8 (from -r /home/anuj97og/fake-review-study/requirements.txt (line 33))
+  Downloading faiss_cpu-1.13.0-cp39-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (7.7 kB)
+Collecting python-dateutil>=2.8.2 (from pandas>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 3))
+  Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Collecting pytz>=2020.1 (from pandas>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 3))
+  Downloading pytz-2026.3.post1-py2.py3-none-any.whl.metadata (22 kB)
+Collecting tzdata>=2022.7 (from pandas>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 3))
+  Downloading tzdata-2026.3-py2.py3-none-any.whl.metadata (1.4 kB)
+Collecting threadpoolctl>=3.1.0 (from scikit-learn>=1.4->-r /home/anuj97og/fake-review-study/requirements.txt (line 4))
+  Downloading threadpoolctl-3.6.0-py3-none-any.whl.metadata (13 kB)
+Requirement already satisfied: nvidia-nccl-cu12 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from xgboost>=2.0->-r /home/anuj97og/fake-review-study/requirements.txt (line 6)) (2.27.3)
+Collecting charset_normalizer<4,>=2 (from requests>=2.31->-r /home/anuj97og/fake-review-study/requirements.txt (line 15))
+  Downloading charset_normalizer-3.5.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (45 kB)
+Collecting idna<4,>=2.5 (from requests>=2.31->-r /home/anuj97og/fake-review-study/requirements.txt (line 15))
+  Downloading idna-3.19-py3-none-any.whl.metadata (9.2 kB)
+Collecting urllib3<3,>=1.21.1 (from requests>=2.31->-r /home/anuj97og/fake-review-study/requirements.txt (line 15))
+  Downloading urllib3-2.6.3-py3-none-any.whl.metadata (6.9 kB)
+Collecting certifi>=2017.4.17 (from requests>=2.31->-r /home/anuj97og/fake-review-study/requirements.txt (line 15))
+  Downloading certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+Requirement already satisfied: filelock in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from transformers>=4.40->-r /home/anuj97og/fake-review-study/requirements.txt (line 20)) (3.19.1)
+Collecting huggingface-hub<1.0,>=0.34.0 (from transformers>=4.40->-r /home/anuj97og/fake-review-study/requirements.txt (line 20))
+  Downloading huggingface_hub-0.36.2-py3-none-any.whl.metadata (15 kB)
+Collecting packaging>=20.0 (from transformers>=4.40->-r /home/anuj97og/fake-review-study/requirements.txt (line 20))
+  Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+Collecting regex!=2019.12.17 (from transformers>=4.40->-r /home/anuj97og/fake-review-study/requirements.txt (line 20))
+  Downloading regex-2026.1.15-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+Collecting tokenizers<=0.23.0,>=0.22.0 (from transformers>=4.40->-r /home/anuj97og/fake-review-study/requirements.txt (line 20))
+  Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)
+Collecting safetensors>=0.4.3 (from transformers>=4.40->-r /home/anuj97og/fake-review-study/requirements.txt (line 20))
+  Downloading safetensors-0.7.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.1 kB)
+Requirement already satisfied: fsspec>=2023.5.0 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from huggingface-hub<1.0,>=0.34.0->transformers>=4.40->-r /home/anuj97og/fake-review-study/requirements.txt (line 20)) (2025.10.0)
+Collecting hf-xet<2.0.0,>=1.1.3 (from huggingface-hub<1.0,>=0.34.0->transformers>=4.40->-r /home/anuj97og/fake-review-study/requirements.txt (line 20))
+  Downloading hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+Requirement already satisfied: typing-extensions>=3.7.4.3 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from huggingface-hub<1.0,>=0.34.0->transformers>=4.40->-r /home/anuj97og/fake-review-study/requirements.txt (line 20)) (4.16.0)
+Collecting pyarrow>=21.0.0 (from datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading pyarrow-21.0.0-cp39-cp39-manylinux_2_28_x86_64.whl.metadata (3.3 kB)
+Collecting dill<0.4.1,>=0.3.0 (from datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading dill-0.4.0-py3-none-any.whl.metadata (10 kB)
+Collecting httpx<1.0.0 (from datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+Collecting xxhash (from datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading xxhash-4.0.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (17 kB)
+Collecting multiprocess<0.70.19 (from datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading multiprocess-0.70.18-py39-none-any.whl.metadata (7.5 kB)
+Collecting aiohttp!=4.0.0a0,!=4.0.0a1 (from fsspec[http]<=2025.10.0,>=2023.1.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading aiohttp-3.13.5-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.1 kB)
+Collecting anyio (from httpx<1.0.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading anyio-4.12.1-py3-none-any.whl.metadata (4.3 kB)
+Collecting httpcore==1.* (from httpx<1.0.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+Collecting h11>=0.16 (from httpcore==1.*->httpx<1.0.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Requirement already satisfied: sympy>=1.13.3 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (1.14.0)
+Requirement already satisfied: networkx in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (3.2.1)
+Requirement already satisfied: jinja2 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (3.1.6)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (12.8.93)
+Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (12.8.90)
+Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (12.8.90)
+Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (9.10.2.21)
+Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (12.8.4.1)
+Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (11.3.3.83)
+Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (10.3.9.90)
+Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (11.7.3.90)
+Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (12.5.8.93)
+Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (0.7.1)
+Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (12.8.90)
+Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (12.8.93)
+Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (1.13.1.3)
+Requirement already satisfied: triton==3.4.0 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (3.4.0)
+Requirement already satisfied: setuptools>=40.8.0 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from triton==3.4.0->torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (53.0.0)
+Requirement already satisfied: importlib-metadata in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from triton==3.4.0->torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (8.7.1)
+Collecting psutil (from accelerate>=0.28->-r /home/anuj97og/fake-review-study/requirements.txt (line 23))
+  Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
+Collecting Pillow (from sentence-transformers>=2.7->-r /home/anuj97og/fake-review-study/requirements.txt (line 28))
+  Downloading pillow-11.3.0-cp39-cp39-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.0 kB)
+Collecting langsmith<1.0.0,>=0.3.45 (from langchain-core>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading langsmith-0.4.37-py3-none-any.whl.metadata (14 kB)
+Collecting tenacity!=8.4.0,<10.0.0,>=8.1.0 (from langchain-core>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading tenacity-9.1.2-py3-none-any.whl.metadata (1.2 kB)
+Collecting jsonpatch<2.0.0,>=1.33.0 (from langchain-core>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading jsonpatch-1.33-py2.py3-none-any.whl.metadata (3.0 kB)
+Collecting packaging>=20.0 (from transformers>=4.40->-r /home/anuj97og/fake-review-study/requirements.txt (line 20))
+  Downloading packaging-25.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting pydantic<3.0.0,>=2.7.4 (from langchain-core>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading pydantic-2.13.5-py3-none-any.whl.metadata (110 kB)
+Collecting uuid-utils<1.0,>=0.12.0 (from langchain-core>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading uuid_utils-0.15.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.5 kB)
+Collecting jsonpointer>=1.9 (from jsonpatch<2.0.0,>=1.33.0->langchain-core>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading jsonpointer-3.0.0-py2.py3-none-any.whl.metadata (2.3 kB)
+Collecting orjson>=3.9.14 (from langsmith<1.0.0,>=0.3.45->langchain-core>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading orjson-3.11.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (41 kB)
+Collecting requests-toolbelt>=1.0.0 (from langsmith<1.0.0,>=0.3.45->langchain-core>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl.metadata (14 kB)
+Collecting zstandard>=0.23.0 (from langsmith<1.0.0,>=0.3.45->langchain-core>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading zstandard-0.25.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.3 kB)
+Collecting annotated-types>=0.6.0 (from pydantic<3.0.0,>=2.7.4->langchain-core>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.46.5 (from pydantic<3.0.0,>=2.7.4->langchain-core>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading pydantic_core-2.46.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+Collecting typing-inspection>=0.4.2 (from pydantic<3.0.0,>=2.7.4->langchain-core>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 29))
+  Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)
+Collecting langchain<2.0.0,>=0.3.27 (from langchain-community>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 30))
+  Downloading langchain-0.3.30-py3-none-any.whl.metadata (6.4 kB)
+Collecting SQLAlchemy<3.0.0,>=1.4.0 (from langchain-community>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 30))
+  Downloading sqlalchemy-2.0.52-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.6 kB)
+Collecting dataclasses-json<0.7.0,>=0.6.7 (from langchain-community>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 30))
+  Downloading dataclasses_json-0.6.7-py3-none-any.whl.metadata (25 kB)
+Collecting pydantic-settings<3.0.0,>=2.10.1 (from langchain-community>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 30))
+  Downloading pydantic_settings-2.11.0-py3-none-any.whl.metadata (3.4 kB)
+Collecting httpx-sse<1.0.0,>=0.4.0 (from langchain-community>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 30))
+  Downloading httpx_sse-0.4.3-py3-none-any.whl.metadata (9.7 kB)
+Collecting aiohappyeyeballs>=2.5.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.10.0,>=2023.1.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading aiohappyeyeballs-2.6.1-py3-none-any.whl.metadata (5.9 kB)
+Collecting aiosignal>=1.4.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.10.0,>=2023.1.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading aiosignal-1.4.0-py3-none-any.whl.metadata (3.7 kB)
+Collecting async-timeout<6.0,>=4.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.10.0,>=2023.1.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading async_timeout-5.0.1-py3-none-any.whl.metadata (5.1 kB)
+Collecting attrs>=17.3.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.10.0,>=2023.1.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+Collecting frozenlist>=1.1.1 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.10.0,>=2023.1.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading frozenlist-1.8.0-cp39-cp39-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (20 kB)
+Collecting multidict<7.0,>=4.5 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.10.0,>=2023.1.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading multidict-6.7.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.3 kB)
+Collecting propcache>=0.2.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.10.0,>=2023.1.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading propcache-0.4.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (13 kB)
+Collecting yarl<2.0,>=1.17.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.10.0,>=2023.1.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading yarl-1.22.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (75 kB)
+Collecting marshmallow<4.0.0,>=3.18.0 (from dataclasses-json<0.7.0,>=0.6.7->langchain-community>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 30))
+  Downloading marshmallow-3.26.2-py3-none-any.whl.metadata (7.3 kB)
+Collecting typing-inspect<1,>=0.4.0 (from dataclasses-json<0.7.0,>=0.6.7->langchain-community>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 30))
+  Downloading typing_inspect-0.9.0-py3-none-any.whl.metadata (1.5 kB)
+Collecting langchain-text-splitters<1.0.0,>=0.3.9 (from langchain<2.0.0,>=0.3.27->langchain-community>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 30))
+  Downloading langchain_text_splitters-0.3.11-py3-none-any.whl.metadata (1.8 kB)
+Collecting async-timeout<6.0,>=4.0 (from aiohttp!=4.0.0a0,!=4.0.0a1->fsspec[http]<=2025.10.0,>=2023.1.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading async_timeout-4.0.3-py3-none-any.whl.metadata (4.2 kB)
+Collecting python-dotenv>=0.21.0 (from pydantic-settings<3.0.0,>=2.10.1->langchain-community>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 30))
+  Downloading python_dotenv-1.2.1-py3-none-any.whl.metadata (25 kB)
+Collecting greenlet>=1 (from SQLAlchemy<3.0.0,>=1.4.0->langchain-community>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 30))
+  Downloading greenlet-3.2.5-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (4.1 kB)
+Collecting mypy-extensions>=0.3.0 (from typing-inspect<1,>=0.4.0->dataclasses-json<0.7.0,>=0.6.7->langchain-community>=0.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 30))
+  Downloading mypy_extensions-1.1.0-py3-none-any.whl.metadata (1.1 kB)
+Collecting ollama<1.0.0,>=0.5.3 (from langchain-ollama>=0.1->-r /home/anuj97og/fake-review-study/requirements.txt (line 32))
+  Downloading ollama-0.6.2-py3-none-any.whl.metadata (5.8 kB)
+Collecting six>=1.5 (from python-dateutil>=2.8.2->pandas>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 3))
+  Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from sympy>=1.13.3->torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (1.3.0)
+Collecting exceptiongroup>=1.0.2 (from anyio->httpx<1.0.0->datasets>=2.18->-r /home/anuj97og/fake-review-study/requirements.txt (line 21))
+  Downloading exceptiongroup-1.3.1-py3-none-any.whl.metadata (6.7 kB)
+Requirement already satisfied: zipp>=3.20 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from importlib-metadata->triton==3.4.0->torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (3.23.1)
+Requirement already satisfied: MarkupSafe>=2.0 in /home/anuj97og/.venvs/fake_reviews_bert/lib/python3.9/site-packages (from jinja2->torch>=2.2->-r /home/anuj97og/fake-review-study/requirements.txt (line 22)) (3.0.3)
+Downloading numpy-2.0.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (19.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 19.5/19.5 MB 106.5 MB/s  0:00:00
+Downloading pandas-2.3.3-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (12.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.8/12.8 MB 69.5 MB/s  0:00:00
+Downloading scikit_learn-1.6.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (13.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 13.5/13.5 MB 51.4 MB/s  0:00:00
+Downloading scipy-1.13.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (38.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 38.6/38.6 MB 52.5 MB/s  0:00:00
+Downloading xgboost-2.1.4-py3-none-manylinux_2_28_x86_64.whl (223.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 223.6/223.6 MB 78.8 MB/s  0:00:02
+Downloading pyyaml-6.0.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (750 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 750.8/750.8 kB 128.6 MB/s  0:00:00
+Downloading joblib-1.5.3-py3-none-any.whl (309 kB)
+Downloading requests-2.32.5-py3-none-any.whl (64 kB)
+Downloading charset_normalizer-3.5.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (262 kB)
+Downloading idna-3.19-py3-none-any.whl (68 kB)
+Downloading urllib3-2.6.3-py3-none-any.whl (131 kB)
+Downloading tqdm-4.70.0-py3-none-any.whl (80 kB)
+Downloading transformers-4.57.6-py3-none-any.whl (12.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.0/12.0 MB 91.1 MB/s  0:00:00
+Downloading huggingface_hub-0.36.2-py3-none-any.whl (566 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 566.4/566.4 kB 129.2 MB/s  0:00:00
+Downloading hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 96.2 MB/s  0:00:00
+Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 92.7 MB/s  0:00:00
+Downloading datasets-4.5.0-py3-none-any.whl (515 kB)
+Downloading dill-0.4.0-py3-none-any.whl (119 kB)
+Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+Downloading multiprocess-0.70.18-py39-none-any.whl (133 kB)
+Downloading accelerate-1.10.1-py3-none-any.whl (374 kB)
+Downloading sentence_transformers-5.1.2-py3-none-any.whl (488 kB)
+Downloading langchain_core-0.3.86-py3-none-any.whl (461 kB)
+Downloading jsonpatch-1.33-py2.py3-none-any.whl (12 kB)
+Downloading langsmith-0.4.37-py3-none-any.whl (396 kB)
+Downloading packaging-25.0-py3-none-any.whl (66 kB)
+Downloading pydantic-2.13.5-py3-none-any.whl (472 kB)
+Downloading pydantic_core-2.46.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 94.1 MB/s  0:00:00
+Downloading tenacity-9.1.2-py3-none-any.whl (28 kB)
+Downloading uuid_utils-0.15.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (329 kB)
+Downloading langchain_community-0.3.31-py3-none-any.whl (2.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.5/2.5 MB 101.2 MB/s  0:00:00
+Downloading aiohttp-3.13.5-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 103.9 MB/s  0:00:00
+Downloading dataclasses_json-0.6.7-py3-none-any.whl (28 kB)
+Downloading httpx_sse-0.4.3-py3-none-any.whl (9.0 kB)
+Downloading langchain-0.3.30-py3-none-any.whl (1.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.0/1.0 MB 93.1 MB/s  0:00:00
+Downloading async_timeout-4.0.3-py3-none-any.whl (5.7 kB)
+Downloading langchain_text_splitters-0.3.11-py3-none-any.whl (33 kB)
+Downloading marshmallow-3.26.2-py3-none-any.whl (50 kB)
+Downloading multidict-6.7.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (240 kB)
+Downloading pydantic_settings-2.11.0-py3-none-any.whl (48 kB)
+Downloading sqlalchemy-2.0.52-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (3.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 97.5 MB/s  0:00:00
+Downloading typing_inspect-0.9.0-py3-none-any.whl (8.8 kB)
+Downloading yarl-1.22.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (346 kB)
+Downloading langchain_huggingface-0.3.1-py3-none-any.whl (27 kB)
+Downloading langchain_ollama-0.3.10-py3-none-any.whl (27 kB)
+Downloading ollama-0.6.2-py3-none-any.whl (15 kB)
+Downloading faiss_cpu-1.13.0-cp39-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (23.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.6/23.6 MB 62.5 MB/s  0:00:00
+Downloading aiohappyeyeballs-2.6.1-py3-none-any.whl (15 kB)
+Downloading aiosignal-1.4.0-py3-none-any.whl (7.5 kB)
+Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+Downloading frozenlist-1.8.0-cp39-cp39-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (219 kB)
+Downloading greenlet-3.2.5-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (587 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 587.5/587.5 kB 75.0 MB/s  0:00:00
+Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Downloading jsonpointer-3.0.0-py2.py3-none-any.whl (7.6 kB)
+Downloading mypy_extensions-1.1.0-py3-none-any.whl (5.0 kB)
+Downloading orjson-3.11.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (138 kB)
+Downloading propcache-0.4.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (197 kB)
+Downloading pyarrow-21.0.0-cp39-cp39-manylinux_2_28_x86_64.whl (42.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.7/42.7 MB 55.6 MB/s  0:00:00
+Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Downloading python_dotenv-1.2.1-py3-none-any.whl (21 kB)
+Downloading pytz-2026.3.post1-py2.py3-none-any.whl (508 kB)
+Downloading regex-2026.1.15-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (791 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 791.3/791.3 kB 78.0 MB/s  0:00:00
+Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl (54 kB)
+Downloading safetensors-0.7.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (507 kB)
+Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Downloading threadpoolctl-3.6.0-py3-none-any.whl (18 kB)
+Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)
+Downloading tzdata-2026.3-py2.py3-none-any.whl (348 kB)
+Downloading zstandard-0.25.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.6/5.6 MB 65.1 MB/s  0:00:00
+Downloading anyio-4.12.1-py3-none-any.whl (113 kB)
+Downloading exceptiongroup-1.3.1-py3-none-any.whl (16 kB)
+Downloading pillow-11.3.0-cp39-cp39-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.6/6.6 MB 65.4 MB/s  0:00:00
+Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+Downloading xxhash-4.0.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (249 kB)
+Installing collected packages: pytz, zstandard, xxhash, uuid-utils, urllib3, tzdata, typing-inspection, tqdm, threadpoolctl, tenacity, six, safetensors, regex, PyYAML, python-dotenv, pydantic-core, pyarrow, psutil, propcache, Pillow, packaging, orjson, numpy, mypy-extensions, multidict, jsonpointer, joblib, idna, httpx-sse, hf-xet, h11, greenlet, frozenlist, exceptiongroup, dill, charset_normalizer, certifi, attrs, async-timeout, annotated-types, aiohappyeyeballs, yarl, typing-inspect, SQLAlchemy, scipy, requests, python-dateutil, pydantic, multiprocess, marshmallow, jsonpatch, httpcore, faiss-cpu, anyio, aiosignal, xgboost, scikit-learn, requests-toolbelt, pydantic-settings, pandas, huggingface-hub, httpx, dataclasses-json, aiohttp, tokenizers, ollama, langsmith, accelerate, transformers, langchain-core, datasets, sentence-transformers, langchain-text-splitters, langchain-ollama, langchain-huggingface, langchain, langchain-community
+
+Successfully installed Pillow-11.3.0 PyYAML-6.0.3 SQLAlchemy-2.0.52 accelerate-1.10.1 aiohappyeyeballs-2.6.1 aiohttp-3.13.5 aiosignal-1.4.0 annotated-types-0.7.0 anyio-4.12.1 async-timeout-4.0.3 attrs-26.1.0 certifi-2026.7.22 charset_normalizer-3.5.1 dataclasses-json-0.6.7 datasets-4.5.0 dill-0.4.0 exceptiongroup-1.3.1 faiss-cpu-1.13.0 frozenlist-1.8.0 greenlet-3.2.5 h11-0.16.0 hf-xet-1.6.0 httpcore-1.0.9 httpx-0.28.1 httpx-sse-0.4.3 huggingface-hub-0.36.2 idna-3.19 joblib-1.5.3 jsonpatch-1.33 jsonpointer-3.0.0 langchain-0.3.30 langchain-community-0.3.31 langchain-core-0.3.86 langchain-huggingface-0.3.1 langchain-ollama-0.3.10 langchain-text-splitters-0.3.11 langsmith-0.4.37 marshmallow-3.26.2 multidict-6.7.1 multiprocess-0.70.18 mypy-extensions-1.1.0 numpy-2.0.2 ollama-0.6.2 orjson-3.11.5 packaging-25.0 pandas-2.3.3 propcache-0.4.1 psutil-7.2.2 pyarrow-21.0.0 pydantic-2.13.5 pydantic-core-2.46.5 pydantic-settings-2.11.0 python-dateutil-2.9.0.post0 python-dotenv-1.2.1 pytz-2026.3.post1 regex-2026.1.15 requests-2.32.5 requests-toolbelt-1.0.0 safetensors-0.7.0 scikit-learn-1.6.1 scipy-1.13.1 sentence-transformers-5.1.2 six-1.17.0 tenacity-9.1.2 threadpoolctl-3.6.0 tokenizers-0.22.2 tqdm-4.70.0 transformers-4.57.6 typing-inspect-0.9.0 typing-inspection-0.4.2 tzdata-2026.3 urllib3-2.6.3 uuid-utils-0.15.0 xgboost-2.1.4 xxhash-4.0.1 yarl-1.22.0 zstandard-0.25.0
+--- venv ready ---
+Python: Python 3.9.25 at /home/anuj97og/.venvs/fake_reviews_bert/bin/python
+  sklearn        1.6.1
+  yaml           6.0.3
+  pandas         2.3.3
+  scipy          1.13.1
+  joblib         1.5.3
+Running svm grid over every dataset in src/config/config.yaml...
+
+=== svm  d1_human_real_vs_human_fake  train 1014 / val 180 / test 398 ===
+  1/24: val_f1=0.7742
+  2/24: val_f1=0.7742
+  3/24: val_f1=0.6667
+  4/24: val_f1=0.6667
+  5/24: val_f1=0.6667
+  6/24: val_f1=0.6667
+  7/24: val_f1=0.6667
+  8/24: val_f1=0.6667
+  9/24: val_f1=0.8306
+  10/24: val_f1=0.8306
+  11/24: val_f1=0.8398
+  12/24: val_f1=0.8398
+  13/24: val_f1=0.6667
+  14/24: val_f1=0.6667
+  15/24: val_f1=0.6667
+  16/24: val_f1=0.6667
+  17/24: val_f1=0.8261
+  18/24: val_f1=0.8261
+  19/24: val_f1=0.8398
+  20/24: val_f1=0.8398
+  21/24: val_f1=0.7927
+  22/24: val_f1=0.7927
+  23/24: val_f1=0.6667
+  24/24: val_f1=0.6667
+  -> test f1=0.9246 acc=0.9246 (majority baseline 0.5000)
+
+=== svm  d2_sampled_human_real_vs_synthetic  train 1014 / val 180 / test 398 ===
+  1/24: val_f1=0.9944
+  2/24: val_f1=0.9944
+  3/24: val_f1=0.9655
+  4/24: val_f1=0.9655
+  5/24: val_f1=0.6667
+  6/24: val_f1=0.6667
+  7/24: val_f1=0.6667
+  8/24: val_f1=0.6667
+  9/24: val_f1=1.0000
+  10/24: val_f1=1.0000
+  11/24: val_f1=0.9944
+  12/24: val_f1=0.9944
+  13/24: val_f1=0.9655
+  14/24: val_f1=0.9655
+  15/24: val_f1=0.6667
+  16/24: val_f1=0.6667
+  17/24: val_f1=1.0000
+  18/24: val_f1=1.0000
+  19/24: val_f1=0.9944
+  20/24: val_f1=0.9944
+  21/24: val_f1=0.9944
+  22/24: val_f1=0.9944
+  23/24: val_f1=0.9595
+  24/24: val_f1=0.9595
+  -> test f1=0.9975 acc=0.9975 (majority baseline 0.5000)
+
+=== svm  d2.5_sampled_human_real_vs_synthetic  train 1014 / val 180 / test 398 ===
+  1/24: val_f1=1.0000
+  2/24: val_f1=1.0000
+  3/24: val_f1=0.9655
+  4/24: val_f1=0.9655
+  5/24: val_f1=0.6667
+  6/24: val_f1=0.6667
+  7/24: val_f1=0.6667
+  8/24: val_f1=0.6667
+  9/24: val_f1=1.0000
+  10/24: val_f1=1.0000
+  11/24: val_f1=1.0000
+  12/24: val_f1=1.0000
+  13/24: val_f1=0.9655
+  14/24: val_f1=0.9655
+  15/24: val_f1=0.6667
+  16/24: val_f1=0.6667
+  17/24: val_f1=1.0000
+  18/24: val_f1=1.0000
+  19/24: val_f1=1.0000
+  20/24: val_f1=1.0000
+  21/24: val_f1=1.0000
+  22/24: val_f1=1.0000
+  23/24: val_f1=0.9655
+  24/24: val_f1=0.9655
+  -> test f1=1.0000 acc=1.0000 (majority baseline 0.5000)
+
+=== svm  d3_sampled_human_real_vs_mixed  train 1014 / val 180 / test 398 ===
+  1/24: val_f1=0.7703
+  2/24: val_f1=0.7703
+  3/24: val_f1=0.6667
+  4/24: val_f1=0.6667
+  5/24: val_f1=0.6667
+  6/24: val_f1=0.6667
+  7/24: val_f1=0.6667
+  8/24: val_f1=0.6667
+  9/24: val_f1=0.8977
+  10/24: val_f1=0.8977
+  11/24: val_f1=0.8914
+  12/24: val_f1=0.8914
+  13/24: val_f1=0.6667
+  14/24: val_f1=0.6667
+  15/24: val_f1=0.6667
+  16/24: val_f1=0.6667
+  17/24: val_f1=0.8876
+  18/24: val_f1=0.8876
+  19/24: val_f1=0.8914
+  20/24: val_f1=0.8914
+  21/24: val_f1=0.8434
+  22/24: val_f1=0.8434
+  23/24: val_f1=0.6667
+  24/24: val_f1=0.6667
+  -> test f1=0.8978 acc=0.8970 (majority baseline 0.5000)
+
+=== svm  d3.5_sampled_human_real_vs_mixed  train 1014 / val 180 / test 398 ===
+  1/24: val_f1=0.6906
+  2/24: val_f1=0.6906
+  3/24: val_f1=0.7303
+  4/24: val_f1=0.7303
+  5/24: val_f1=0.6667
+  6/24: val_f1=0.6667
+  7/24: val_f1=0.6667
+  8/24: val_f1=0.6667
+  9/24: val_f1=0.9071
+  10/24: val_f1=0.9071
+  11/24: val_f1=0.8950
+  12/24: val_f1=0.8950
+  13/24: val_f1=0.6667
+  14/24: val_f1=0.6667
+  15/24: val_f1=0.6667
+  16/24: val_f1=0.6667
+  17/24: val_f1=0.8889
+  18/24: val_f1=0.8889
+  19/24: val_f1=0.9011
+  20/24: val_f1=0.9011
+  21/24: val_f1=0.8521
+  22/24: val_f1=0.8521
+  23/24: val_f1=0.6667
+  24/24: val_f1=0.6667
+  -> test f1=0.8953 acc=0.8995 (majority baseline 0.5000)
+
+=== svm  d3_unsampled_human_real_vs_mixed  train 1524 / val 270 / test 598 ===
+  1/24: val_f1=0.9032
+  2/24: val_f1=0.8753
+  3/24: val_f1=0.8902
+  4/24: val_f1=0.8000
+  5/24: val_f1=0.8968
+  6/24: val_f1=0.8000
+  7/24: val_f1=0.9288
+  8/24: val_f1=0.8000
+  9/24: val_f1=0.9356
+  10/24: val_f1=0.9352
+  11/24: val_f1=0.9128
+  12/24: val_f1=0.9133
+  13/24: val_f1=0.9032
+  14/24: val_f1=0.8000
+  15/24: val_f1=0.9032
+  16/24: val_f1=0.8000
+  17/24: val_f1=0.9326
+  18/24: val_f1=0.9326
+  19/24: val_f1=0.9195
+  20/24: val_f1=0.9195
+  21/24: val_f1=0.9032
+  22/24: val_f1=0.8673
+  23/24: val_f1=0.9032
+  24/24: val_f1=0.8000
+  -> test f1=0.9348 acc=0.9130 (majority baseline 0.6672)
+
+=== svm  d2.5_unsampled_human_real_vs_synthetic  train 1731 / val 306 / test 679 ===
+  1/24: val_f1=1.0000
+  2/24: val_f1=1.0000
+  3/24: val_f1=1.0000
+  4/24: val_f1=0.9841
+  5/24: val_f1=1.0000
+  6/24: val_f1=0.8276
+  7/24: val_f1=1.0000
+  8/24: val_f1=0.8276
+  9/24: val_f1=1.0000
+  10/24: val_f1=1.0000
+  11/24: val_f1=1.0000
+  12/24: val_f1=1.0000
+  13/24: val_f1=1.0000
+  14/24: val_f1=0.8276
+  15/24: val_f1=1.0000
+  16/24: val_f1=0.8276
+  17/24: val_f1=1.0000
+  18/24: val_f1=1.0000
+  19/24: val_f1=1.0000
+  20/24: val_f1=1.0000
+  21/24: val_f1=1.0000
+  22/24: val_f1=1.0000
+  23/24: val_f1=1.0000
+  24/24: val_f1=0.8276
+  -> test f1=1.0000 acc=1.0000 (majority baseline 0.7069)
+
+=== svm  d3.5_unsampled_human_real_vs_mixed  train 2238 / val 396 / test 878 ===
+  1/24: val_f1=0.9449
+  2/24: val_f1=0.8716
+  3/24: val_f1=0.9414
+  4/24: val_f1=0.8718
+  5/24: val_f1=0.9482
+  6/24: val_f1=0.8718
+  7/24: val_f1=0.9455
+  8/24: val_f1=0.8718
+  9/24: val_f1=0.9463
+  10/24: val_f1=0.9462
+  11/24: val_f1=0.9455
+  12/24: val_f1=0.9392
+  13/24: val_f1=0.9449
+  14/24: val_f1=0.8718
+  15/24: val_f1=0.9465
+  16/24: val_f1=0.8718
+  17/24: val_f1=0.9481
+  18/24: val_f1=0.9481
+  19/24: val_f1=0.9421
+  20/24: val_f1=0.9421
+  21/24: val_f1=0.9449
+  22/24: val_f1=0.9088
+  23/24: val_f1=0.9449
+  24/24: val_f1=0.8718
+  -> test f1=0.9567 acc=0.9339 (majority baseline 0.7733)
+======================================
+  OK       d1_human_real_vs_human_fake  accuracy=0.9246  f1=0.9246  roc_auc=0.9770  pr_auc=0.9801
+           majority baseline=0.5000  params={'C': 1.0, 'kernel': 'rbf', 'gamma': 'scale', 'class_weight': None}
+  OK       d2_sampled_human_real_vs_synthetic  accuracy=0.9975  f1=0.9975  roc_auc=0.9998  pr_auc=0.9998
+           majority baseline=0.5000  params={'C': 1.0, 'kernel': 'linear', 'gamma': 'scale', 'class_weight': None}
+  OK       d2.5_sampled_human_real_vs_synthetic  accuracy=1.0000  f1=1.0000  roc_auc=1.0000  pr_auc=1.0000
+           majority baseline=0.5000  params={'C': 0.1, 'kernel': 'linear', 'gamma': 'scale', 'class_weight': None}
+  OK       d3_sampled_human_real_vs_mixed  accuracy=0.8970  f1=0.8978  roc_auc=0.9619  pr_auc=0.9672
+           majority baseline=0.5000  params={'C': 1.0, 'kernel': 'linear', 'gamma': 'scale', 'class_weight': None}
+  OK       d3.5_sampled_human_real_vs_mixed  accuracy=0.8995  f1=0.8953  roc_auc=0.9677  pr_auc=0.9738
+           majority baseline=0.5000  params={'C': 1.0, 'kernel': 'linear', 'gamma': 'scale', 'class_weight': None}
+  OK       d3_unsampled_human_real_vs_mixed  accuracy=0.9130  f1=0.9348  roc_auc=0.9658  pr_auc=0.9837
+           majority baseline=0.6672  params={'C': 1.0, 'kernel': 'linear', 'gamma': 'scale', 'class_weight': None}
+  OK       d2.5_unsampled_human_real_vs_synthetic  accuracy=1.0000  f1=1.0000  roc_auc=1.0000  pr_auc=1.0000
+           majority baseline=0.7069  params={'C': 0.1, 'kernel': 'linear', 'gamma': 'scale', 'class_weight': None}
+  OK       d3.5_unsampled_human_real_vs_mixed  accuracy=0.9339  f1=0.9567  roc_auc=0.9790  pr_auc=0.9942
+           majority baseline=0.7733  params={'C': 0.1, 'kernel': 'rbf', 'gamma': 0.01, 'class_weight': None}
+
+8 of 8 datasets complete for svm.
+Job finished at Do 10. Sep 20:33:15 CEST 2026
+======================================

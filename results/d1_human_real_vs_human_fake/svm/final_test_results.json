@@ -7,26 +7,26 @@
   "majority_class_accuracy": 0.5,
   "best_validation_params": {
     "C": 1.0,
-    "kernel": "linear",
+    "kernel": "rbf",
     "gamma": "scale",
     "class_weight": null
   },
   "test_metrics": {
-    "accuracy": 0.9120603015075377,
-    "precision": 0.905940594059406,
-    "recall": 0.9195979899497487,
-    "f1": 0.912718204488778,
+    "accuracy": 0.9246231155778895,
+    "precision": 0.9246231155778895,
+    "recall": 0.9246231155778895,
+    "f1": 0.9246231155778895,
     "confusion_matrix": [
       [
-        180,
-        19
+        184,
+        15
       ],
       [
-        16,
-        183
+        15,
+        184
       ]
     ],
-    "roc_auc": 0.978157117244514,
-    "pr_auc": 0.9807036506697425
+    "roc_auc": 0.9769955304158986,
+    "pr_auc": 0.9801353371126075
   }
 }

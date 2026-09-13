@@ -6,27 +6,27 @@
   "test_fake_fraction": 0.7733485193621867,
   "majority_class_accuracy": 0.7733485193621867,
   "best_validation_params": {
-    "C": 1.0,
-    "kernel": "linear",
-    "gamma": "scale",
+    "C": 0.1,
+    "kernel": "rbf",
+    "gamma": 0.01,
     "class_weight": null
   },
   "test_metrics": {
-    "accuracy": 0.9498861047835991,
-    "precision": 0.9662261380323054,
-    "recall": 0.9690721649484536,
-    "f1": 0.9676470588235294,
+    "accuracy": 0.9339407744874715,
+    "precision": 0.9711684370257967,
+    "recall": 0.9425625920471281,
+    "f1": 0.9566517189835575,
     "confusion_matrix": [
       [
-        176,
-        23
+        180,
+        19
       ],
       [
-        21,
-        658
+        39,
+        640
       ]
     ],
-    "roc_auc": 0.9854611792393484,
-    "pr_auc": 0.9959147804906598
+    "roc_auc": 0.9790410076894044,
+    "pr_auc": 0.9941802813241958
   }
 }

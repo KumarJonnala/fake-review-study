@@ -7,7 +7,7 @@
   "majority_class_accuracy": 0.5,
   "validation_results": [
     {
-      "run": 1,
+      "run": 9,
       "params": {
         "C": 1.0,
         "kernel": "linear",
@@ -30,6 +30,581 @@
       ],
       "roc_auc": 1.0,
       "pr_auc": 0.9999999999999999
+    },
+    {
+      "run": 10,
+      "params": {
+        "C": 1.0,
+        "kernel": "linear",
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          0,
+          90
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 0.9999999999999999
+    },
+    {
+      "run": 17,
+      "params": {
+        "C": 10.0,
+        "kernel": "linear",
+        "gamma": "scale",
+        "class_weight": null
+      },
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          0,
+          90
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 0.9999999999999999
+    },
+    {
+      "run": 18,
+      "params": {
+        "C": 10.0,
+        "kernel": "linear",
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          0,
+          90
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 0.9999999999999999
+    },
+    {
+      "run": 1,
+      "params": {
+        "C": 0.1,
+        "kernel": "linear",
+        "gamma": "scale",
+        "class_weight": null
+      },
+      "accuracy": 0.9944444444444445,
+      "precision": 1.0,
+      "recall": 0.9888888888888889,
+      "f1": 0.994413407821229,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          1,
+          89
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 0.9999999999999998
+    },
+    {
+      "run": 2,
+      "params": {
+        "C": 0.1,
+        "kernel": "linear",
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      "accuracy": 0.9944444444444445,
+      "precision": 1.0,
+      "recall": 0.9888888888888889,
+      "f1": 0.994413407821229,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          1,
+          89
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 0.9999999999999998
+    },
+    {
+      "run": 11,
+      "params": {
+        "C": 1.0,
+        "kernel": "rbf",
+        "gamma": "scale",
+        "class_weight": null
+      },
+      "accuracy": 0.9944444444444445,
+      "precision": 1.0,
+      "recall": 0.9888888888888889,
+      "f1": 0.994413407821229,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          1,
+          89
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 1.0
+    },
+    {
+      "run": 12,
+      "params": {
+        "C": 1.0,
+        "kernel": "rbf",
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      "accuracy": 0.9944444444444445,
+      "precision": 1.0,
+      "recall": 0.9888888888888889,
+      "f1": 0.994413407821229,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          1,
+          89
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 1.0
+    },
+    {
+      "run": 19,
+      "params": {
+        "C": 10.0,
+        "kernel": "rbf",
+        "gamma": "scale",
+        "class_weight": null
+      },
+      "accuracy": 0.9944444444444445,
+      "precision": 1.0,
+      "recall": 0.9888888888888889,
+      "f1": 0.994413407821229,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          1,
+          89
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 1.0
+    },
+    {
+      "run": 20,
+      "params": {
+        "C": 10.0,
+        "kernel": "rbf",
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      "accuracy": 0.9944444444444445,
+      "precision": 1.0,
+      "recall": 0.9888888888888889,
+      "f1": 0.994413407821229,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          1,
+          89
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 1.0
+    },
+    {
+      "run": 21,
+      "params": {
+        "C": 10.0,
+        "kernel": "rbf",
+        "gamma": 0.01,
+        "class_weight": null
+      },
+      "accuracy": 0.9944444444444445,
+      "precision": 1.0,
+      "recall": 0.9888888888888889,
+      "f1": 0.994413407821229,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          1,
+          89
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 1.0
+    },
+    {
+      "run": 22,
+      "params": {
+        "C": 10.0,
+        "kernel": "rbf",
+        "gamma": 0.01,
+        "class_weight": "balanced"
+      },
+      "accuracy": 0.9944444444444445,
+      "precision": 1.0,
+      "recall": 0.9888888888888889,
+      "f1": 0.994413407821229,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          1,
+          89
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 1.0
+    },
+    {
+      "run": 3,
+      "params": {
+        "C": 0.1,
+        "kernel": "rbf",
+        "gamma": "scale",
+        "class_weight": null
+      },
+      "accuracy": 0.9666666666666667,
+      "precision": 1.0,
+      "recall": 0.9333333333333333,
+      "f1": 0.9655172413793104,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          6,
+          84
+        ]
+      ],
+      "roc_auc": 0.9998765432098766,
+      "pr_auc": 0.9998778998778998
+    },
+    {
+      "run": 4,
+      "params": {
+        "C": 0.1,
+        "kernel": "rbf",
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      "accuracy": 0.9666666666666667,
+      "precision": 1.0,
+      "recall": 0.9333333333333333,
+      "f1": 0.9655172413793104,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          6,
+          84
+        ]
+      ],
+      "roc_auc": 0.9998765432098766,
+      "pr_auc": 0.9998778998778998
+    },
+    {
+      "run": 13,
+      "params": {
+        "C": 1.0,
+        "kernel": "rbf",
+        "gamma": 0.01,
+        "class_weight": null
+      },
+      "accuracy": 0.9666666666666667,
+      "precision": 1.0,
+      "recall": 0.9333333333333333,
+      "f1": 0.9655172413793104,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          6,
+          84
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 1.0
+    },
+    {
+      "run": 14,
+      "params": {
+        "C": 1.0,
+        "kernel": "rbf",
+        "gamma": 0.01,
+        "class_weight": "balanced"
+      },
+      "accuracy": 0.9666666666666667,
+      "precision": 1.0,
+      "recall": 0.9333333333333333,
+      "f1": 0.9655172413793104,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          6,
+          84
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 1.0
+    },
+    {
+      "run": 23,
+      "params": {
+        "C": 10.0,
+        "kernel": "rbf",
+        "gamma": 0.001,
+        "class_weight": null
+      },
+      "accuracy": 0.9611111111111111,
+      "precision": 1.0,
+      "recall": 0.9222222222222223,
+      "f1": 0.9595375722543352,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          7,
+          83
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 1.0
+    },
+    {
+      "run": 24,
+      "params": {
+        "C": 10.0,
+        "kernel": "rbf",
+        "gamma": 0.001,
+        "class_weight": "balanced"
+      },
+      "accuracy": 0.9611111111111111,
+      "precision": 1.0,
+      "recall": 0.9222222222222223,
+      "f1": 0.9595375722543352,
+      "confusion_matrix": [
+        [
+          90,
+          0
+        ],
+        [
+          7,
+          83
+        ]
+      ],
+      "roc_auc": 1.0,
+      "pr_auc": 1.0
+    },
+    {
+      "run": 5,
+      "params": {
+        "C": 0.1,
+        "kernel": "rbf",
+        "gamma": 0.01,
+        "class_weight": null
+      },
+      "accuracy": 0.5,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "confusion_matrix": [
+        [
+          0,
+          90
+        ],
+        [
+          0,
+          90
+        ]
+      ],
+      "roc_auc": 0.3666666666666667,
+      "pr_auc": 0.5
+    },
+    {
+      "run": 6,
+      "params": {
+        "C": 0.1,
+        "kernel": "rbf",
+        "gamma": 0.01,
+        "class_weight": "balanced"
+      },
+      "accuracy": 0.5,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "confusion_matrix": [
+        [
+          0,
+          90
+        ],
+        [
+          0,
+          90
+        ]
+      ],
+      "roc_auc": 0.3666666666666667,
+      "pr_auc": 0.5
+    },
+    {
+      "run": 7,
+      "params": {
+        "C": 0.1,
+        "kernel": "rbf",
+        "gamma": 0.001,
+        "class_weight": null
+      },
+      "accuracy": 0.5,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "confusion_matrix": [
+        [
+          0,
+          90
+        ],
+        [
+          0,
+          90
+        ]
+      ],
+      "roc_auc": 0.0,
+      "pr_auc": 0.30962288128751725
+    },
+    {
+      "run": 8,
+      "params": {
+        "C": 0.1,
+        "kernel": "rbf",
+        "gamma": 0.001,
+        "class_weight": "balanced"
+      },
+      "accuracy": 0.5,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "confusion_matrix": [
+        [
+          0,
+          90
+        ],
+        [
+          0,
+          90
+        ]
+      ],
+      "roc_auc": 0.0,
+      "pr_auc": 0.30962288128751725
+    },
+    {
+      "run": 15,
+      "params": {
+        "C": 1.0,
+        "kernel": "rbf",
+        "gamma": 0.001,
+        "class_weight": null
+      },
+      "accuracy": 0.5,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "confusion_matrix": [
+        [
+          0,
+          90
+        ],
+        [
+          0,
+          90
+        ]
+      ],
+      "roc_auc": 0.3833333333333333,
+      "pr_auc": 0.5
+    },
+    {
+      "run": 16,
+      "params": {
+        "C": 1.0,
+        "kernel": "rbf",
+        "gamma": 0.001,
+        "class_weight": "balanced"
+      },
+      "accuracy": 0.5,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "confusion_matrix": [
+        [
+          0,
+          90
+        ],
+        [
+          0,
+          90
+        ]
+      ],
+      "roc_auc": 0.3833333333333333,
+      "pr_auc": 0.5
     }
   ]
 }

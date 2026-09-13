@@ -1,7 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=fr_svm
-#SBATCH --partition=gpu
-#SBATCH --nodelist=ant2
+#SBATCH --partition=gpu-stud
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=16G
 #SBATCH --time=02:00:00

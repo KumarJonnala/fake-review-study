@@ -6,7 +6,7 @@
   "test_fake_fraction": 0.5,
   "majority_class_accuracy": 0.5,
   "best_validation_params": {
-    "C": 1.0,
+    "C": 0.1,
     "kernel": "linear",
     "gamma": "scale",
     "class_weight": null
