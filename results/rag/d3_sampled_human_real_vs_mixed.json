@@ -1,0 +1,259 @@
+{
+  "csv_path": "data/datasets/d3_sampled_human_real_vs_mixed.csv",
+  "train_rows": 1194,
+  "test_rows": 398,
+  "k": 5,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "retrieval_only_baseline": {
+    "accuracy": 0.7085427135678392,
+    "precision": 0.6707818930041153,
+    "recall": 0.8190954773869347,
+    "f1": 0.7375565610859729,
+    "confusion_matrix": [
+      [
+        119,
+        80
+      ],
+      [
+        36,
+        163
+      ]
+    ],
+    "unknown_predictions": 0,
+    "scored_rows": 398
+  },
+  "retrieval_only_by_origin": {
+    "doomgrave/ministral-3:8b": {
+      "n": 25,
+      "accuracy": 0.92,
+      "unknown_predictions": 0
+    },
+    "gemma4:e4b": {
+      "n": 25,
+      "accuracy": 1.0,
+      "unknown_predictions": 0
+    },
+    "human_fake": {
+      "n": 99,
+      "accuracy": 0.6768,
+      "unknown_predictions": 0
+    },
+    "human_real": {
+      "n": 199,
+      "accuracy": 0.598,
+      "unknown_predictions": 0
+    },
+    "llama3.2:3b": {
+      "n": 25,
+      "accuracy": 0.96,
+      "unknown_predictions": 0
+    },
+    "qwen3.5:9b": {
+      "n": 25,
+      "accuracy": 0.96,
+      "unknown_predictions": 0
+    }
+  },
+  "models": {
+    "gemma4:e4b": {
+      "accuracy": 0.6155778894472361,
+      "precision": 0.7346938775510204,
+      "recall": 0.36180904522613067,
+      "f1": 0.48484848484848486,
+      "confusion_matrix": [
+        [
+          173,
+          26
+        ],
+        [
+          127,
+          72
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "doomgrave/ministral-3:8b": {
+          "n": 25,
+          "accuracy": 0.28,
+          "unknown_predictions": 0
+        },
+        "gemma4:e4b": {
+          "n": 25,
+          "accuracy": 0.6,
+          "unknown_predictions": 0
+        },
+        "human_fake": {
+          "n": 99,
+          "accuracy": 0.3535,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.8693,
+          "unknown_predictions": 0
+        },
+        "llama3.2:3b": {
+          "n": 25,
+          "accuracy": 0.24,
+          "unknown_predictions": 0
+        },
+        "qwen3.5:9b": {
+          "n": 25,
+          "accuracy": 0.36,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "doomgrave/ministral-3:8b": {
+      "accuracy": 0.6733668341708543,
+      "precision": 0.6519823788546255,
+      "recall": 0.7437185929648241,
+      "f1": 0.6948356807511737,
+      "confusion_matrix": [
+        [
+          120,
+          79
+        ],
+        [
+          51,
+          148
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "doomgrave/ministral-3:8b": {
+          "n": 25,
+          "accuracy": 0.76,
+          "unknown_predictions": 0
+        },
+        "gemma4:e4b": {
+          "n": 25,
+          "accuracy": 0.76,
+          "unknown_predictions": 0
+        },
+        "human_fake": {
+          "n": 99,
+          "accuracy": 0.7273,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.603,
+          "unknown_predictions": 0
+        },
+        "llama3.2:3b": {
+          "n": 25,
+          "accuracy": 0.6,
+          "unknown_predictions": 0
+        },
+        "qwen3.5:9b": {
+          "n": 25,
+          "accuracy": 0.92,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "llama3.2:3b": {
+      "accuracy": 0.46733668341708545,
+      "precision": 0.39344262295081966,
+      "recall": 0.12060301507537688,
+      "f1": 0.18461538461538463,
+      "confusion_matrix": [
+        [
+          162,
+          37
+        ],
+        [
+          175,
+          24
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "doomgrave/ministral-3:8b": {
+          "n": 25,
+          "accuracy": 0.16,
+          "unknown_predictions": 0
+        },
+        "gemma4:e4b": {
+          "n": 25,
+          "accuracy": 0.04,
+          "unknown_predictions": 0
+        },
+        "human_fake": {
+          "n": 99,
+          "accuracy": 0.1717,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.8141,
+          "unknown_predictions": 0
+        },
+        "llama3.2:3b": {
+          "n": 25,
+          "accuracy": 0.0,
+          "unknown_predictions": 0
+        },
+        "qwen3.5:9b": {
+          "n": 25,
+          "accuracy": 0.08,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "qwen3.5:9b": {
+      "accuracy": 0.7211055276381909,
+      "precision": 0.6981981981981982,
+      "recall": 0.7788944723618091,
+      "f1": 0.7363420427553444,
+      "confusion_matrix": [
+        [
+          132,
+          67
+        ],
+        [
+          44,
+          155
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "doomgrave/ministral-3:8b": {
+          "n": 25,
+          "accuracy": 0.76,
+          "unknown_predictions": 0
+        },
+        "gemma4:e4b": {
+          "n": 25,
+          "accuracy": 0.92,
+          "unknown_predictions": 0
+        },
+        "human_fake": {
+          "n": 99,
+          "accuracy": 0.7172,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.6633,
+          "unknown_predictions": 0
+        },
+        "llama3.2:3b": {
+          "n": 25,
+          "accuracy": 0.8,
+          "unknown_predictions": 0
+        },
+        "qwen3.5:9b": {
+          "n": 25,
+          "accuracy": 0.88,
+          "unknown_predictions": 0
+        }
+      }
+    }
+  }
+}
