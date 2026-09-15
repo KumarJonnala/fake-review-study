@@ -5,7 +5,7 @@ Runs every dataset listed in src/config/config.yaml by default:
     python3 -m src.xgboost_classifier.train --dataset d1_human_real_vs_human_fake
 
 Train and test come from each dataset's own `split` column; validation is carved out of
-the train half. Results land in results/<dataset>/xgboost/ and are written as each
+the train half. Results land in results/xgboost/<dataset>/ and are written as each
 dataset finishes, so an interrupted run keeps whatever already completed.
 """
 import argparse

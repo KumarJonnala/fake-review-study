@@ -24,7 +24,7 @@ Carried over from a previous project and adapted to this one. What changed:
   nearest-neighbour one.
 * Per-origin accuracy, because the configured judges also WROTE the fakes in d2/d3 --
   a model recognising its own output is a confound worth being able to see.
-* Metrics come from src/evaluation.py so the JSON keys match results/svm/*.json.
+* Metrics come from src/evaluation.py so the JSON keys match results/svm/<dataset>/*.json.
 * Two bugs fixed; see normalize_prediction and `unknown_count` below.
 
 Only `text` is ever shown to a model. `origin`, `source_dataset` and `cell_id_variation`

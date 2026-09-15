@@ -72,7 +72,7 @@ python3 -m src.svm_classifier.train
 python3 -m src.xgboost_classifier.train --dataset d1_human_real_vs_human_fake
 ```
 
-Results are written to `results/<dataset>/<model>/` as each dataset completes, so an
+Results are written to `results/<model>/<dataset>/` as each dataset completes, so an
 interrupted run keeps whatever already finished. BERT additionally accepts
 `--skip-existing` to resume a run that was cut short.
 

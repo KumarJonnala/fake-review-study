@@ -11,7 +11,7 @@ Train and test come from each dataset's own `split` column; validation is carved
 the train half. Hyperparameter combinations come from src/config/bert_grid.yaml, the
 validation set selects the best run, and the test set is evaluated once for that run.
 
-Results land in results/<dataset>/bert/ and are written as each dataset finishes. The
+Results land in results/bert/<dataset>/ and are written as each dataset finishes. The
 full grid is 24 runs per dataset, so a four-dataset run is 96 fine-tunings -- longer than
 the wall clock currently set in slurm_bert.sh. --skip-existing makes a resubmit continue
 from the datasets that already finished rather than starting over.
@@ -197,7 +197,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(bcfg["model"]["pretrained_name"])
 
     for dataset in (args.dataset or base["data"]["datasets"]):
-        done = (Path(base["experiment"]["output_dir"]) / dataset / "bert"
+        done = (Path(base["experiment"]["output_dir"]) / "bert" / dataset
                 / "final_test_results.json")
         if args.skip_existing and done.exists():
             print(f"\n=== bert  {dataset}  SKIPPED (already has {done.name}) ===")

@@ -12,7 +12,7 @@
 #
 # Variables the caller MUST set before sourcing:
 #   MODEL         xgboost | svm | bert   ->  runs src.<MODEL>_classifier.train
-#                                            and reads results/<dataset>/<MODEL>/
+#                                            and reads results/<MODEL>/<dataset>/
 #   GRID          path to that model's hyperparameter grid yaml
 #   IMPORT_CHECK  space-separated modules to import before training starts
 #
@@ -64,7 +64,7 @@ echo "======================================"
 echo "Job ${SLURM_JOB_ID:-local} on $(hostname)  |  $(date)"
 echo "model=$MODEL  config=$CONFIG  grid=$GRID"
 echo "venv=$VENV  threads=$THREADS"
-echo "output=$RESULTS/<dataset>/$MODEL/"
+echo "output=$RESULTS/$MODEL/<dataset>/"
 echo "======================================"
 
 if [ -n "${NEEDS_GPU:-}" ]; then
@@ -172,7 +172,7 @@ root = pathlib.Path(base["experiment"]["output_dir"])
 done = missing = 0
 
 for name in base["data"]["datasets"]:
-    final = root / name / model / "final_test_results.json"
+    final = root / model / name / "final_test_results.json"
     if not final.exists():
         missing += 1
         partial = final.with_name("validation_results.json")

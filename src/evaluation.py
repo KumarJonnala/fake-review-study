@@ -44,7 +44,7 @@ def run_provenance(dataset, train, val, test):
 
 
 def results_dir(base, dataset, model_name):
-    """results/<dataset>/<model>/ -- one directory per (dataset, model) pair."""
-    path = Path(base["experiment"]["output_dir"]) / dataset / model_name
+    """results/<model>/<dataset>/ -- one directory per (model, dataset) pair."""
+    path = Path(base["experiment"]["output_dir"]) / model_name / dataset
     path.mkdir(parents=True, exist_ok=True)
     return path
