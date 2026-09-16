@@ -42,3 +42,10 @@
 | | doomgrave/ministral-3:8b | 0.629 | 0.805 | 0.686 | 0.741 | | |
 | | llama3.2:3b | 0.230 | 0.518 | 0.065 | 0.115 | | |
 | | qwen3.5:9b | 0.845 | 0.884 | 0.920 | 0.902 | | |
+
+## Notable patterns
+
+- qwen3.5:9b is the strongest judge, best on 6/8 datasets and often beating the retrieval-only baseline.
+- llama3.2:3b is the weakest judge, with recall collapsing to 0.03–0.15 on most datasets from over-predicting one class.
+- retrieval-only (embeddings, no LLM) rivals or beats the LLM judges, especially on d2/d2.5 synthetic detection.
+- gemma4:e4b is high-precision/low-recall, while doomgrave/ministral-3:8b stays more balanced.
