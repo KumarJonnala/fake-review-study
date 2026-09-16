@@ -1,4 +1,4 @@
-# Dataset–Model Evaluation Results
+# Dataset - Model Evaluation Results
 
 | Dataset | Model | Accuracy | Precision | Recall | F1 | Train | Test |
 |---|---|---:|---:|---:|---:|---:|---:|
