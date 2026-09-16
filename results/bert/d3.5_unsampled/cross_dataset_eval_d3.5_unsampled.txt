@@ -1,0 +1,125 @@
+========================================
+     CROSS-DATASET EVALUATION RESULTS     
+========================================
+Model trained on : d3.5_unsampled
+========================================
+
+--- Evaluated on: d1 (398 test samples) ---
+Accuracy  : 0.9070
+Precision : 0.9091
+Recall    : 0.9045
+F1-Score  : 0.9068
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       0.91      0.91      0.91       199
+    Fake (1)       0.91      0.90      0.91       199
+
+    accuracy                           0.91       398
+   macro avg       0.91      0.91      0.91       398
+weighted avg       0.91      0.91      0.91       398
+
+Confusion Matrix: [[TN=181  FP=18] [FN=19  TP=180]]
+
+--- Evaluated on: d2.5_sampled (398 test samples) ---
+Accuracy  : 0.9523
+Precision : 0.9128
+Recall    : 1.0000
+F1-Score  : 0.9544
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       1.00      0.90      0.95       199
+    Fake (1)       0.91      1.00      0.95       199
+
+    accuracy                           0.95       398
+   macro avg       0.96      0.95      0.95       398
+weighted avg       0.96      0.95      0.95       398
+
+Confusion Matrix: [[TN=180  FP=19] [FN=0  TP=199]]
+
+--- Evaluated on: d2.5_unsampled (679 test samples) ---
+Accuracy  : 0.9794
+Precision : 0.9717
+Recall    : 1.0000
+F1-Score  : 0.9856
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       1.00      0.93      0.96       199
+    Fake (1)       0.97      1.00      0.99       480
+
+    accuracy                           0.98       679
+   macro avg       0.99      0.96      0.97       679
+weighted avg       0.98      0.98      0.98       679
+
+Confusion Matrix: [[TN=185  FP=14] [FN=0  TP=480]]
+
+--- Evaluated on: d2_sampled (398 test samples) ---
+Accuracy  : 0.9598
+Precision : 0.9256
+Recall    : 1.0000
+F1-Score  : 0.9614
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       1.00      0.92      0.96       199
+    Fake (1)       0.93      1.00      0.96       199
+
+    accuracy                           0.96       398
+   macro avg       0.96      0.96      0.96       398
+weighted avg       0.96      0.96      0.96       398
+
+Confusion Matrix: [[TN=183  FP=16] [FN=0  TP=199]]
+
+--- Evaluated on: d3.5_sampled (398 test samples) ---
+Accuracy  : 0.9095
+Precision : 0.9095
+Recall    : 0.9095
+F1-Score  : 0.9095
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       0.91      0.91      0.91       199
+    Fake (1)       0.91      0.91      0.91       199
+
+    accuracy                           0.91       398
+   macro avg       0.91      0.91      0.91       398
+weighted avg       0.91      0.91      0.91       398
+
+Confusion Matrix: [[TN=181  FP=18] [FN=18  TP=181]]
+
+--- Evaluated on: d3_sampled (398 test samples) ---
+Accuracy  : 0.9146
+Precision : 0.9104
+Recall    : 0.9196
+F1-Score  : 0.9150
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       0.92      0.91      0.91       199
+    Fake (1)       0.91      0.92      0.92       199
+
+    accuracy                           0.91       398
+   macro avg       0.91      0.91      0.91       398
+weighted avg       0.91      0.91      0.91       398
+
+Confusion Matrix: [[TN=181  FP=18] [FN=16  TP=183]]
+
+--- Evaluated on: d3_unsampled (598 test samples) ---
+Accuracy  : 0.9348
+Precision : 0.9592
+Recall    : 0.9424
+F1-Score  : 0.9507
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       0.89      0.92      0.90       199
+    Fake (1)       0.96      0.94      0.95       399
+
+    accuracy                           0.93       598
+   macro avg       0.92      0.93      0.93       598
+weighted avg       0.94      0.93      0.94       598
+
+Confusion Matrix: [[TN=183  FP=16] [FN=23  TP=376]]
+

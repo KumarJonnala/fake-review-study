@@ -1,0 +1,125 @@
+========================================
+     CROSS-DATASET EVALUATION RESULTS     
+========================================
+Model trained on : d1
+========================================
+
+--- Evaluated on: d2.5_sampled (398 test samples) ---
+Accuracy  : 0.7739
+Precision : 0.8225
+Recall    : 0.6985
+F1-Score  : 0.7554
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       0.74      0.85      0.79       199
+    Fake (1)       0.82      0.70      0.76       199
+
+    accuracy                           0.77       398
+   macro avg       0.78      0.77      0.77       398
+weighted avg       0.78      0.77      0.77       398
+
+Confusion Matrix: [[TN=169  FP=30] [FN=60  TP=139]]
+
+--- Evaluated on: d2.5_unsampled (679 test samples) ---
+Accuracy  : 0.7761
+Precision : 0.9339
+Recall    : 0.7354
+F1-Score  : 0.8228
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       0.58      0.87      0.70       199
+    Fake (1)       0.93      0.74      0.82       480
+
+    accuracy                           0.78       679
+   macro avg       0.76      0.80      0.76       679
+weighted avg       0.83      0.78      0.79       679
+
+Confusion Matrix: [[TN=174  FP=25] [FN=127  TP=353]]
+
+--- Evaluated on: d2_sampled (398 test samples) ---
+Accuracy  : 0.9121
+Precision : 0.9059
+Recall    : 0.9196
+F1-Score  : 0.9127
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       0.92      0.90      0.91       199
+    Fake (1)       0.91      0.92      0.91       199
+
+    accuracy                           0.91       398
+   macro avg       0.91      0.91      0.91       398
+weighted avg       0.91      0.91      0.91       398
+
+Confusion Matrix: [[TN=180  FP=19] [FN=16  TP=183]]
+
+--- Evaluated on: d3.5_sampled (398 test samples) ---
+Accuracy  : 0.8518
+Precision : 0.8500
+Recall    : 0.8543
+F1-Score  : 0.8521
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       0.85      0.85      0.85       199
+    Fake (1)       0.85      0.85      0.85       199
+
+    accuracy                           0.85       398
+   macro avg       0.85      0.85      0.85       398
+weighted avg       0.85      0.85      0.85       398
+
+Confusion Matrix: [[TN=169  FP=30] [FN=29  TP=170]]
+
+--- Evaluated on: d3.5_unsampled (878 test samples) ---
+Accuracy  : 0.8189
+Precision : 0.9561
+Recall    : 0.8027
+F1-Score  : 0.8727
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       0.56      0.87      0.69       199
+    Fake (1)       0.96      0.80      0.87       679
+
+    accuracy                           0.82       878
+   macro avg       0.76      0.84      0.78       878
+weighted avg       0.87      0.82      0.83       878
+
+Confusion Matrix: [[TN=174  FP=25] [FN=134  TP=545]]
+
+--- Evaluated on: d3_sampled (398 test samples) ---
+Accuracy  : 0.9271
+Precision : 0.9009
+Recall    : 0.9598
+F1-Score  : 0.9294
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       0.96      0.89      0.92       199
+    Fake (1)       0.90      0.96      0.93       199
+
+    accuracy                           0.93       398
+   macro avg       0.93      0.93      0.93       398
+weighted avg       0.93      0.93      0.93       398
+
+Confusion Matrix: [[TN=178  FP=21] [FN=8  TP=191]]
+
+--- Evaluated on: d3_unsampled (598 test samples) ---
+Accuracy  : 0.9331
+Precision : 0.9389
+Recall    : 0.9624
+F1-Score  : 0.9505
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       0.92      0.87      0.90       199
+    Fake (1)       0.94      0.96      0.95       399
+
+    accuracy                           0.93       598
+   macro avg       0.93      0.92      0.92       598
+weighted avg       0.93      0.93      0.93       598
+
+Confusion Matrix: [[TN=174  FP=25] [FN=15  TP=384]]
+

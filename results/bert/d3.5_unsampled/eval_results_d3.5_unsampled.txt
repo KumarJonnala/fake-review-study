@@ -1,0 +1,24 @@
+========================================
+          EVALUATION RESULTS          
+========================================
+Dataset   : d3.5_unsampled
+Accuracy  : 0.9431
+Precision : 0.9701
+Recall    : 0.9558
+F1-Score  : 0.9629
+========================================
+
+Full Classification Report:
+              precision    recall  f1-score   support
+
+    Real (0)       0.86      0.90      0.88       199
+    Fake (1)       0.97      0.96      0.96       679
+
+    accuracy                           0.94       878
+   macro avg       0.91      0.93      0.92       878
+weighted avg       0.94      0.94      0.94       878
+
+
+Confusion Matrix:
+[[TN=179  FP=20]
+ [FN=30  TP=649]]
