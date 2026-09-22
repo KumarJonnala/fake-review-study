@@ -1,0 +1,69 @@
+# Zero-shot LLM classification of fake reviews -- the control condition for the RAG run.
+#   python3 src/zeroshot_classifier/zeroshot.py [--config src/config/zeroshot.yaml]
+#
+# Invoked BY FILE PATH, not `python3 -m`. src/zeroshot_classifier/ has no __init__.py, so
+# -m would fail. rag.yaml's header says `-m src.rag_classifier.classify`, which is both the
+# wrong module name and unrunnable; slurm_RAG.sh:143 quietly does the right thing instead.
+#
+# Same prompt, same judges, same temperature, same test rows as the RAG run -- minus the
+# five retrieved examples. The gap between results/zeroshot/ and results/rag/ is therefore
+# the value of retrieval and nothing else.
+#
+# THERE IS NO RETRIEVAL-ONLY BASELINE HERE. RAG anchors every number against its k-NN
+# baseline; with no vector store there is nothing to anchor against, so read every number
+# against the MAJORITY-CLASS FLOOR that run_provenance() writes into each output file:
+# 0.500 on the five sampled datasets, but 0.667 on d3_unsampled, 0.707 on d2.5_unsampled
+# and 0.773 on d3.5_unsampled. An 0.77 accuracy on d3.5_unsampled is the constant predictor
+# that always answers "fake".
+
+seed: 42
+
+# ALL EIGHT, ordered SMALLEST FIRST, matching src/config/config.yaml:17 and for the same
+# reason: each dataset's JSON is written as that dataset finishes, so a job that hits its
+# 12h wall clock keeps everything before the cut. Running the five 398-row datasets first
+# means a timeout costs at most the three big ones.
+#
+# rag.yaml lists only 3 of the 8 because scoping a job there meant editing the config --
+# which is why results/rag/summary.json describes a single dataset while results/rag/ holds
+# eight. Scope a job with --dataset / DATASETS= instead, and leave this list whole: the
+# config is the record of what the study runs, the flag is the record of what one job ran.
+datasets:
+  - data/datasets/d1_human_real_vs_human_fake.csv                 # 398 test, floor 0.500
+  - data/datasets/d2_sampled_human_real_vs_synthetic.csv          # 398 test, floor 0.500
+  - data/datasets/d2.5_sampled_human_real_vs_synthetic.csv        # 398 test, floor 0.500
+  - data/datasets/d3_sampled_human_real_vs_mixed.csv              # 398 test, floor 0.500
+  - data/datasets/d3.5_sampled_human_real_vs_mixed.csv            # 398 test, floor 0.500
+  - data/datasets/d3_unsampled_human_real_vs_mixed.csv            # 598 test, floor 0.667
+  - data/datasets/d2.5_unsampled_human_real_vs_synthetic.csv      # 679 test, floor 0.707
+  - data/datasets/d3.5_unsampled_human_real_vs_mixed.csv          # 878 test, floor 0.773
+
+# The judges. These four also WROTE the synthetic reviews in d2 and d3 -- in those datasets
+# the fake `origin` values are literally these tags -- so on d2/d3 a model is partly
+# recognising its own output. The per-origin breakdown in every output file exists to make
+# that visible. They did NOT write d2.5/d3.5 (large pool: deepseek, glm-5.3, gpt5.6
+# luna/terra), which is the uncontaminated comparison.
+#
+# Tags are the ones actually pulled: config.py:51 says `ministral-3:8b`, but the model that
+# generated the corpus is `doomgrave/ministral-3:8b`.
+models:
+  - gemma4:e4b
+  - doomgrave/ministral-3:8b
+  - llama3.2:3b
+  - qwen3.5:9b
+
+ollama:
+  host: localhost:11434       # overridden by the OLLAMA_HOST env var (slurm sets a port)
+  temperature: 0              # judging, not generating: no diversity wanted
+  # ACTUALLY READ, unlike rag.yaml's copy of this key. rag.yaml:47 declares
+  # request_timeout and RAG.py:277 constructs OllamaLLM(model=..., temperature=...) only,
+  # so the value has never done anything. Over a 12h run one hung call would otherwise
+  # stall every dataset queued behind it, so zeroshot.py passes it through. It changes no
+  # output unless a call hangs -- in which case RAG would have hung too.
+  request_timeout: 300        # seconds
+
+# Set an integer for a smoke run; see zeroshot_smoke.yaml. Full volume is
+# 4145 test rows x 4 models = 16580 LLM calls. No retrieval and no vector store, so unlike
+# RAG there is no embedding model to load and no per-dataset FAISS index to build.
+limit_test_rows: null
+
+output_dir: results/zeroshot

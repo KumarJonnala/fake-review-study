@@ -28,9 +28,16 @@ accelerate>=0.28
 # RAG classifier  (src/rag_classifier/RAG.py)
 # sentence-transformers backs HuggingFaceEmbeddings and faiss-cpu backs the FAISS vector
 # store; neither is imported by name, and both are required at runtime.
-gitsentence-transformers>=2.7
+sentence-transformers>=2.7
 langchain-core>=0.2
 langchain-community>=0.2
 langchain-huggingface>=0.0.3
 langchain-ollama>=0.1
 faiss-cpu>=1.8
+
+# Zero-shot classifier  (src/zeroshot_classifier/zeroshot.py)
+# Needs nothing new: it is the RAG block MINUS sentence-transformers, faiss-cpu,
+# langchain-community and langchain-huggingface, because it builds no vector store and
+# embeds nothing. It imports only PromptTemplate (langchain-core) and OllamaLLM
+# (langchain-ollama), plus pandas/scikit-learn/PyYAML from the core block.
+# src/slurm_zeroshot.sh pins that shorter list directly rather than installing this file.

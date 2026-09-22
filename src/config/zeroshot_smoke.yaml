@@ -1,0 +1,33 @@
+# Cluster smoke test:
+#   CONFIG=src/config/zeroshot_smoke.yaml sbatch src/slurm_zeroshot.sh
+#
+# Exercises the whole path -- the four model pulls, the port handshake, load_split, the
+# prompt, the UNKNOWN accounting, the per-dataset JSON write and the summary rebuild -- in
+# 20 calls, about a minute. Twelve hours is a long time to discover a model tag was wrong.
+#
+# This file EXISTS, deliberately: slurm_RAG.sh:19 advertises a `src/config/rag_smoke.yaml`
+# that was never written, so the smoke path it documents fails on the file open.
+#
+# Identical to zeroshot.yaml except for the dataset list, limit_test_rows and output_dir.
+seed: 42
+
+datasets:
+  - data/datasets/d1_human_real_vs_human_fake.csv
+
+models:
+  - gemma4:e4b
+  - doomgrave/ministral-3:8b
+  - llama3.2:3b
+  - qwen3.5:9b
+
+ollama:
+  host: localhost:11434
+  temperature: 0
+  request_timeout: 300
+
+limit_test_rows: 5
+
+# NOT results/zeroshot/. A 5-row smoke file dropped in the real output directory would be
+# indistinguishable from a finished dataset, and `SKIP_EXISTING=1` would then skip d1 for
+# the rest of the study.
+output_dir: results/zeroshot_smoke

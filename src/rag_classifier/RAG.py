@@ -25,7 +25,8 @@ Carried over from a previous project and adapted to this one. What changed:
 * Per-origin accuracy, because the configured judges also WROTE the fakes in d2/d3 --
   a model recognising its own output is a confound worth being able to see.
 * Metrics come from src/evaluation.py so the JSON keys match results/svm/<dataset>/*.json.
-* Two bugs fixed; see normalize_prediction and `unknown_count` below.
+* Two bugs fixed; see normalize_prediction and score in src/llm_common.py, where the
+  helpers this shares with the zero-shot classifier now live.
 
 Only `text` is ever shown to a model. `origin`, `source_dataset` and `cell_id_variation`
 all leak the label; `origin` is kept for the test rows only, to break results down after
@@ -57,7 +58,17 @@ except ImportError:
 
 REPO = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO))
-from src.evaluation import evaluate_binary, save_json  # noqa: E402
+from src.evaluation import save_json  # noqa: E402
+# The split loader, the label parser, the scorer and the per-origin breakdown moved to
+# src/llm_common.py when the zero-shot classifier was added, so both runs are scored by
+# the same code and stay subtractable. evaluate_binary is no longer imported here: its
+# only caller was score(), which went with them.
+from src.llm_common import (  # noqa: E402
+    accuracy_by_origin,
+    load_split,
+    normalize_prediction,
+    score,
+)
 
 # ─────────────────────────────────────────────
 # PROMPT
@@ -87,31 +98,8 @@ rag_prompt = PromptTemplate(
 )
 
 # ─────────────────────────────────────────────
-# HELPERS
+# RETRIEVAL HELPERS  (the rest moved to src/llm_common.py)
 # ─────────────────────────────────────────────
-
-def load_split(csv_path: Path):
-    """The train and test halves of one dataset, taken from its `split` column.
-
-    Nothing is re-split here. A dataset without the column is refused rather than
-    silently split onto a different partition from the other classifiers.
-
-    The old version did `df.rename(columns={label_col: "label"})`, which assumed the
-    source had no `label` column. These datasets have BOTH `Binary_label` (real/fake) and
-    `label` (0/1), so that rename produced two columns named `label` and `df["label"]`
-    then returned a DataFrame instead of a Series. No rename now: `label` feeds the
-    metrics and `Binary_label` feeds the prompt examples.
-    """
-    df = pd.read_csv(csv_path)
-    for col in ("split", "text", "label", "Binary_label"):
-        if col not in df.columns:
-            raise ValueError(f"no `{col}` column")
-    train = df[df["split"] == "train"].reset_index(drop=True)
-    test = df[df["split"] == "test"].reset_index(drop=True)
-    if train.empty or test.empty:
-        raise ValueError("empty train or test half")
-    return train, test
-
 
 def build_vectorstore(df_train: pd.DataFrame, embeddings, store_dir: str) -> FAISS:
     """Build a fresh FAISS vectorstore from the training split.
@@ -133,30 +121,6 @@ def format_examples(docs) -> str:
         f'Review: "{d.page_content}"\nLabel: {d.metadata["label"]}'
         for d in docs
     )
-
-
-def normalize_prediction(response: str) -> str:
-    """"real", "fake", or "UNKNOWN".
-
-    The old version matched "fake" before "real" anywhere in the string, so
-    "this is not fake, it's real" scored as fake. The prompt asks for exactly one word,
-    so check the first word first, then fall back to substring matching -- and return a
-    genuine UNKNOWN when neither or BOTH appear, instead of silently picking one.
-    """
-    r = str(response).strip().lower().strip('"\'.` \n')
-    words = r.split()
-    first = words[0].strip('.,:;"\'') if words else ""
-    if first in ("real", "truthful", "genuine"):
-        return "real"
-    if first in ("fake", "deceptive"):
-        return "fake"
-    has_fake = any(w in r for w in ("fake", "deceptive"))
-    has_real = any(w in r for w in ("real", "truthful", "genuine"))
-    if has_fake and not has_real:
-        return "fake"
-    if has_real and not has_fake:
-        return "real"
-    return "UNKNOWN"
 
 
 def classify_review(review_text: str, llm, retriever) -> str:
@@ -183,42 +147,6 @@ def retrieval_only_prediction(review_text: str, retriever) -> str:
     if not labels:
         return "UNKNOWN"
     return "fake" if labels.count("fake") * 2 >= len(labels) else "real"
-
-
-def score(y_true_str, y_pred_str) -> dict:
-    """Metrics over the rows that got a usable answer, plus a count of those that did not.
-
-    UNKNOWNs are excluded from the metrics but REPORTED. The old version filtered them
-    with no record of how many, which quietly inflates accuracy when a model refuses on
-    exactly the hard cases.
-    """
-    keep = [i for i, p in enumerate(y_pred_str) if p in ("real", "fake")]
-    n_unknown = len(y_pred_str) - len(keep)
-    if not keep:
-        return {"error": "no usable predictions", "unknown_predictions": n_unknown}
-    yt = [1 if y_true_str[i] == "fake" else 0 for i in keep]
-    yp = [1 if y_pred_str[i] == "fake" else 0 for i in keep]
-    out = evaluate_binary(yt, yp)
-    out["unknown_predictions"] = n_unknown
-    out["scored_rows"] = len(keep)
-    return out
-
-
-def accuracy_by_origin(df_test: pd.DataFrame, y_pred_str) -> dict:
-    """Accuracy per origin: the only way to see whether a model finds its OWN generations
-    easier than another model's, which is the self-recognition confound in d2 and d3."""
-    out = {}
-    for origin, g in df_test.groupby("origin"):
-        idx = g.index.tolist()
-        keep = [i for i in idx if y_pred_str[i] in ("real", "fake")]
-        correct = sum(1 for i in keep
-                      if y_pred_str[i] == df_test["Binary_label"].iloc[i])
-        out[origin] = {
-            "n": len(idx),
-            "accuracy": round(correct / len(keep), 4) if keep else None,
-            "unknown_predictions": len(idx) - len(keep),
-        }
-    return out
 
 
 # ─────────────────────────────────────────────
