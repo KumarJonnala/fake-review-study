@@ -1,0 +1,193 @@
+{
+  "dataset": "d2_sampled_human_real_vs_synthetic",
+  "n_train": 1194,
+  "n_validation": 0,
+  "n_test": 398,
+  "test_fake_fraction": 0.5,
+  "majority_class_accuracy": 0.5,
+  "csv_path": "data/datasets/d2_sampled_human_real_vs_synthetic.csv",
+  "prompt": "zeroshot",
+  "temperature": 0,
+  "models": {
+    "gemma4:e4b": {
+      "accuracy": 0.5778894472361809,
+      "precision": 0.7719298245614035,
+      "recall": 0.22110552763819097,
+      "f1": 0.34375,
+      "confusion_matrix": [
+        [
+          186,
+          13
+        ],
+        [
+          155,
+          44
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "doomgrave/ministral-3:8b": {
+          "n": 50,
+          "accuracy": 0.16,
+          "unknown_predictions": 0
+        },
+        "gemma4:e4b": {
+          "n": 49,
+          "accuracy": 0.2449,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9347,
+          "unknown_predictions": 0
+        },
+        "llama3.2:3b": {
+          "n": 50,
+          "accuracy": 0.18,
+          "unknown_predictions": 0
+        },
+        "qwen3.5:9b": {
+          "n": 50,
+          "accuracy": 0.3,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "doomgrave/ministral-3:8b": {
+      "accuracy": 0.46733668341708545,
+      "precision": 0.3488372093023256,
+      "recall": 0.07537688442211055,
+      "f1": 0.12396694214876033,
+      "confusion_matrix": [
+        [
+          171,
+          28
+        ],
+        [
+          184,
+          15
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "doomgrave/ministral-3:8b": {
+          "n": 50,
+          "accuracy": 0.04,
+          "unknown_predictions": 0
+        },
+        "gemma4:e4b": {
+          "n": 49,
+          "accuracy": 0.0816,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.8593,
+          "unknown_predictions": 0
+        },
+        "llama3.2:3b": {
+          "n": 50,
+          "accuracy": 0.04,
+          "unknown_predictions": 0
+        },
+        "qwen3.5:9b": {
+          "n": 50,
+          "accuracy": 0.14,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "llama3.2:3b": {
+      "accuracy": 0.3768844221105528,
+      "precision": 0.1111111111111111,
+      "recall": 0.035175879396984924,
+      "f1": 0.05343511450381679,
+      "confusion_matrix": [
+        [
+          143,
+          56
+        ],
+        [
+          192,
+          7
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "doomgrave/ministral-3:8b": {
+          "n": 50,
+          "accuracy": 0.06,
+          "unknown_predictions": 0
+        },
+        "gemma4:e4b": {
+          "n": 49,
+          "accuracy": 0.0,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.7186,
+          "unknown_predictions": 0
+        },
+        "llama3.2:3b": {
+          "n": 50,
+          "accuracy": 0.0,
+          "unknown_predictions": 0
+        },
+        "qwen3.5:9b": {
+          "n": 50,
+          "accuracy": 0.08,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "qwen3.5:9b": {
+      "accuracy": 0.5778894472361809,
+      "precision": 0.7924528301886793,
+      "recall": 0.21105527638190955,
+      "f1": 0.3333333333333333,
+      "confusion_matrix": [
+        [
+          188,
+          11
+        ],
+        [
+          157,
+          42
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "doomgrave/ministral-3:8b": {
+          "n": 50,
+          "accuracy": 0.1,
+          "unknown_predictions": 0
+        },
+        "gemma4:e4b": {
+          "n": 49,
+          "accuracy": 0.2653,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9447,
+          "unknown_predictions": 0
+        },
+        "llama3.2:3b": {
+          "n": 50,
+          "accuracy": 0.22,
+          "unknown_predictions": 0
+        },
+        "qwen3.5:9b": {
+          "n": 50,
+          "accuracy": 0.26,
+          "unknown_predictions": 0
+        }
+      }
+    }
+  }
+}
