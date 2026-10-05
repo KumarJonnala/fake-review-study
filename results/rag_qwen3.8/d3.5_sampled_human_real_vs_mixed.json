@@ -1,0 +1,114 @@
+{
+  "csv_path": "data/datasets/d3.5_sampled_human_real_vs_mixed.csv",
+  "train_rows": 1194,
+  "test_rows": 398,
+  "k": 5,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "llm_endpoint": "http://localhost:8090",
+  "llm_served_model": "/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+  "retrieval_only_baseline": {
+    "accuracy": 0.6834170854271356,
+    "precision": 0.6553191489361702,
+    "recall": 0.7738693467336684,
+    "f1": 0.7096774193548387,
+    "confusion_matrix": [
+      [
+        118,
+        81
+      ],
+      [
+        45,
+        154
+      ]
+    ],
+    "unknown_predictions": 0,
+    "scored_rows": 398
+  },
+  "retrieval_only_by_origin": {
+    "deepseekv4-flash": {
+      "n": 25,
+      "accuracy": 1.0,
+      "unknown_predictions": 0
+    },
+    "glm-5.3-flash": {
+      "n": 25,
+      "accuracy": 0.92,
+      "unknown_predictions": 0
+    },
+    "gpt5.6-luna": {
+      "n": 25,
+      "accuracy": 0.92,
+      "unknown_predictions": 0
+    },
+    "gpt5.6-terra": {
+      "n": 25,
+      "accuracy": 1.0,
+      "unknown_predictions": 0
+    },
+    "human_fake": {
+      "n": 99,
+      "accuracy": 0.5859,
+      "unknown_predictions": 0
+    },
+    "human_real": {
+      "n": 199,
+      "accuracy": 0.593,
+      "unknown_predictions": 0
+    }
+  },
+  "models": {
+    "qwen-3.8:27b": {
+      "accuracy": 0.7989949748743719,
+      "precision": 0.8361581920903954,
+      "recall": 0.7437185929648241,
+      "f1": 0.7872340425531915,
+      "confusion_matrix": [
+        [
+          170,
+          29
+        ],
+        [
+          51,
+          148
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "deepseekv4-flash": {
+          "n": 25,
+          "accuracy": 0.92,
+          "unknown_predictions": 0
+        },
+        "glm-5.3-flash": {
+          "n": 25,
+          "accuracy": 0.84,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-luna": {
+          "n": 25,
+          "accuracy": 0.92,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-terra": {
+          "n": 25,
+          "accuracy": 0.92,
+          "unknown_predictions": 0
+        },
+        "human_fake": {
+          "n": 99,
+          "accuracy": 0.5859,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.8543,
+          "unknown_predictions": 0
+        }
+      },
+      "llm_endpoint": "http://localhost:8090",
+      "llm_served_model": "/models/Qwen3.8-27B-UD-Q4_K_XL.gguf"
+    }
+  },
+  "predictions_csv": "results/rag/predictions/predictions_d3.5_sampled_human_real_vs_mixed.csv"
+}

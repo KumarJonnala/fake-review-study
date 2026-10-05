@@ -1,0 +1,104 @@
+{
+  "csv_path": "data/datasets/d2.5_unsampled_human_real_vs_synthetic.csv",
+  "train_rows": 2037,
+  "test_rows": 679,
+  "k": 5,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "llm_endpoint": "http://localhost:8090",
+  "llm_served_model": "/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+  "retrieval_only_baseline": {
+    "accuracy": 0.8689248895434463,
+    "precision": 0.843585237258348,
+    "recall": 1.0,
+    "f1": 0.9151572926596759,
+    "confusion_matrix": [
+      [
+        110,
+        89
+      ],
+      [
+        0,
+        480
+      ]
+    ],
+    "unknown_predictions": 0,
+    "scored_rows": 679
+  },
+  "retrieval_only_by_origin": {
+    "deepseekv4-flash": {
+      "n": 200,
+      "accuracy": 1.0,
+      "unknown_predictions": 0
+    },
+    "glm-5.3-flash": {
+      "n": 80,
+      "accuracy": 1.0,
+      "unknown_predictions": 0
+    },
+    "gpt5.6-luna": {
+      "n": 100,
+      "accuracy": 1.0,
+      "unknown_predictions": 0
+    },
+    "gpt5.6-terra": {
+      "n": 100,
+      "accuracy": 1.0,
+      "unknown_predictions": 0
+    },
+    "human_real": {
+      "n": 199,
+      "accuracy": 0.5528,
+      "unknown_predictions": 0
+    }
+  },
+  "models": {
+    "qwen-3.8:27b": {
+      "accuracy": 0.9455081001472754,
+      "precision": 0.9604989604989606,
+      "recall": 0.9625,
+      "f1": 0.9614984391259105,
+      "confusion_matrix": [
+        [
+          180,
+          19
+        ],
+        [
+          18,
+          462
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 679,
+      "by_origin": {
+        "deepseekv4-flash": {
+          "n": 200,
+          "accuracy": 0.97,
+          "unknown_predictions": 0
+        },
+        "glm-5.3-flash": {
+          "n": 80,
+          "accuracy": 0.8875,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-luna": {
+          "n": 100,
+          "accuracy": 0.99,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-terra": {
+          "n": 100,
+          "accuracy": 0.98,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9045,
+          "unknown_predictions": 0
+        }
+      },
+      "llm_endpoint": "http://localhost:8090",
+      "llm_served_model": "/models/Qwen3.8-27B-UD-Q4_K_XL.gguf"
+    }
+  },
+  "predictions_csv": "results/rag/predictions/predictions_d2.5_unsampled_human_real_vs_synthetic.csv"
+}

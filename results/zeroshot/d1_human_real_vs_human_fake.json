@@ -7,7 +7,7 @@
   "majority_class_accuracy": 0.5,
   "csv_path": "data/datasets/d1_human_real_vs_human_fake.csv",
   "prompt": "zeroshot",
-  "temperature": 0,
+  "temperature": 0.0,
   "models": {
     "gemma4:e4b": {
       "accuracy": 0.5678391959798995,
@@ -128,6 +128,128 @@
           "unknown_predictions": 0
         }
       }
+    },
+    "gemma4-it-31b": {
+      "accuracy": 0.6005025125628141,
+      "precision": 0.9347826086956522,
+      "recall": 0.21608040201005024,
+      "f1": 0.3510204081632653,
+      "confusion_matrix": [
+        [
+          196,
+          3
+        ],
+        [
+          156,
+          43
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "human_fake": {
+          "n": 199,
+          "accuracy": 0.2161,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9849,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "muse-glimmer-30b": {
+      "accuracy": 0.7085427135678392,
+      "precision": 0.6680161943319838,
+      "recall": 0.8291457286432161,
+      "f1": 0.7399103139013453,
+      "confusion_matrix": [
+        [
+          117,
+          82
+        ],
+        [
+          34,
+          165
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "human_fake": {
+          "n": 199,
+          "accuracy": 0.8291,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.5879,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "qwen3.8-27b": {
+      "accuracy": 0.6532663316582915,
+      "precision": 0.9552238805970149,
+      "recall": 0.32160804020100503,
+      "f1": 0.48120300751879697,
+      "confusion_matrix": [
+        [
+          196,
+          3
+        ],
+        [
+          135,
+          64
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "human_fake": {
+          "n": 199,
+          "accuracy": 0.3216,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9849,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "nemotron": {
+      "accuracy": 0.5879396984924623,
+      "precision": 0.8181818181818182,
+      "recall": 0.22613065326633167,
+      "f1": 0.3543307086614173,
+      "confusion_matrix": [
+        [
+          189,
+          10
+        ],
+        [
+          154,
+          45
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "human_fake": {
+          "n": 199,
+          "accuracy": 0.2261,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9497,
+          "unknown_predictions": 0
+        }
+      }
     }
-  }
+  },
+  "backend": "llamacpp",
+  "limit_test_rows": null
 }

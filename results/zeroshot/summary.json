@@ -1,14 +1,19 @@
 {
-  "run_timestamp": "2026-09-27T09:46:47.786543",
+  "run_timestamp": "2026-10-05T01:22:03.895687",
   "config": "src/config/zeroshot.yaml",
   "prompt": "zeroshot",
-  "models_evaluated": [
-    "gemma4:e4b",
-    "doomgrave/ministral-3:8b",
-    "llama3.2:3b",
-    "qwen3.5:9b"
+  "backend": "llamacpp",
+  "models": [
+    "nemotron"
   ],
   "datasets_this_run": [
+    "data/datasets/d1_human_real_vs_human_fake.csv",
+    "data/datasets/d2_sampled_human_real_vs_synthetic.csv",
+    "data/datasets/d2.5_sampled_human_real_vs_synthetic.csv",
+    "data/datasets/d3_sampled_human_real_vs_mixed.csv",
+    "data/datasets/d3.5_sampled_human_real_vs_mixed.csv",
+    "data/datasets/d3_unsampled_human_real_vs_mixed.csv",
+    "data/datasets/d2.5_unsampled_human_real_vs_synthetic.csv",
     "data/datasets/d3.5_unsampled_human_real_vs_mixed.csv"
   ],
   "datasets": {
@@ -21,7 +26,7 @@
       "majority_class_accuracy": 0.5,
       "csv_path": "data/datasets/d1_human_real_vs_human_fake.csv",
       "prompt": "zeroshot",
-      "temperature": 0,
+      "temperature": 0.0,
       "models": {
         "gemma4:e4b": {
           "accuracy": 0.5678391959798995,
@@ -142,8 +147,130 @@
               "unknown_predictions": 0
             }
           }
+        },
+        "gemma4-it-31b": {
+          "accuracy": 0.6005025125628141,
+          "precision": 0.9347826086956522,
+          "recall": 0.21608040201005024,
+          "f1": 0.3510204081632653,
+          "confusion_matrix": [
+            [
+              196,
+              3
+            ],
+            [
+              156,
+              43
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "human_fake": {
+              "n": 199,
+              "accuracy": 0.2161,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9849,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "muse-glimmer-30b": {
+          "accuracy": 0.7085427135678392,
+          "precision": 0.6680161943319838,
+          "recall": 0.8291457286432161,
+          "f1": 0.7399103139013453,
+          "confusion_matrix": [
+            [
+              117,
+              82
+            ],
+            [
+              34,
+              165
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "human_fake": {
+              "n": 199,
+              "accuracy": 0.8291,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.5879,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "qwen3.8-27b": {
+          "accuracy": 0.6532663316582915,
+          "precision": 0.9552238805970149,
+          "recall": 0.32160804020100503,
+          "f1": 0.48120300751879697,
+          "confusion_matrix": [
+            [
+              196,
+              3
+            ],
+            [
+              135,
+              64
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "human_fake": {
+              "n": 199,
+              "accuracy": 0.3216,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9849,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "nemotron": {
+          "accuracy": 0.5879396984924623,
+          "precision": 0.8181818181818182,
+          "recall": 0.22613065326633167,
+          "f1": 0.3543307086614173,
+          "confusion_matrix": [
+            [
+              189,
+              10
+            ],
+            [
+              154,
+              45
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "human_fake": {
+              "n": 199,
+              "accuracy": 0.2261,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9497,
+              "unknown_predictions": 0
+            }
+          }
         }
-      }
+      },
+      "backend": "llamacpp",
+      "limit_test_rows": null
     },
     "d2.5_sampled_human_real_vs_synthetic": {
       "dataset": "d2.5_sampled_human_real_vs_synthetic",
@@ -154,7 +281,7 @@
       "majority_class_accuracy": 0.5,
       "csv_path": "data/datasets/d2.5_sampled_human_real_vs_synthetic.csv",
       "prompt": "zeroshot",
-      "temperature": 0,
+      "temperature": 0.0,
       "models": {
         "gemma4:e4b": {
           "accuracy": 0.49246231155778897,
@@ -335,8 +462,190 @@
               "unknown_predictions": 0
             }
           }
+        },
+        "gemma4-it-31b": {
+          "accuracy": 0.507537688442211,
+          "precision": 0.8,
+          "recall": 0.020100502512562814,
+          "f1": 0.0392156862745098,
+          "confusion_matrix": [
+            [
+              198,
+              1
+            ],
+            [
+              195,
+              4
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 50,
+              "accuracy": 0.06,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 49,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 50,
+              "accuracy": 0.02,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 50,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.995,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "muse-glimmer-30b": {
+          "accuracy": 0.4396984924623116,
+          "precision": 0.4090909090909091,
+          "recall": 0.271356783919598,
+          "f1": 0.32628398791540786,
+          "confusion_matrix": [
+            [
+              121,
+              78
+            ],
+            [
+              145,
+              54
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 50,
+              "accuracy": 0.34,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 49,
+              "accuracy": 0.1224,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 50,
+              "accuracy": 0.34,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 50,
+              "accuracy": 0.28,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.608,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "qwen3.8-27b": {
+          "accuracy": 0.5226130653266332,
+          "precision": 0.7647058823529411,
+          "recall": 0.06532663316582915,
+          "f1": 0.12037037037037036,
+          "confusion_matrix": [
+            [
+              195,
+              4
+            ],
+            [
+              186,
+              13
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 50,
+              "accuracy": 0.1,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 49,
+              "accuracy": 0.0204,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 50,
+              "accuracy": 0.1,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 50,
+              "accuracy": 0.04,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9799,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "nemotron": {
+          "accuracy": 0.46733668341708545,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "confusion_matrix": [
+            [
+              186,
+              13
+            ],
+            [
+              199,
+              0
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 50,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 49,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 50,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 50,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9347,
+              "unknown_predictions": 0
+            }
+          }
         }
-      }
+      },
+      "backend": "llamacpp",
+      "limit_test_rows": null
     },
     "d2.5_unsampled_human_real_vs_synthetic": {
       "dataset": "d2.5_unsampled_human_real_vs_synthetic",
@@ -347,7 +656,7 @@
       "majority_class_accuracy": 0.7069219440353461,
       "csv_path": "data/datasets/d2.5_unsampled_human_real_vs_synthetic.csv",
       "prompt": "zeroshot",
-      "temperature": 0,
+      "temperature": 0.0,
       "models": {
         "gemma4:e4b": {
           "accuracy": 0.3181148748159057,
@@ -528,8 +837,190 @@
               "unknown_predictions": 0
             }
           }
+        },
+        "gemma4-it-31b": {
+          "accuracy": 0.30338733431516934,
+          "precision": 0.8181818181818182,
+          "recall": 0.01875,
+          "f1": 0.03665987780040733,
+          "confusion_matrix": [
+            [
+              197,
+              2
+            ],
+            [
+              471,
+              9
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 679,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 200,
+              "accuracy": 0.025,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 80,
+              "accuracy": 0.0125,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 100,
+              "accuracy": 0.02,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 100,
+              "accuracy": 0.01,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9899,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "muse-glimmer-30b": {
+          "accuracy": 0.39911634756995584,
+          "precision": 0.6747572815533981,
+          "recall": 0.28958333333333336,
+          "f1": 0.40524781341107874,
+          "confusion_matrix": [
+            [
+              132,
+              67
+            ],
+            [
+              341,
+              139
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 679,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 200,
+              "accuracy": 0.305,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 80,
+              "accuracy": 0.1375,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 100,
+              "accuracy": 0.39,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 100,
+              "accuracy": 0.28,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.6633,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "qwen3.8-27b": {
+          "accuracy": 0.34609720176730485,
+          "precision": 0.86,
+          "recall": 0.08958333333333333,
+          "f1": 0.16226415094339622,
+          "confusion_matrix": [
+            [
+              192,
+              7
+            ],
+            [
+              437,
+              43
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 679,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 200,
+              "accuracy": 0.115,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 80,
+              "accuracy": 0.025,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 100,
+              "accuracy": 0.11,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 100,
+              "accuracy": 0.07,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9648,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "nemotron": {
+          "accuracy": 0.2709867452135493,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "confusion_matrix": [
+            [
+              184,
+              15
+            ],
+            [
+              480,
+              0
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 679,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 200,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 80,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 100,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 100,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9246,
+              "unknown_predictions": 0
+            }
+          }
         }
-      }
+      },
+      "backend": "llamacpp",
+      "limit_test_rows": null
     },
     "d2_sampled_human_real_vs_synthetic": {
       "dataset": "d2_sampled_human_real_vs_synthetic",
@@ -540,7 +1031,7 @@
       "majority_class_accuracy": 0.5,
       "csv_path": "data/datasets/d2_sampled_human_real_vs_synthetic.csv",
       "prompt": "zeroshot",
-      "temperature": 0,
+      "temperature": 0.0,
       "models": {
         "gemma4:e4b": {
           "accuracy": 0.5778894472361809,
@@ -721,8 +1212,190 @@
               "unknown_predictions": 0
             }
           }
+        },
+        "gemma4-it-31b": {
+          "accuracy": 0.6005025125628141,
+          "precision": 0.9166666666666666,
+          "recall": 0.22110552763819097,
+          "f1": 0.3562753036437247,
+          "confusion_matrix": [
+            [
+              195,
+              4
+            ],
+            [
+              155,
+              44
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "doomgrave/ministral-3:8b": {
+              "n": 50,
+              "accuracy": 0.08,
+              "unknown_predictions": 0
+            },
+            "gemma4:e4b": {
+              "n": 49,
+              "accuracy": 0.2857,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9799,
+              "unknown_predictions": 0
+            },
+            "llama3.2:3b": {
+              "n": 50,
+              "accuracy": 0.28,
+              "unknown_predictions": 0
+            },
+            "qwen3.5:9b": {
+              "n": 50,
+              "accuracy": 0.24,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "muse-glimmer-30b": {
+          "accuracy": 0.6708542713567839,
+          "precision": 0.6517857142857143,
+          "recall": 0.7336683417085427,
+          "f1": 0.6903073286052009,
+          "confusion_matrix": [
+            [
+              121,
+              78
+            ],
+            [
+              53,
+              146
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "doomgrave/ministral-3:8b": {
+              "n": 50,
+              "accuracy": 0.68,
+              "unknown_predictions": 0
+            },
+            "gemma4:e4b": {
+              "n": 49,
+              "accuracy": 0.7755,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.608,
+              "unknown_predictions": 0
+            },
+            "llama3.2:3b": {
+              "n": 50,
+              "accuracy": 0.66,
+              "unknown_predictions": 0
+            },
+            "qwen3.5:9b": {
+              "n": 50,
+              "accuracy": 0.82,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "qwen3.8-27b": {
+          "accuracy": 0.678391959798995,
+          "precision": 0.9382716049382716,
+          "recall": 0.38190954773869346,
+          "f1": 0.5428571428571428,
+          "confusion_matrix": [
+            [
+              194,
+              5
+            ],
+            [
+              123,
+              76
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "doomgrave/ministral-3:8b": {
+              "n": 50,
+              "accuracy": 0.3,
+              "unknown_predictions": 0
+            },
+            "gemma4:e4b": {
+              "n": 49,
+              "accuracy": 0.449,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9749,
+              "unknown_predictions": 0
+            },
+            "llama3.2:3b": {
+              "n": 50,
+              "accuracy": 0.42,
+              "unknown_predictions": 0
+            },
+            "qwen3.5:9b": {
+              "n": 50,
+              "accuracy": 0.36,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "nemotron": {
+          "accuracy": 0.49748743718592964,
+          "precision": 0.47368421052631576,
+          "recall": 0.04522613065326633,
+          "f1": 0.08256880733944955,
+          "confusion_matrix": [
+            [
+              189,
+              10
+            ],
+            [
+              190,
+              9
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "doomgrave/ministral-3:8b": {
+              "n": 50,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gemma4:e4b": {
+              "n": 49,
+              "accuracy": 0.0612,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9497,
+              "unknown_predictions": 0
+            },
+            "llama3.2:3b": {
+              "n": 50,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "qwen3.5:9b": {
+              "n": 50,
+              "accuracy": 0.12,
+              "unknown_predictions": 0
+            }
+          }
         }
-      }
+      },
+      "backend": "llamacpp",
+      "limit_test_rows": null
     },
     "d3.5_sampled_human_real_vs_mixed": {
       "dataset": "d3.5_sampled_human_real_vs_mixed",
@@ -733,7 +1406,7 @@
       "majority_class_accuracy": 0.5,
       "csv_path": "data/datasets/d3.5_sampled_human_real_vs_mixed.csv",
       "prompt": "zeroshot",
-      "temperature": 0,
+      "temperature": 0.0,
       "models": {
         "gemma4:e4b": {
           "accuracy": 0.5226130653266332,
@@ -934,8 +1607,210 @@
               "unknown_predictions": 0
             }
           }
+        },
+        "gemma4-it-31b": {
+          "accuracy": 0.550251256281407,
+          "precision": 0.8846153846153846,
+          "recall": 0.11557788944723618,
+          "f1": 0.20444444444444446,
+          "confusion_matrix": [
+            [
+              196,
+              3
+            ],
+            [
+              176,
+              23
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 25,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 25,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 25,
+              "accuracy": 0.04,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 25,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 99,
+              "accuracy": 0.2222,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9849,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "muse-glimmer-30b": {
+          "accuracy": 0.5527638190954773,
+          "precision": 0.562874251497006,
+          "recall": 0.4723618090452261,
+          "f1": 0.5136612021857924,
+          "confusion_matrix": [
+            [
+              126,
+              73
+            ],
+            [
+              105,
+              94
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 25,
+              "accuracy": 0.24,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 25,
+              "accuracy": 0.12,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 25,
+              "accuracy": 0.24,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 25,
+              "accuracy": 0.24,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 99,
+              "accuracy": 0.7374,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.6332,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "qwen3.8-27b": {
+          "accuracy": 0.6005025125628141,
+          "precision": 0.9166666666666666,
+          "recall": 0.22110552763819097,
+          "f1": 0.3562753036437247,
+          "confusion_matrix": [
+            [
+              195,
+              4
+            ],
+            [
+              155,
+              44
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 25,
+              "accuracy": 0.16,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 25,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 25,
+              "accuracy": 0.08,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 25,
+              "accuracy": 0.04,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 99,
+              "accuracy": 0.3737,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9799,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "nemotron": {
+          "accuracy": 0.5226130653266332,
+          "precision": 0.6551724137931034,
+          "recall": 0.09547738693467336,
+          "f1": 0.16666666666666666,
+          "confusion_matrix": [
+            [
+              189,
+              10
+            ],
+            [
+              180,
+              19
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 25,
+              "accuracy": 0.04,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 25,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 25,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 25,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 99,
+              "accuracy": 0.1818,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9497,
+              "unknown_predictions": 0
+            }
+          }
         }
-      }
+      },
+      "backend": "llamacpp",
+      "limit_test_rows": null
     },
     "d3.5_unsampled_human_real_vs_mixed": {
       "dataset": "d3.5_unsampled_human_real_vs_mixed",
@@ -946,7 +1821,7 @@
       "majority_class_accuracy": 0.7733485193621867,
       "csv_path": "data/datasets/d3.5_unsampled_human_real_vs_mixed.csv",
       "prompt": "zeroshot",
-      "temperature": 0,
+      "temperature": 0.0,
       "models": {
         "gemma4:e4b": {
           "accuracy": 0.29954441913439633,
@@ -1147,8 +2022,210 @@
               "unknown_predictions": 139
             }
           }
+        },
+        "gemma4-it-31b": {
+          "accuracy": 0.27790432801822323,
+          "precision": 0.9090909090909091,
+          "recall": 0.07363770250368189,
+          "f1": 0.1362397820163488,
+          "confusion_matrix": [
+            [
+              194,
+              5
+            ],
+            [
+              629,
+              50
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 878,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 200,
+              "accuracy": 0.03,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 80,
+              "accuracy": 0.0125,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 100,
+              "accuracy": 0.02,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 100,
+              "accuracy": 0.01,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 199,
+              "accuracy": 0.201,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9749,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "muse-glimmer-30b": {
+          "accuracy": 0.45785876993166286,
+          "precision": 0.7735849056603774,
+          "recall": 0.422680412371134,
+          "f1": 0.5466666666666666,
+          "confusion_matrix": [
+            [
+              115,
+              84
+            ],
+            [
+              392,
+              287
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 878,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 200,
+              "accuracy": 0.295,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 80,
+              "accuracy": 0.1625,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 100,
+              "accuracy": 0.43,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 100,
+              "accuracy": 0.27,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 199,
+              "accuracy": 0.7286,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.5779,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "qwen3.8-27b": {
+          "accuracy": 0.34738041002277903,
+          "precision": 0.9732142857142857,
+          "recall": 0.16053019145802652,
+          "f1": 0.27560050568900124,
+          "confusion_matrix": [
+            [
+              196,
+              3
+            ],
+            [
+              570,
+              109
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 878,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 200,
+              "accuracy": 0.12,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 80,
+              "accuracy": 0.025,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 100,
+              "accuracy": 0.12,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 100,
+              "accuracy": 0.07,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 199,
+              "accuracy": 0.3216,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9849,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "nemotron": {
+          "accuracy": 0.2619589977220957,
+          "precision": 0.7924528301886793,
+          "recall": 0.061855670103092786,
+          "f1": 0.11475409836065574,
+          "confusion_matrix": [
+            [
+              188,
+              11
+            ],
+            [
+              637,
+              42
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 878,
+          "by_origin": {
+            "deepseekv4-flash": {
+              "n": 200,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "glm-5.3-flash": {
+              "n": 80,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-luna": {
+              "n": 100,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gpt5.6-terra": {
+              "n": 100,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 199,
+              "accuracy": 0.2111,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9447,
+              "unknown_predictions": 0
+            }
+          }
         }
-      }
+      },
+      "backend": "llamacpp",
+      "limit_test_rows": null
     },
     "d3_sampled_human_real_vs_mixed": {
       "dataset": "d3_sampled_human_real_vs_mixed",
@@ -1159,7 +2236,7 @@
       "majority_class_accuracy": 0.5,
       "csv_path": "data/datasets/d3_sampled_human_real_vs_mixed.csv",
       "prompt": "zeroshot",
-      "temperature": 0,
+      "temperature": 0.0,
       "models": {
         "gemma4:e4b": {
           "accuracy": 0.5703517587939698,
@@ -1360,8 +2437,210 @@
               "unknown_predictions": 0
             }
           }
+        },
+        "gemma4-it-31b": {
+          "accuracy": 0.6105527638190955,
+          "precision": 0.9583333333333334,
+          "recall": 0.23115577889447236,
+          "f1": 0.3724696356275304,
+          "confusion_matrix": [
+            [
+              197,
+              2
+            ],
+            [
+              153,
+              46
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "doomgrave/ministral-3:8b": {
+              "n": 25,
+              "accuracy": 0.16,
+              "unknown_predictions": 0
+            },
+            "gemma4:e4b": {
+              "n": 25,
+              "accuracy": 0.32,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 99,
+              "accuracy": 0.2222,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9899,
+              "unknown_predictions": 0
+            },
+            "llama3.2:3b": {
+              "n": 25,
+              "accuracy": 0.24,
+              "unknown_predictions": 0
+            },
+            "qwen3.5:9b": {
+              "n": 25,
+              "accuracy": 0.24,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "muse-glimmer-30b": {
+          "accuracy": 0.6934673366834171,
+          "precision": 0.6681222707423581,
+          "recall": 0.7688442211055276,
+          "f1": 0.7149532710280374,
+          "confusion_matrix": [
+            [
+              123,
+              76
+            ],
+            [
+              46,
+              153
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "doomgrave/ministral-3:8b": {
+              "n": 25,
+              "accuracy": 0.44,
+              "unknown_predictions": 0
+            },
+            "gemma4:e4b": {
+              "n": 25,
+              "accuracy": 0.92,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 99,
+              "accuracy": 0.7677,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.6181,
+              "unknown_predictions": 0
+            },
+            "llama3.2:3b": {
+              "n": 25,
+              "accuracy": 0.8,
+              "unknown_predictions": 0
+            },
+            "qwen3.5:9b": {
+              "n": 25,
+              "accuracy": 0.92,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "qwen3.8-27b": {
+          "accuracy": 0.678391959798995,
+          "precision": 0.9493670886075949,
+          "recall": 0.3768844221105528,
+          "f1": 0.539568345323741,
+          "confusion_matrix": [
+            [
+              195,
+              4
+            ],
+            [
+              124,
+              75
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "doomgrave/ministral-3:8b": {
+              "n": 25,
+              "accuracy": 0.28,
+              "unknown_predictions": 0
+            },
+            "gemma4:e4b": {
+              "n": 25,
+              "accuracy": 0.52,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 99,
+              "accuracy": 0.3333,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9799,
+              "unknown_predictions": 0
+            },
+            "llama3.2:3b": {
+              "n": 25,
+              "accuracy": 0.48,
+              "unknown_predictions": 0
+            },
+            "qwen3.5:9b": {
+              "n": 25,
+              "accuracy": 0.4,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "nemotron": {
+          "accuracy": 0.5226130653266332,
+          "precision": 0.6551724137931034,
+          "recall": 0.09547738693467336,
+          "f1": 0.16666666666666666,
+          "confusion_matrix": [
+            [
+              189,
+              10
+            ],
+            [
+              180,
+              19
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 398,
+          "by_origin": {
+            "doomgrave/ministral-3:8b": {
+              "n": 25,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "gemma4:e4b": {
+              "n": 25,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 99,
+              "accuracy": 0.1818,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9497,
+              "unknown_predictions": 0
+            },
+            "llama3.2:3b": {
+              "n": 25,
+              "accuracy": 0.04,
+              "unknown_predictions": 0
+            },
+            "qwen3.5:9b": {
+              "n": 25,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            }
+          }
         }
-      }
+      },
+      "backend": "llamacpp",
+      "limit_test_rows": null
     },
     "d3_unsampled_human_real_vs_mixed": {
       "dataset": "d3_unsampled_human_real_vs_mixed",
@@ -1372,7 +2651,7 @@
       "majority_class_accuracy": 0.6672240802675585,
       "csv_path": "data/datasets/d3_unsampled_human_real_vs_mixed.csv",
       "prompt": "zeroshot",
-      "temperature": 0,
+      "temperature": 0.0,
       "models": {
         "gemma4:e4b": {
           "accuracy": 0.4765886287625418,
@@ -1573,8 +2852,210 @@
               "unknown_predictions": 0
             }
           }
+        },
+        "gemma4-it-31b": {
+          "accuracy": 0.5083612040133779,
+          "precision": 0.981651376146789,
+          "recall": 0.2681704260651629,
+          "f1": 0.421259842519685,
+          "confusion_matrix": [
+            [
+              197,
+              2
+            ],
+            [
+              292,
+              107
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 598,
+          "by_origin": {
+            "doomgrave/ministral-3:8b": {
+              "n": 50,
+              "accuracy": 0.18,
+              "unknown_predictions": 0
+            },
+            "gemma4:e4b": {
+              "n": 50,
+              "accuracy": 0.3,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 199,
+              "accuracy": 0.2764,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9899,
+              "unknown_predictions": 0
+            },
+            "llama3.2:3b": {
+              "n": 50,
+              "accuracy": 0.26,
+              "unknown_predictions": 0
+            },
+            "qwen3.5:9b": {
+              "n": 50,
+              "accuracy": 0.3,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "muse-glimmer-30b": {
+          "accuracy": 0.7185929648241206,
+          "precision": 0.7918781725888325,
+          "recall": 0.7839195979899497,
+          "f1": 0.7878787878787878,
+          "confusion_matrix": [
+            [
+              117,
+              82
+            ],
+            [
+              86,
+              312
+            ]
+          ],
+          "unknown_predictions": 1,
+          "scored_rows": 597,
+          "by_origin": {
+            "doomgrave/ministral-3:8b": {
+              "n": 50,
+              "accuracy": 0.68,
+              "unknown_predictions": 0
+            },
+            "gemma4:e4b": {
+              "n": 50,
+              "accuracy": 0.8,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 199,
+              "accuracy": 0.7929,
+              "unknown_predictions": 1
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.5879,
+              "unknown_predictions": 0
+            },
+            "llama3.2:3b": {
+              "n": 50,
+              "accuracy": 0.72,
+              "unknown_predictions": 0
+            },
+            "qwen3.5:9b": {
+              "n": 50,
+              "accuracy": 0.9,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "qwen3.8-27b": {
+          "accuracy": 0.5986622073578596,
+          "precision": 0.9649122807017544,
+          "recall": 0.41353383458646614,
+          "f1": 0.5789473684210527,
+          "confusion_matrix": [
+            [
+              193,
+              6
+            ],
+            [
+              234,
+              165
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 598,
+          "by_origin": {
+            "doomgrave/ministral-3:8b": {
+              "n": 50,
+              "accuracy": 0.32,
+              "unknown_predictions": 0
+            },
+            "gemma4:e4b": {
+              "n": 50,
+              "accuracy": 0.48,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 199,
+              "accuracy": 0.402,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9698,
+              "unknown_predictions": 0
+            },
+            "llama3.2:3b": {
+              "n": 50,
+              "accuracy": 0.44,
+              "unknown_predictions": 0
+            },
+            "qwen3.5:9b": {
+              "n": 50,
+              "accuracy": 0.46,
+              "unknown_predictions": 0
+            }
+          }
+        },
+        "nemotron": {
+          "accuracy": 0.42474916387959866,
+          "precision": 0.8767123287671232,
+          "recall": 0.16040100250626566,
+          "f1": 0.2711864406779661,
+          "confusion_matrix": [
+            [
+              190,
+              9
+            ],
+            [
+              335,
+              64
+            ]
+          ],
+          "unknown_predictions": 0,
+          "scored_rows": 598,
+          "by_origin": {
+            "doomgrave/ministral-3:8b": {
+              "n": 50,
+              "accuracy": 0.02,
+              "unknown_predictions": 0
+            },
+            "gemma4:e4b": {
+              "n": 50,
+              "accuracy": 0.06,
+              "unknown_predictions": 0
+            },
+            "human_fake": {
+              "n": 199,
+              "accuracy": 0.2714,
+              "unknown_predictions": 0
+            },
+            "human_real": {
+              "n": 199,
+              "accuracy": 0.9548,
+              "unknown_predictions": 0
+            },
+            "llama3.2:3b": {
+              "n": 50,
+              "accuracy": 0.0,
+              "unknown_predictions": 0
+            },
+            "qwen3.5:9b": {
+              "n": 50,
+              "accuracy": 0.12,
+              "unknown_predictions": 0
+            }
+          }
         }
-      }
+      },
+      "backend": "llamacpp",
+      "limit_test_rows": null
     }
   }
 }

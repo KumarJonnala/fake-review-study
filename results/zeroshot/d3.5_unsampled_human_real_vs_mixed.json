@@ -7,7 +7,7 @@
   "majority_class_accuracy": 0.7733485193621867,
   "csv_path": "data/datasets/d3.5_unsampled_human_real_vs_mixed.csv",
   "prompt": "zeroshot",
-  "temperature": 0,
+  "temperature": 0.0,
   "models": {
     "gemma4:e4b": {
       "accuracy": 0.29954441913439633,
@@ -208,6 +208,208 @@
           "unknown_predictions": 139
         }
       }
+    },
+    "gemma4-it-31b": {
+      "accuracy": 0.27790432801822323,
+      "precision": 0.9090909090909091,
+      "recall": 0.07363770250368189,
+      "f1": 0.1362397820163488,
+      "confusion_matrix": [
+        [
+          194,
+          5
+        ],
+        [
+          629,
+          50
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 878,
+      "by_origin": {
+        "deepseekv4-flash": {
+          "n": 200,
+          "accuracy": 0.03,
+          "unknown_predictions": 0
+        },
+        "glm-5.3-flash": {
+          "n": 80,
+          "accuracy": 0.0125,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-luna": {
+          "n": 100,
+          "accuracy": 0.02,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-terra": {
+          "n": 100,
+          "accuracy": 0.01,
+          "unknown_predictions": 0
+        },
+        "human_fake": {
+          "n": 199,
+          "accuracy": 0.201,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9749,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "muse-glimmer-30b": {
+      "accuracy": 0.45785876993166286,
+      "precision": 0.7735849056603774,
+      "recall": 0.422680412371134,
+      "f1": 0.5466666666666666,
+      "confusion_matrix": [
+        [
+          115,
+          84
+        ],
+        [
+          392,
+          287
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 878,
+      "by_origin": {
+        "deepseekv4-flash": {
+          "n": 200,
+          "accuracy": 0.295,
+          "unknown_predictions": 0
+        },
+        "glm-5.3-flash": {
+          "n": 80,
+          "accuracy": 0.1625,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-luna": {
+          "n": 100,
+          "accuracy": 0.43,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-terra": {
+          "n": 100,
+          "accuracy": 0.27,
+          "unknown_predictions": 0
+        },
+        "human_fake": {
+          "n": 199,
+          "accuracy": 0.7286,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.5779,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "qwen3.8-27b": {
+      "accuracy": 0.34738041002277903,
+      "precision": 0.9732142857142857,
+      "recall": 0.16053019145802652,
+      "f1": 0.27560050568900124,
+      "confusion_matrix": [
+        [
+          196,
+          3
+        ],
+        [
+          570,
+          109
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 878,
+      "by_origin": {
+        "deepseekv4-flash": {
+          "n": 200,
+          "accuracy": 0.12,
+          "unknown_predictions": 0
+        },
+        "glm-5.3-flash": {
+          "n": 80,
+          "accuracy": 0.025,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-luna": {
+          "n": 100,
+          "accuracy": 0.12,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-terra": {
+          "n": 100,
+          "accuracy": 0.07,
+          "unknown_predictions": 0
+        },
+        "human_fake": {
+          "n": 199,
+          "accuracy": 0.3216,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9849,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "nemotron": {
+      "accuracy": 0.2619589977220957,
+      "precision": 0.7924528301886793,
+      "recall": 0.061855670103092786,
+      "f1": 0.11475409836065574,
+      "confusion_matrix": [
+        [
+          188,
+          11
+        ],
+        [
+          637,
+          42
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 878,
+      "by_origin": {
+        "deepseekv4-flash": {
+          "n": 200,
+          "accuracy": 0.0,
+          "unknown_predictions": 0
+        },
+        "glm-5.3-flash": {
+          "n": 80,
+          "accuracy": 0.0,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-luna": {
+          "n": 100,
+          "accuracy": 0.0,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-terra": {
+          "n": 100,
+          "accuracy": 0.0,
+          "unknown_predictions": 0
+        },
+        "human_fake": {
+          "n": 199,
+          "accuracy": 0.2111,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9447,
+          "unknown_predictions": 0
+        }
+      }
     }
-  }
+  },
+  "backend": "llamacpp",
+  "limit_test_rows": null
 }

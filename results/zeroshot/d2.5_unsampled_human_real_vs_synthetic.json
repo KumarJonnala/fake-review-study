@@ -7,7 +7,7 @@
   "majority_class_accuracy": 0.7069219440353461,
   "csv_path": "data/datasets/d2.5_unsampled_human_real_vs_synthetic.csv",
   "prompt": "zeroshot",
-  "temperature": 0,
+  "temperature": 0.0,
   "models": {
     "gemma4:e4b": {
       "accuracy": 0.3181148748159057,
@@ -188,6 +188,188 @@
           "unknown_predictions": 0
         }
       }
+    },
+    "gemma4-it-31b": {
+      "accuracy": 0.30338733431516934,
+      "precision": 0.8181818181818182,
+      "recall": 0.01875,
+      "f1": 0.03665987780040733,
+      "confusion_matrix": [
+        [
+          197,
+          2
+        ],
+        [
+          471,
+          9
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 679,
+      "by_origin": {
+        "deepseekv4-flash": {
+          "n": 200,
+          "accuracy": 0.025,
+          "unknown_predictions": 0
+        },
+        "glm-5.3-flash": {
+          "n": 80,
+          "accuracy": 0.0125,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-luna": {
+          "n": 100,
+          "accuracy": 0.02,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-terra": {
+          "n": 100,
+          "accuracy": 0.01,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9899,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "muse-glimmer-30b": {
+      "accuracy": 0.39911634756995584,
+      "precision": 0.6747572815533981,
+      "recall": 0.28958333333333336,
+      "f1": 0.40524781341107874,
+      "confusion_matrix": [
+        [
+          132,
+          67
+        ],
+        [
+          341,
+          139
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 679,
+      "by_origin": {
+        "deepseekv4-flash": {
+          "n": 200,
+          "accuracy": 0.305,
+          "unknown_predictions": 0
+        },
+        "glm-5.3-flash": {
+          "n": 80,
+          "accuracy": 0.1375,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-luna": {
+          "n": 100,
+          "accuracy": 0.39,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-terra": {
+          "n": 100,
+          "accuracy": 0.28,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.6633,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "qwen3.8-27b": {
+      "accuracy": 0.34609720176730485,
+      "precision": 0.86,
+      "recall": 0.08958333333333333,
+      "f1": 0.16226415094339622,
+      "confusion_matrix": [
+        [
+          192,
+          7
+        ],
+        [
+          437,
+          43
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 679,
+      "by_origin": {
+        "deepseekv4-flash": {
+          "n": 200,
+          "accuracy": 0.115,
+          "unknown_predictions": 0
+        },
+        "glm-5.3-flash": {
+          "n": 80,
+          "accuracy": 0.025,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-luna": {
+          "n": 100,
+          "accuracy": 0.11,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-terra": {
+          "n": 100,
+          "accuracy": 0.07,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9648,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "nemotron": {
+      "accuracy": 0.2709867452135493,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "confusion_matrix": [
+        [
+          184,
+          15
+        ],
+        [
+          480,
+          0
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 679,
+      "by_origin": {
+        "deepseekv4-flash": {
+          "n": 200,
+          "accuracy": 0.0,
+          "unknown_predictions": 0
+        },
+        "glm-5.3-flash": {
+          "n": 80,
+          "accuracy": 0.0,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-luna": {
+          "n": 100,
+          "accuracy": 0.0,
+          "unknown_predictions": 0
+        },
+        "gpt5.6-terra": {
+          "n": 100,
+          "accuracy": 0.0,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9246,
+          "unknown_predictions": 0
+        }
+      }
     }
-  }
+  },
+  "backend": "llamacpp",
+  "limit_test_rows": null
 }

@@ -154,6 +154,135 @@
           "unknown_predictions": 0
         }
       }
+    },
+    "gemma4-it-31b": {
+      "accuracy": 0.821608040201005,
+      "precision": 0.8950617283950617,
+      "recall": 0.7286432160804021,
+      "f1": 0.8033240997229917,
+      "confusion_matrix": [
+        [
+          182,
+          17
+        ],
+        [
+          54,
+          145
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "human_fake": {
+          "n": 199,
+          "accuracy": 0.7286,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9146,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "muse-glimmer-30b": {
+      "accuracy": 0.7035175879396985,
+      "precision": 0.6354515050167224,
+      "recall": 0.9547738693467337,
+      "f1": 0.7630522088353414,
+      "confusion_matrix": [
+        [
+          90,
+          109
+        ],
+        [
+          9,
+          190
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "human_fake": {
+          "n": 199,
+          "accuracy": 0.9548,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.4523,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "qwen3.8-27b": {
+      "accuracy": 0.7939698492462312,
+      "precision": 0.806282722513089,
+      "recall": 0.7738693467336684,
+      "f1": 0.7897435897435897,
+      "confusion_matrix": [
+        [
+          162,
+          37
+        ],
+        [
+          45,
+          154
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "human_fake": {
+          "n": 199,
+          "accuracy": 0.7739,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.8141,
+          "unknown_predictions": 0
+        }
+      }
+    },
+    "nemotron": {
+      "accuracy": 0.6984924623115578,
+      "precision": 0.8495575221238938,
+      "recall": 0.4824120603015075,
+      "f1": 0.6153846153846154,
+      "confusion_matrix": [
+        [
+          182,
+          17
+        ],
+        [
+          103,
+          96
+        ]
+      ],
+      "unknown_predictions": 0,
+      "scored_rows": 398,
+      "by_origin": {
+        "human_fake": {
+          "n": 199,
+          "accuracy": 0.4824,
+          "unknown_predictions": 0
+        },
+        "human_real": {
+          "n": 199,
+          "accuracy": 0.9146,
+          "unknown_predictions": 0
+        }
+      }
     }
-  }
+  },
+  "dataset": "d1_human_real_vs_human_fake",
+  "n_train": 1194,
+  "n_validation": 0,
+  "n_test": 398,
+  "test_fake_fraction": 0.5,
+  "majority_class_accuracy": 0.5,
+  "backend": "llamacpp",
+  "temperature": 0.0,
+  "limit_test_rows": null
 }
