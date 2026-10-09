@@ -32,12 +32,10 @@ Prompt: `zeroshot`, temperature 0, no training data used. Positive class = fake.
 |  | doomgrave/ministral-3:8b | 0.500 | 0.500 | 0.131 | 0.207 |  |  |
 |  | llama3.2:3b | 0.447 | 0.376 | 0.161 | 0.225 |  |  |
 |  | qwen3.5:9b | **0.550** | 0.750 | 0.151 | **0.251** |  |  |
-| **d3.5** unsampled, human_real vs mixed | gemma4:e4b | **0.300** | 0.856 | 0.113 | **0.200** | 878 | 0.773 |
+| **d3.5** unsampled, human_real vs mixed | gemma4:e4b | 0.300 | 0.856 | 0.113 | 0.200 | 878 | 0.773 |
 |  | doomgrave/ministral-3:8b | 0.263 | 0.716 | 0.078 | 0.141 |  |  |
 |  | llama3.2:3b | 0.249 | 0.583 | 0.103 | 0.175 |  |  |
-|  | qwen3.5:9b † | 0.254 | 0.923 | 0.091 | 0.166 |  |  |
-
-† qwen3.5:9b on d3.5 unsampled returned an unparseable answer for 555 of 878 test rows; its metrics cover only the 323 scored rows.
+|  | qwen3.5:9b | **0.303** | 0.832 | 0.124 | **0.215** |  |  |
 
 ## Notable patterns
 
@@ -45,5 +43,5 @@ Prompt: `zeroshot`, temperature 0, no training data used. Positive class = fake.
 - No model beats the majority-class baseline on the unsampled (imbalanced) datasets; on balanced sets the best accuracy is only 0.61.
 - LLM-generated (synthetic) reviews are almost undetectable zero-shot: on d2.5 recall is ≤ 0.07, and ministral/llama catch 0 of them.
 - d1 (human-written fakes) is the easiest setting; llama3.2:3b has the best F1 there (0.525) because it is the least biased toward *real*.
-- qwen3.5:9b and gemma4:e4b have the best accuracy/F1 on most datasets, with precision up to 0.92 but recall never above 0.30.
+- qwen3.5:9b and gemma4:e4b have the best accuracy/F1 on most datasets, with precision up to 0.88 but recall never above 0.30.
 - Compared with RAG (see [../rag/RAG_Results.md](../rag/RAG_Results.md)), zero-shot is far weaker, especially on synthetic reviews (e.g. qwen3.5:9b d2.5 sampled F1 0.885 with RAG vs 0.029 zero-shot).
